@@ -15,6 +15,7 @@ import Pagination from '@mui/material/Pagination';
 import { FaEdit } from "react-icons/fa";
 import { RiDeleteBin5Line } from "react-icons/ri";
 import Swal from 'sweetalert2';
+import Button from '@mui/material/Button';
 
 function PeminjamanBukuP() {
     document.title = "Skanic Library - Peminjaman Buku";
@@ -29,35 +30,33 @@ function PeminjamanBukuP() {
         fetchData();
     }, [page]);
     
- // Frontend: PeminjamanBukuP.jsx
-
-const fetchData = async () => {
-    try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            console.error("Token not available. Please login.");
-            return;
-        }
-
-        const response = await axios.get(
-            `http://127.0.0.1:8000/api/borrow/`,
-            {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+    const fetchData = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                console.error("Token not available. Please login.");
+                return;
             }
-        );
 
-        if (response.data.success) {
-            const { data, last_page, total } = response.data.data;
-            setBooks(data);
-            setTotalPages(last_page);
-            setTotalBooks(total);
+            const response = await axios.get(
+                `http://127.0.0.1:8000/api/borrow/`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            if (response.data.success) {
+                const { data, last_page, total } = response.data.data;
+                setBooks(data);
+                setTotalPages(last_page);
+                setTotalBooks(total);
+            }
+        } catch (error) {
+            console.error(error);
         }
-    } catch (error) {
-        console.error(error);
-    }
-};
+    };
 
     const handleDelete = async (id) => {
         try {
@@ -93,6 +92,36 @@ const fetchData = async () => {
         setSelectedBook(bookId); // Set selected book for editing
     };
 
+    const handleAccept = async (id) => {
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                console.error("Token not available. Please login.");
+                return;
+            }
+
+            await axios.put(
+                `http://127.0.0.1:8000/api/borrow/${id}/update-status`,
+                { status: "accepted" },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            fetchData();
+
+            Swal.fire({
+                title: "Buku Berhasil Di Terima.!",
+                text: "Peminjaman Buku Berhasil.",
+                icon: "success",
+            });
+        } catch (error) {
+            console.error("Error updating status:", error);
+        }
+    };
+
     const handleChangePage = (event, value) => {
         setPage(value);
     };
@@ -105,10 +134,11 @@ const fetchData = async () => {
                         <TableRow>
                             <TableCell className="table_cell">Id</TableCell>
                             <TableCell className="table_cell">Peminjaman Awal</TableCell>
-                            <TableCell className="table_cell">Peminjaman Akhir</TableCell>
+                            <TableCell className="table_cell">Pengembalian Terakhir</TableCell>
                             <TableCell className="table_cell">Status</TableCell>
-                            <TableCell className="table_cell">Book ID</TableCell>
-                            <TableCell className="table_cell">User ID</TableCell>
+                            <TableCell className="table_cell">Buku</TableCell>
+                            <TableCell className="table_cell">User</TableCell>
+                            <TableCell className="table_cell">Aksi</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -120,6 +150,18 @@ const fetchData = async () => {
                                 <TableCell className="table_cell">{borrow.status}</TableCell>
                                 <TableCell className="table_cell">{borrow.book_id}</TableCell>
                                 <TableCell className="table_cell">{borrow.user_id}</TableCell>
+                                <TableCell className="table_cell">
+                                    {borrow.status === 'pending' && (
+                                        <Button
+                                            variant="contained"
+                                            color="success"
+                                            onClick={() => handleAccept(borrow.id)}
+                                        >
+                                            Terima
+                                        </Button>
+                                    )}
+                                    {/* Add more actions/buttons if needed */}
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
