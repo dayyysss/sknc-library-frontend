@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { FaRegCalendarMinus, FaEllipsisV } from "react-icons/fa";
 import {
   LineChart,
@@ -8,100 +8,60 @@ import {
   CartesianGrid,
   Tooltip,
   Legend,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Sector,
 } from "recharts";
-import {
-  Radar,
-  RadarChart,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-} from "recharts";
-import { Link } from "react-router-dom"; // Import Link from react-router-dom
-import PieComponent from "./PieComponent";
-import { Progress } from "antd";
-import error from "../../../../assets/images/error.png";
-
-const datas = [
-  {
-    name: "Jan",
-    uv: 4000,
-    pv: 2400,
-    amt: 2400,
-  },
-  {
-    name: "Feb",
-    uv: 3000,
-    pv: 1398,
-    amt: 2210,
-  },
-  {
-    name: "Mar",
-    uv: 2000,
-    pv: 9800,
-    amt: 2290,
-  },
-  {
-    name: "Apr",
-    uv: 2780,
-    pv: 3908,
-    amt: 2000,
-  },
-  {
-    name: "Mei",
-    uv: 1890,
-    pv: 4800,
-    amt: 2181,
-  },
-  {
-    name: "Jun",
-    uv: 2390,
-    pv: 3800,
-    amt: 2500,
-  },
-  {
-    name: "Jul",
-    uv: 3490,
-    pv: 4300,
-    amt: 2100,
-  },
-  {
-    name: "Agu",
-    uv: 3490,
-    pv: 4300,
-    amt: 2100,
-  },
-  {
-    name: "Sep",
-    uv: 3490,
-    pv: 4300,
-    amt: 2100,
-  },
-  {
-    name: "Okt",
-    uv: 3490,
-    pv: 4300,
-    amt: 2100,
-  },
-  {
-    name: "Nov",
-    uv: 3490,
-    pv: 4300,
-    amt: 2100,
-  },
-  {
-    name: "Des",
-    uv: 3490,
-    pv: 4300,
-    amt: 2100,
-  },
-];
+import { Link } from "react-router-dom";
+import axios from "axios";
 
 const Main = () => {
+  const [totalBooks, setTotalBooks] = useState(0);
+  const [datas, setDatas] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const responseBook = await axios.get('http://127.0.0.1:8000/api/book/', {
+          headers: {
+            Authorization: `Bearer ${getAuthToken()}`, // Panggil sebagai fungsi
+          },
+        });
+        console.log('Response Book:', responseBook.data); // Tambahkan ini untuk mencetak respons API
+        setTotalBooks(responseBook.data.total);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+  
+    fetchData();
+  }, []);  
+
+  const getAuthToken = () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("Token not available. Please login.");
+      return null;
+    }
+    return token;
+  };
+
+  useEffect(() => {
+    // Dummy data for the LineChart
+    const dummyData = [
+      { name: "Jan", uv: 4000, pv: 2400, amt: 2400 },
+      { name: "Feb", uv: 3000, pv: 1398, amt: 2210 },
+      { name: "Mar", uv: 2000, pv: 9800, amt: 2290 },
+      { name: "Apr", uv: 2780, pv: 3908, amt: 2000 },
+      { name: "Mei", uv: 1890, pv: 4800, amt: 2181 },
+      { name: "Jun", uv: 2390, pv: 3800, amt: 2500 },
+      { name: "Jul", uv: 3490, pv: 4300, amt: 2100 },
+      { name: "Agu", uv: 3490, pv: 4300, amt: 2100 },
+      { name: "Sep", uv: 3490, pv: 4300, amt: 2100 },
+      { name: "Okt", uv: 3490, pv: 4300, amt: 2100 },
+      { name: "Nov", uv: 3490, pv: 4300, amt: 2100 },
+      { name: "Des", uv: 3490, pv: 4300, amt: 2100 },
+    ];
+    setDatas(dummyData);
+  }, []);
+
   return (
     <div className="px-[25px] pt-[25px] bg-[#F8F9FC] pb-[40px]">
       <div className="flex items-center justify-between">
@@ -123,30 +83,45 @@ const Main = () => {
               JUMLAH BUKU
             </h2>
             <h1 className="text-[20px] leading-[24px] font-bold text-[#5a5c69] mt-[5px]">
-              50
+              20
             </h1>
           </div>
           <FaRegCalendarMinus fontSize={28} color="" />
         </Link>
-        {/* Elemen lainnya */}
+        {/* Gunakan Link untuk jumlah user */}
+        <Link
+          to="/dashboard-admin/user"
+          className=" h-[100px] rounded-[8px] bg-white border-l-[4px] border-[#1CC88A] flex items-center justify-between px-[30px] cursor-pointer hover:shadow-lg transform hover:scale-[103%] transition duration-300 ease-out"
+        >
+          <div>
+            <h2 className="text-[#1cc88a] text-[11px] leading-[17px] font-bold">
+              JUMLAH USER
+            </h2>
+            <h1 className="text-[20px] leading-[24px] font-bold text-[#5a5c69] mt-[5px]">
+              100
+            </h1>
+          </div>
+          <FaRegCalendarMinus fontSize={28} />
+        </Link>
+        {/* Gunakan Link untuk jumlah peminjaman */}
         <Link
           to="/dashboard-admin/peminjaman"
-          className=" h-[100px] rounded-[8px] bg-white border-l-[4px] border-[#1CC88A] flex items-center justify-between px-[30px] cursor-pointer hover:shadow-lg transform hover:scale-[103%] transition duration-300 ease-out"
+          className=" h-[100px] rounded-[8px] bg-white border-l-[4px] border-[#c81c1c] flex items-center justify-between px-[30px] cursor-pointer hover:shadow-lg transform hover:scale-[103%] transition duration-300 ease-out"
         >
           <div>
             <h2 className="text-[#1cc88a] text-[11px] leading-[17px] font-bold">
               JUMLAH PEMINJAMAN
             </h2>
             <h1 className="text-[20px] leading-[24px] font-bold text-[#5a5c69] mt-[5px]">
-              40
+              100
             </h1>
           </div>
           <FaRegCalendarMinus fontSize={28} />
         </Link>
         {/* Elemen lainnya */}
         <Link
-          to="/dashboard-admin/pengembalian"
-          className=" h-[100px] rounded-[8px] bg-white border-l-[4px] border-[#c81c1c] flex items-center justify-between px-[30px] cursor-pointer hover:shadow-lg transform hover:scale-[103%] transition duration-300 ease-out"
+          to="/dashboard-admin/denda"
+          className=" h-[100px] rounded-[8px] bg-white border-l-[4px] border-[#fcff5b] flex items-center justify-between px-[30px] cursor-pointer hover:shadow-lg transform hover:scale-[103%] transition duration-300 ease-out"
         >
           <div>
             <h2 className="text-[#1cc88a] text-[11px] leading-[17px] font-bold">
@@ -158,21 +133,7 @@ const Main = () => {
           </div>
           <FaRegCalendarMinus fontSize={28} />
         </Link>
-        <Link
-          to="/dashboard-admin/denda"
-          className=" h-[100px] rounded-[8px] bg-white border-l-[4px] border-[#fcff5b] flex items-center justify-between px-[30px] cursor-pointer hover:shadow-lg transform hover:scale-[103%] transition duration-300 ease-out"
-        >
-          <div>
-            <h2 className="text-[#1cc88a] text-[11px] leading-[17px] font-bold">
-              LIHAT DENDA
-            </h2>
-            <h1 className="text-[20px] leading-[24px] font-bold text-[#5a5c69] mt-[5px]">
-              20
-            </h1>
-          </div>
-          <FaRegCalendarMinus fontSize={28} />
-        </Link>
-        </div>
+      </div>
       <div className="flex mt-[22px] w-full gap-[15px]">
         <div className="basis-[70%] border bg-white shadow-md cursor-pointer rounded-[4px]">
           <div className="bg-[#F8F9FC] flex items-center justify-between py-[15px] px-[20px] border-b-[1px] border-[#EDEDED] mb-[20px]">
@@ -181,10 +142,7 @@ const Main = () => {
             </h2>
             <FaEllipsisV color="gray" className="cursor-pointer" />
           </div>
-
           <div className="w-full">
-            {/* <canvas id="myAreaChart"></canvas> */}
-            {/* <Line options={options} data={data} /> */}
             <LineChart
               width={1350}
               height={500}

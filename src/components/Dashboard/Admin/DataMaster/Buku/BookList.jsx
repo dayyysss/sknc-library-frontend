@@ -15,8 +15,10 @@ const BookList = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalBooks, setTotalBooks] = useState(0);
-  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal
   const [selectedBook, setSelectedBook] = useState(null); // State to hold selected book for editing
+  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal
+  const [isAddBookModalOpen, setIsAddBookModalOpen] = useState(false);
+  const [isEditFormOpen, setIsEditFormOpen] = useState(false); // State to control edit form display
 
   useEffect(() => {
     fetchData();
@@ -81,9 +83,21 @@ const BookList = () => {
     }
   };
 
-  const handleUpdate = async (bookId) => {
-    setIsModalOpen(true); // Open modal
-    setSelectedBook(bookId); // Set selected book for editing
+  const handleUpdate = (id) => {
+    // Log id buku yang dipilih ke console
+    console.log("Selected book id:", id);
+
+    // Temukan buku yang sesuai dengan id dari daftar buku
+    const selectedBook = books.find(book => book.id === id);
+
+    // Periksa jika buku ditemukan
+    if (selectedBook) {
+      // Buka formulir edit dan tetapkan buku yang dipilih ke state
+      setIsEditFormOpen(true);
+      setSelectedBook(selectedBook);
+    } else {
+      console.error("Book not found!");
+    }
   };
 
   const handleChangePage = (event, value) => {
@@ -95,9 +109,32 @@ const BookList = () => {
     setPage(1);
   };
 
+  const handleBookClick = async (bookId) => {
+    try {
+      const response = await axios.get(
+        `http://127.0.0.1:8000/api/book/${bookId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${getAuthToken()}`,
+          },
+        }
+      );
+      if (response.data.success) {
+        setSelectedBook(response.data.data); // Set selected book details
+        setIsModalOpen(true); // Open modal after getting book details
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleAddBookModalOpen = () => {
+    setIsAddBookModalOpen(true);
+  };
+
   return (
     <>
-      <div className="px-[25px] pt-[25px] pb-[auto] bg-[#F8F9FC]">
+      <div className="min-h-screen px-[25px] pt-[25px] pb-[auto] bg-[#F8F9FC] overflow-auto">
         <div className="flex items-center justify-between">
           <h1 className="text-[28px] leading-[34px] font-normal text-[#5a5c69] cursor-pointer">
             Data Buku
@@ -128,70 +165,41 @@ const BookList = () => {
             </div>
           </form>
         </div>
-        <p className="mt-4 text-left">Total : {totalBooks}</p>
-        <table className="w-full table-auto mt-4 border border-slate-500 border-collapse bg-white shadow-md">
-          <thead>
-            <tr>
-              <th className="px-4 py-2">No</th>
-              <th className="px-4 py-2">Nama Buku</th>
-              <th className="px-4 py-2">Sinopsis</th>
-              <th className="px-4 py-2">ISBN</th>
-              <th className="px-4 py-2">Penulis</th>
-              <th className="px-4 py-2">Jumlah Halaman</th>
-              <th className="px-4 py-2">Stok Buku</th>
-              <th className="px-4 py-2">Tahun Terbit</th>
-              <th className="px-4 py-2">Kategori</th>
-              <th className="px-4 py-2">Sampul Buku</th>
-              <th className="px-4 py-2">Status</th>
-              <th className="px-4 py-2">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {books.map((book, index) => (
-              <tr key={index + 1}>
-                <td className="border px-4 py-2">{(page - 1) * 5 + index + 1}</td>
-                <td className="border px-4 py-2">{book.title}</td>
-                <td className="border px-4 py-2">{book.synopsis}</td>
-                <td className="border px-4 py-2">{book.isbn}</td>
-                <td className="border px-4 py-2">{book.writer}</td>
-                <td className="border px-4 py-2">{book.page_amount}</td>
-                <td className="border px-4 py-2">{book.stock_amount}</td>
-                <td className="border px-4 py-2">{book.published}</td>
-                <td className="border px-4 py-2">{book.category}</td>
-                <td className="border px-4 py-2">
-                  <img
-                    src={book.image}
-                    alt={book.title}
-                    className="h-24 w-auto mx-auto object-cover"
-                    style={{ maxWidth: "180px" }}
-                  />
-                </td>
-                <td className="border px-4 py-2">{book.status}</td>
-                <td className="border px-4 py-2">
-                  <div className="flex justify-between items-center">
-                    <FaEdit
-                      onClick={() => handleUpdate(book.id)}
-                      className="text-blue-500 cursor-pointer"
-                      style={{ fontSize: "1.4rem" }}
-                    />
-                    <RiDeleteBin5Line
-                      onClick={() => handleDelete(book.id)}
-                      className="text-red-500 cursor-pointer"
-                      style={{ fontSize: "1.4rem" }}
-                    />
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <p className="mt-4 text-left">Total Buku : {totalBooks}</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+          {books.map((book, index) => (
+            <div key={index + 1} className="bg-white p-4 rounded shadow-md hover:shadow-lg flex flex-col">
+              <div className="cursor-pointer" onClick={() => handleBookClick(book.id)}>
+                <div className="flex justify-center">
+                  <img src={book.image} alt={book.title} className="h-24 w-auto object-contain" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">{book.title}</h3>
+              </div>
+              <p className="text-gray-600 mb-2 flex-grow">{book.synopsis}</p> {/* Sinopsis buku */}
+
+              {/* Komponen edit stok buku dan hapus di sini */}
+              <div className="flex justify-between items-center mt-2">
+                <div>
+                  <span className="text-sm font-medium text-gray-500">
+                    Stok Buku : {book.stock_amount}
+                  </span>
+                </div>
+                <div className="flex space-x-2">
+                  <button onClick={() => handleUpdate(book.id)} className="text-blue-500">
+                    Edit
+                  </button>
+                  <button onClick={() => handleDelete(book.id)} className="text-red-500">
+                    Hapus
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
         <p className="text-left mt-8">
           Page: {page} of {totalPages}
         </p>
-        <div
-          className="flex justify-center items-center mb-9"
-          aria-label="pagination"
-        >
+        <div className="flex justify-center items-center mb-9" aria-label="pagination">
           <Stack spacing={2}>
             <Pagination
               count={totalPages}
@@ -203,20 +211,6 @@ const BookList = () => {
         </div>
       </div>
 
-      {/* Modal for UpdateBook */}
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <button
-              className="absolute top-0 right-0 p-2"
-              onClick={() => setIsModalOpen(false)}
-            >
-              Close
-            </button>
-            <UpdateBook bookId={selectedBook} onClose={() => setIsModalOpen(false)} />
-          </div>
-        </div>
-      )}
     </>
   );
 };

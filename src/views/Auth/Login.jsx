@@ -12,76 +12,11 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false); // State untuk mengontrol tampilan modal
 
   const handleRememberMeChange = () => {
     setRememberMe(!rememberMe);
   };
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setIsLoading(true);
-  
-  //   try {
-  //     const response = await Api.post("/api/login", {
-  //       email,
-  //       password,
-  //     });
-  
-  //     if (response.data.success) {
-  //       const { roles, permissions, token } = response.data;
-  //       localStorage.setItem("token", token);
-        
-  //       let redirectPath = "";
-  //       if (roles.includes("admin")) {
-  //         redirectPath = "/dashboard-admin";
-  //       } else if (roles.includes("pustakawan")) {
-  //         redirectPath = "/dashboard-pustakawan";
-  //       } else if (roles.includes("anggota")) {
-  //         redirectPath = "/dashboard-anggota";
-  //       } else {
-  //         console.error("Invalid roles");
-  //         return;
-  //       }
-        
-  //       // Menampilkan toast untuk login berhasil
-  //       toast.success("Login Berhasil!", {
-  //         position: "top-center", // Menempatkan toast di tengah atas layar
-  //       });
-        
-  //       // Menunda pengalihan halaman ke dashboard dengan delay 2 detik
-  //       setTimeout(() => {
-  //         // Cek izin pengguna
-  //         if (permissions && permissions.includes("view_dashboard")) {
-  //           window.location.href = redirectPath;
-  //         } else {
-  //           console.error("Insufficient permissions");
-  //           // Menampilkan toast untuk izin tidak mencukupi
-  //           toast.error("Anda tidak memiliki izin untuk mengakses halaman ini", {
-  //             position: "top-center",
-  //           });
-  //         }
-  //       }, 2000);
-        
-  //       if (rememberMe) {
-  //         Cookies.set("rememberedEmail", email);
-  //       } else {
-  //         Cookies.remove("rememberedEmail");
-  //       }
-  //     } else {
-  //       // Menampilkan toast untuk login gagal
-  //       toast.error("Gagal masuk, email atau kata sandi salah", {
-  //         position: "top-center",
-  //       });
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //     toast.error("Terjadi kesalahan saat masuk", {
-  //       position: "top-center",
-  //     });
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -109,12 +44,10 @@ const Login = () => {
           return;
         }
         
-        // Menampilkan toast untuk login berhasil
         toast.success("Login Berhasil!", {
-          position: "top-center", // Menempatkan toast di tengah atas layar
+          position: "top-center",
         });
         
-        // Menunda pengalihan halaman ke dashboard dengan delay 2 detik
         setTimeout(() => {
           window.location.href = redirectPath;
         }, 2000);
@@ -125,7 +58,6 @@ const Login = () => {
           Cookies.remove("rememberedEmail");
         }
       } else {
-        // Menampilkan toast untuk login gagal
         toast.error("Gagal masuk, email atau kata sandi salah", {
           position: "top-center",
         });
@@ -139,8 +71,10 @@ const Login = () => {
       setIsLoading(false);
     }
   };
-  
-  
+
+  const toggleModal = () => {
+    setShowModal(!showModal); // Mengubah nilai state untuk menampilkan atau menyembunyikan modal
+  };
 
   return (
     <div className="grid md:grid-cols-2 md:gap- place-items-center w-full min-h-screen">
@@ -219,16 +153,50 @@ const Login = () => {
             </div>
           </form>
           <p className="text-sm text-center text-gray-500 mt-4">
-            Tidak punya akun?{" "}
+            Baca terlebih dahulu{" "}
             <Link
-              to="/register"
+              to="#"
               className="text-green-500 hover:text-green-700"
+              onClick={toggleModal} // Panggil fungsi untuk menampilkan modal
             >
-              daftar disini
+              syarat & ketentuan
             </Link>
           </p>
         </div>
       </div>
+      {/* Modal */}
+      {showModal && (
+        <div className="fixed z-10 inset-0 overflow-y-auto">
+          <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              {/* Your modal content here */}
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                    <h3 className="text-lg font-medium leading-6 text-gray-900" id="modal-title">
+                      Syarat & Ketentuan Skanic Library
+                    </h3>
+                    <div className="mt-2">
+                      <p className="text-sm text-gray-500">
+                        1. Wajib warga sekolah smkn 01 ciomas
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                <button type="button" onClick={toggleModal} className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-green-600 text-base font-medium text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 sm:ml-3 sm:w-auto sm:text-sm">
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -21,9 +21,9 @@ const Navbar = () => {
   const handleLogin = () => {
     navigate("/login");
   };
-  const handleRegister = () => {
-    navigate("/register");
-  };
+  // const handleRegister = () => {
+  //   navigate("/register");
+  // };
 
   return (
     <div className="top-0 fixed w-full z-10 bg-transparent">
@@ -100,7 +100,7 @@ const Navbar = () => {
 
           <div className="hidden lg:flex items-center justify-end gap-4 ml-48">
             <Button title="Masuk" onClick={handleLogin} />
-            <Button title="Daftar" onClick={handleRegister} />
+            {/* <Button title="Daftar" onClick={handleRegister} /> */}
           </div>
 
           <div className="hidden lg:flex"></div>

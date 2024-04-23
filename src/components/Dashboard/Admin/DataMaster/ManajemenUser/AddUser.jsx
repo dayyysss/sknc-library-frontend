@@ -1,106 +1,164 @@
-import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import React, { useState, useRef, useEffect } from "react";
+import axios from "axios";
+import Swal from "sweetalert2"; // Import Swal dari SweetAlert2
 
-const AddUser = () => {
-  const [ID, setID] = useState("");
-  const [name, setName] = useState("");
-  const [gender, setGender] = useState("M");
-  const [address, setAddress] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [message, setMessage] = useState("");
-  const navigate = useNavigate();
+const AddUserModal = ({ onClose }) => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    password_confirmation: "",
+    roles: "",
+  });
 
-  const data = {
-    _id: ID,
-    name,
-    gender,
-    address,
-    email,
-    phone,
+  const modalRef = useRef(null);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const createMember = async (e) => {
-    e.preventDefault();
+  const getAuthToken = () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("Token not available. Please login.");
+      return null;
+    }
+    return token;
+  };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      await addMemberFunc(data);
-      navigate("/members");
-    } catch (error) {
-      if (error.response) {
-        setMessage(error.response.data.message);
+      const token = getAuthToken();
+      if (!token) {
+        console.error("Token not available. Please login.");
         return;
       }
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      await axios.post("http://127.0.0.1:8000/api/user/create", formData, config);
+      onClose(); // Menutup modal setelah menambahkan pengguna
+      // Panggil Swal.fire() setelah data berhasil ditambahkan
+      Swal.fire({
+        icon: "success",
+        title: "Berhasil",
+        text: "Pengguna berhasil ditambahkan!",
+      });
+    } catch (error) {
+      if (error.response && error.response.data && error.response.data.email) {
+        // Handle specific error: email already taken
+        Swal.fire({
+          icon: "error",
+          title: "Gagal",
+          text: error.response.data.email[0], // Menampilkan pesan dari respons error
+        });
+      } else {
+        // Handle other errors
+        console.error("Error adding user:", error);
+      }
     }
-  };
+  };  
+
+  const handleCloseModal = (e) => {
+    if (modalRef.current && !modalRef.current.contains(e.target)) {
+      onClose();
+      refreshData(); // Panggil fungsi refreshData setelah menutup modal
+    }
+  };  
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleCloseModal);
+
+    return () => {
+      document.removeEventListener("mousedown", handleCloseModal);
+    };
+  }, []);
 
   return (
-    <div className='px-[25px] pt-[25px] bg-[#F8F9FC]'>
-    <div className='flex items-center justify-between'>
-      <h1 className='text-[28px] leading-[34px] font-normal text-[#5a5c69] cursor-pointer mb-6'>Tambah Data Anggota</h1>
-      </div>
-
-      <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-        <form onSubmit={createMember}>
-          <p className="text-red-500">{message}</p>
+    <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+      <div
+        ref={modalRef}
+        className="bg-white w-full max-w-md p-6 rounded-lg shadow-lg"
+      >
+        <h2 className="text-2xl font-bold mb-4">Tambah Pengguna</h2>
+        <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Username
-            </label>
             <input
               type="text"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Name"
-              required={true}
-            />
-          </div>
-          <p className="text-red-500">{message}</p>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Email
-            </label>
-            <input
-              type="text"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Name"
-              required={true}
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              placeholder="Nama"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              required
             />
           </div>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Password
-            </label>
             <input
-              type="text"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              placeholder="Address"
-              required={true}
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Email"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              required
             />
           </div>
-          <div className="flex items-center justify-between">
-            <button
-              type="submit"
-              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+          <div className="mb-4">
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Kata Sandi"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <input
+              type="password"
+              name="password_confirmation"
+              value={formData.password_confirmation}
+              onChange={handleChange}
+              placeholder="Konfirmasi Kata Sandi"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <select
+              name="roles"
+              value={formData.roles}
+              onChange={handleChange}
+              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
+              required
             >
-              Tambah
-            </button>
-            <Link
-              to={"/dashboard-admin/manajemen-user/*"}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            >
-              Batal
-            </Link>
+              <option value="">Pilih Peran</option>
+              <option value="pustakawan">Pustakawan</option>
+              <option value="anggota">Anggota</option>
+            </select>
           </div>
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"
+          >
+            Tambah Pengguna
+          </button>
+          <button
+            type="button"
+            onClick={onClose}
+            className="mt-2 w-full bg-gray-300 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-400 focus:outline-none focus:bg-gray-400"
+          >
+            Batal
+          </button>
         </form>
       </div>
     </div>
   );
 };
 
-export default AddUser;
+export default AddUserModal;

@@ -1,122 +1,143 @@
-import React from 'react';
-import Paper from '@mui/material/Paper';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-
-// import dummy image
-import book1 from '../../../../assets/ImagesNew/book1.jpg';
-import book2 from '../../../../assets/ImagesNew/book2.jpg';
-import book3 from '../../../../assets/ImagesNew/book3.jpg';
-import book4 from '../../../../assets/ImagesNew/book4.jpg';
-import book5 from '../../../../assets/ImagesNew/book5.jpg';
-
-// Replace this data with your own
-const data = [
-  {
-    _id: 23423343,
-    product: 'Programing Book 1',
-    image: book1,
-    customer: 'Devid John',
-    date: '3 October, 2022',
-    amount: 45,
-    method: 'Online Payment',
-    status: 'Approved',
-  },
-  {
-    _id: 235343343,
-    product: 'Programing Book 2',
-    image: book2,
-    customer: 'Julia Ani',
-    date: '23 April, 2022',
-    amount: 55,
-    method: 'Cash On Delivery',
-    status: 'Pending',
-  },
-  {
-    _id: 234239873,
-    product: 'Programing Book 3',
-    image: book3,
-    customer: 'John Smith',
-    date: '10 October, 2022',
-    amount: 25,
-    method: 'Online Payment',
-    status: 'Approved',
-  },
-  {
-    _id: 23423143,
-    product: 'Programing Book 4',
-    image: book4,
-    customer: 'Devid John',
-    date: '3 March, 2022',
-    amount: 40,
-    method: 'Cash On Delivery',
-    status: 'Approved',
-  },
-  {
-    _id: 123423343,
-    product: 'Programing Book 5',
-    image: book5,
-    customer: 'Humlar',
-    date: '20 November, 2022',
-    amount: 45,
-    method: 'Online Payment',
-    status: 'Approved',
-  },
-  {
-    _id: 2333343,
-    product: 'Programing Book 6',
-    image: book2,
-    customer: 'Devid John',
-    date: '12 June, 2022',
-    amount: 28,
-    method: 'Cash On Delivery',
-    status: 'Pending',
-  },
-];
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import Paper from "@mui/material/Paper";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import TableFooter from "@mui/material/TableFooter";
+import Pagination from "@mui/material/Pagination";
+import Swal from "sweetalert2";
+import { MdOutlineCheckBox } from "react-icons/md";
 
 const PengembalianCompo = () => {
+  const [books, setBooks] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalBooks, setTotalBooks] = useState(0);
+
+  useEffect(() => {
+    fetchData();
+  }, [page]);
+
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("Token not available. Please login.");
+        return;
+      }
+
+      const response = await axios.get(`http://127.0.0.1:8000/api/restore/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.data.success) {
+        const { data, last_page, total } = response.data.data;
+        setBooks(data);
+        setTotalPages(last_page);
+        setTotalBooks(total);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleAccept = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("Token not available. Please login.");
+        return;
+      }
+
+      const response = await axios.put(
+        `http://127.0.0.1:8000/api/restore/${id}/update-status`,
+        { status: "accepted" },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        // Jika berhasil, panggil fetchData untuk memperbarui data
+        fetchData();
+        Swal.fire({
+          title: "Accepted!",
+          text: "Peminjaman Berhasil!",
+          icon: "success",
+        });
+      }
+    } catch (error) {
+      console.error("Error accepting borrow:", error);
+    }
+  };
+
+  const handleChangePage = (event, value) => {
+    setPage(value);
+  };
+
   return (
-    <div className='px-[25px] pt-[25px] pb-[370px] bg-[#F8F9FC]'>
-      <div className='flex items-center justify-between'>
-        <h1 className='text-[28px] leading-[34px] font-normal text-[#5a5c69] cursor-pointer'>Pengembalian Buku</h1>
+    <div className="px-[25px] pt-[25px] pb-[370px] bg-[#F8F9FC]">
+      <div className="flex items-center justify-between">
+        <h1 className="text-[28px] leading-[34px] font-normal text-[#5a5c69] cursor-pointer">
+          Pengembalian Buku
+        </h1>
       </div>
       <TableContainer component={Paper} className="table_list mt-10">
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
             <TableRow>
-              <TableCell className="table_cell">Tracking Id</TableCell>
-              <TableCell className="table_cell">Product</TableCell>
-              <TableCell className="table_cell">Customer</TableCell>
-              <TableCell className="table_cell">Amount</TableCell>
-              <TableCell className="table_cell">Date</TableCell>
-              <TableCell className="table_cell">Payment Status</TableCell>
+              <TableCell className="table_cell">No</TableCell>
+              <TableCell className="table_cell">Peminjam</TableCell>
+              <TableCell className="table_cell">Buku</TableCell>
+              <TableCell className="table_cell">Tanggal Pengembalian</TableCell>
               <TableCell className="table_cell">Status</TableCell>
+              <TableCell className="table_cell">Aksi</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {data.map((row) => (
-              <TableRow key={row._id}>
-                <TableCell component="th" scope="row" className="table_cell">
-                  <div className="product_idd">
-                    <img src={row.image} alt="product" className="product_img" />
-                    {row._id}
-                  </div>
-                </TableCell>
-                <TableCell className="table_cell">{row.product}</TableCell>
-                <TableCell className="table_cell">{row.customer}</TableCell>
-                <TableCell className="table_cell">{row.amount}</TableCell>
-                <TableCell className="table_cell">{row.date}</TableCell>
-                <TableCell className="table_cell">{row.method}</TableCell>
+            {books.map((returnBook, index) => (
+              <TableRow key={returnBook.id}>
+                <TableCell className="table_cell">{index + 1}</TableCell>
+                <TableCell className="table_cell">{returnBook.user_id}</TableCell>
+                <TableCell className="table_cell">{returnBook.book_id}</TableCell>
+                <TableCell className="table_cell" style={{ color: returnBook.status === 'pending' ? 'yellow' : returnBook.status === 'accepted' ? 'green' : 'inherit' }}>{returnBook.status}</TableCell>
+                <TableCell className="table_cell">{returnBook.book.title}</TableCell>
+                <TableCell className="table_cell">{returnBook.user.name}</TableCell>
                 <TableCell className="table_cell">
-                  <span className={`status ${row.status}`}>{row.status}</span>
+                  {returnBook.status !== "accepted" && (
+                    <MdOutlineCheckBox
+                      onClick={() => handleAccept(returnBook.id)}
+                      className="text-blue-500 cursor-pointer ml-2"
+                      style={{ fontSize: "1.4rem" }}
+                    />
+                  )}
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
+
+
+          <TableFooter>
+            <TableRow>
+              <TableCell colSpan={12}>
+                <div className="pagination-wrapper pt-6">
+                  <Pagination
+                    count={totalPages}
+                    page={page}
+                    onChange={handleChangePage}
+                  />
+                </div>
+              </TableCell>
+            </TableRow>
+          </TableFooter>
         </Table>
       </TableContainer>
     </div>

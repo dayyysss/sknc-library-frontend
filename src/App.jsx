@@ -65,7 +65,7 @@ function App() {
                     <Route path="/" element={<Landing title="Landing" />} />
 
                     <Route path="/login" element={<Login title="Login" />} />
-                    <Route path="/register" element={<Register title="Register" />} />
+                    {/* <Route path="/register" element={<Register title="Register" />} /> */}
 
                     {/* Start Dashboard Admin */}
                     <Route path="/dashboard-admin">

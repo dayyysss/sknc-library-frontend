@@ -130,7 +130,7 @@ function DaftarBukuA() {
 
   return (
     <>
-      <div className="px-[25px] pt-[25px] bg-[#F8F9FC]">
+      <div className="px-[25px] pt-[25px] bg-white min-h-screen">
         <h1 className="text-[28px] leading-[34px] font-normal text-[#5a5c69] cursor-pointer">
           Daftar Buku
         </h1>
