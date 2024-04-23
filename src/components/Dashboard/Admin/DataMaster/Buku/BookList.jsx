@@ -36,6 +36,7 @@ const BookList = () => {
       );
       if (response.data.success) {
         const { data, last_page, total } = response.data.data;
+        console.log(data)
         setBooks(data);
         setTotalPages(last_page);
         setTotalBooks(total);
