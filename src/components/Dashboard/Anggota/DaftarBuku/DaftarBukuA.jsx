@@ -97,8 +97,8 @@ function DaftarBukuA() {
       // Tampilkan SweetAlert2 sukses
       await swal.fire({
         icon: 'success',
-        title: 'Buku Berhasil Dipinjam',
-        text: 'Terima kasih! Buku berhasil dipinjam.',
+        title: 'Buku Sedang Di Proses!',
+        text: 'Terima kasih! Tunggu DiTerima Ya.',
       });
 
       // Tutup modal setelah sukses meminjam buku

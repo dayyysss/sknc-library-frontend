@@ -21,17 +21,26 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-  
+
     try {
       const response = await Api.post("/api/login", {
         email,
         password,
       });
-  
+
+      // Pengecekan apakah email dan password diisi
+      if (!email || !password) {
+        toast.error("Email dan password harus diisi", {
+          position: "top-center",
+        });
+        setIsLoading(false);
+        return;
+      }
+
       if (response.data.success) {
         const { roles, token } = response.data;
         localStorage.setItem("token", token);
-        
+
         let redirectPath = "";
         if (roles.includes("admin")) {
           redirectPath = "/dashboard-admin";
@@ -43,15 +52,25 @@ const Login = () => {
           console.error("Invalid roles");
           return;
         }
+<<<<<<< HEAD
         
+=======
+
+        // Menampilkan toast untuk login berhasil
+>>>>>>> 47f5181ed17d5ac1c08dac80a58d2b8826647a98
         toast.success("Login Berhasil!", {
           position: "top-center",
         });
+<<<<<<< HEAD
         
+=======
+
+        // Menunda pengalihan halaman ke dashboard dengan delay 2 detik
+>>>>>>> 47f5181ed17d5ac1c08dac80a58d2b8826647a98
         setTimeout(() => {
           window.location.href = redirectPath;
         }, 2000);
-        
+
         if (rememberMe) {
           Cookies.set("rememberedEmail", email);
         } else {
@@ -72,9 +91,13 @@ const Login = () => {
     }
   };
 
+<<<<<<< HEAD
   const toggleModal = () => {
     setShowModal(!showModal); // Mengubah nilai state untuk menampilkan atau menyembunyikan modal
   };
+=======
+
+>>>>>>> 47f5181ed17d5ac1c08dac80a58d2b8826647a98
 
   return (
     <div className="grid md:grid-cols-2 md:gap- place-items-center w-full min-h-screen">
@@ -96,15 +119,16 @@ const Login = () => {
                 Email
               </label>
               <input
-                type="text"
+                type="email"  // Ganti tipe input menjadi "email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 name="email"
                 id="email"
                 placeholder="Masukkan email anda"
                 className="w-full border-2 border-green-500 rounded-lg p-2 placeholder:text-sm focus-visible:outline-none focus:border-green-400"
-                required
+                required={false} // Tidak menggunakan validasi "required"
               />
+
             </div>
 
             <div className="w-full flex flex-col mt-4">
@@ -123,7 +147,7 @@ const Login = () => {
                 id="password"
                 placeholder="Masukkan password anda"
                 className="w-full border-2 border-green-500 rounded-lg p-2 placeholder:text-sm focus-visible:outline-none focus:border-green-400"
-                required
+                required={false}
               />
             </div>
 
@@ -144,9 +168,8 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className={`w-full bg-green-500 px-2 py-3 mt-4 text-white font-semibold tracking-widest uppercase rounded-lg hover:bg-green-300 cursor-pointer ${
-                  isLoading ? "opacity-50 cursor-not-allowed" : ""
-                }`}
+                className={`w-full bg-green-500 px-2 py-3 mt-4 text-white font-semibold tracking-widest uppercase rounded-lg hover:bg-green-300 cursor-pointer ${isLoading ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
               >
                 {isLoading ? "Loading..." : "Login"}
               </button>
