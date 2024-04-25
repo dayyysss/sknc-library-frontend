@@ -52,21 +52,13 @@ const Login = () => {
           console.error("Invalid roles");
           return;
         }
-<<<<<<< HEAD
-        
-=======
 
         // Menampilkan toast untuk login berhasil
->>>>>>> 47f5181ed17d5ac1c08dac80a58d2b8826647a98
         toast.success("Login Berhasil!", {
           position: "top-center",
         });
-<<<<<<< HEAD
-        
-=======
 
         // Menunda pengalihan halaman ke dashboard dengan delay 2 detik
->>>>>>> 47f5181ed17d5ac1c08dac80a58d2b8826647a98
         setTimeout(() => {
           window.location.href = redirectPath;
         }, 2000);
@@ -91,13 +83,9 @@ const Login = () => {
     }
   };
 
-<<<<<<< HEAD
   const toggleModal = () => {
     setShowModal(!showModal); // Mengubah nilai state untuk menampilkan atau menyembunyikan modal
   };
-=======
-
->>>>>>> 47f5181ed17d5ac1c08dac80a58d2b8826647a98
 
   return (
     <div className="grid md:grid-cols-2 md:gap- place-items-center w-full min-h-screen">

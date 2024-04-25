@@ -49,12 +49,13 @@ const PeminjamanCompo = () => {
 
   const handleAccept = async (id) => {
     try {
+      console.log("Accepting borrow with id:", id);
       const token = localStorage.getItem("token");
       if (!token) {
         console.error("Token not available. Please login.");
         return;
       }
-
+  
       const response = await axios.put(
         `http://127.0.0.1:8000/api/borrow/${id}/update-status`,
         { status: "accepted" },
@@ -64,7 +65,7 @@ const PeminjamanCompo = () => {
           },
         }
       );
-
+  
       if (response.data.success) {
         // Jika berhasil, panggil fetchData untuk memperbarui data
         fetchData();
@@ -72,12 +73,15 @@ const PeminjamanCompo = () => {
           title: "Accepted!",
           text: "Peminjaman Berhasil!",
           icon: "success",
+        }).then(() => {
+          // Tambahkan alert data berhasil diterima di sini
+          alert("Data berhasil diterima");
         });
       }
     } catch (error) {
       console.error("Error accepting borrow:", error);
     }
-  };
+  };  
 
   const handleChangePage = (event, value) => {
     setPage(value);

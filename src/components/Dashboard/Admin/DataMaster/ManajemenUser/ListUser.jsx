@@ -10,6 +10,7 @@ import UpdateUser from "./UpdateUser";
 import { MdOutlineCheckBox } from "react-icons/md";
 import AddUserModal from "./AddUser";
 import { PiMicrosoftExcelLogoLight } from "react-icons/pi";
+import ImportExcel from "../../ImportExcel";
 
 
 const ListUser = () => {
@@ -22,6 +23,7 @@ const ListUser = () => {
   const [totalBooks, setTotalBooks] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -148,8 +150,8 @@ const ListUser = () => {
   };
 
   const handleImportExcel = () => {
-    // Tambahkan logika impor Excel di sini
-    alert("Import Excel clicked!");
+    // Ketika tombol "Import Excel" diklik, buka modal unggah Excel
+    setIsImportModalOpen(true);
   };
   
   return (
@@ -320,6 +322,21 @@ const ListUser = () => {
             ) : (
               <AddUserModal onClose={handleCloseModal} refreshData={refreshData} />
             )}
+          </div>
+        </div>
+      )}
+
+        {/* Modal unggah Excel */}
+        {isImportModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <button
+              className="absolute top-0 right-0 p-2"
+              onClick={() => setIsImportModalOpen(false)}
+            >
+              Close
+            </button>
+            <ImportExcel />
           </div>
         </div>
       )}

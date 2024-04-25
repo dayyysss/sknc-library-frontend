@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
+import Swal from 'sweetalert2';
 
 const UpdateUser = ({ userId, onClose }) => {
   const [formData, setFormData] = useState({
@@ -52,16 +53,24 @@ const UpdateUser = ({ userId, onClose }) => {
         },
       };
 
-      await axios.put(
+      await axios.post(
         `http://127.0.0.1:8000/api/user/${userId}/update`,
         formDataWithImage,
         config
       );
-      onClose();
-    } catch (error) {
-      console.error("Error updating user:", error);
-    }
-  };
+
+    // Tampilkan swal notifikasi
+    Swal.fire({
+      icon: 'success',
+      title: 'Berhasil',
+      text: 'Data pengguna berhasil diperbarui!',
+    });
+
+    onClose();
+  } catch (error) {
+    console.error("Error updating user:", error);
+  }
+};
 
   const handleCloseModal = (e) => {
     if (modalRef.current && !modalRef.current.contains(e.target)) {

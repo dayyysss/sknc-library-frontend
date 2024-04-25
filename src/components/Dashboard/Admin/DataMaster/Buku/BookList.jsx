@@ -6,7 +6,9 @@ import axios from "axios";
 import { RiDeleteBin5Line } from "react-icons/ri";
 import { FaEdit } from "react-icons/fa";
 import Swal from "sweetalert2";
-import UpdateBook from "./UpdateBook"; // Import UpdateBook component
+import UpdateBook from "./UpdateBook";
+import { PiMicrosoftExcelLogoLight } from "react-icons/pi";
+import ImportExcel from "../../ImportExcel";
 
 const BookList = () => {
   document.title = "Dashboard Admin - Data Buku";
@@ -19,6 +21,7 @@ const BookList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); // State for modal
   const [isAddBookModalOpen, setIsAddBookModalOpen] = useState(false);
   const [isEditFormOpen, setIsEditFormOpen] = useState(false); // State to control edit form display
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -36,7 +39,6 @@ const BookList = () => {
       );
       if (response.data.success) {
         const { data, last_page, total } = response.data.data;
-        console.log(data)
         setBooks(data);
         setTotalPages(last_page);
         setTotalBooks(total);
@@ -93,9 +95,9 @@ const BookList = () => {
 
     // Periksa jika buku ditemukan
     if (selectedBook) {
-      // Buka formulir edit dan tetapkan buku yang dipilih ke state
-      setIsEditFormOpen(true);
+      // Set state isModalOpen menjadi true dan menyediakan data buku ke komponen UpdateBook
       setSelectedBook(selectedBook);
+      setIsModalOpen(true);
     } else {
       console.error("Book not found!");
     }
@@ -133,6 +135,11 @@ const BookList = () => {
     setIsAddBookModalOpen(true);
   };
 
+  const handleImportExcel = () => {
+    // Ketika tombol "Import Excel" diklik, buka modal unggah Excel
+    setIsImportModalOpen(true);
+  };
+
   return (
     <>
       <div className="min-h-screen px-[25px] pt-[25px] pb-[auto] bg-[#F8F9FC] overflow-auto">
@@ -140,12 +147,21 @@ const BookList = () => {
           <h1 className="text-[28px] leading-[34px] font-normal text-[#5a5c69] cursor-pointer">
             Data Buku
           </h1>
-          <Link
-            to="/dashboard-admin/buku/add-buku/*"
-            className="bg-blue-500 h-[32px] rounded-[3px] text-white flex items-center justify-center px-[8px]"
-          >
-            Tambah Buku
-          </Link>
+          <div className="flex">
+            <Link
+              to="/dashboard-admin/buku/add-buku/*"
+              className="bg-blue-500 h-[32px] rounded-[3px] text-white flex items-center justify-center px-[8px] mr-4"
+            >
+              Tambah Buku
+            </Link>
+            <button
+              onClick={handleImportExcel}
+              className="bg-green-500 h-[32px] rounded-[3px] text-white flex items-center justify-center px-[8px]"
+            >
+              <PiMicrosoftExcelLogoLight className="text-xl mr-2" />
+              Import Excel
+            </button>
+          </div>
         </div>
         <div className="mt-4">
           <form onSubmit={handleSearch} className="w-full max-w-md mx-auto">
@@ -212,6 +228,32 @@ const BookList = () => {
         </div>
       </div>
 
+      {/* Modal UpdateBook */}
+      {isModalOpen && selectedBook && (
+        <div className="modal">
+          <div className="modal-content">
+            <span className="close-button" onClick={() => setIsModalOpen(false)}>
+              &times;
+            </span>
+            <UpdateBook book={selectedBook} />
+          </div>
+        </div>
+      )}
+
+      {/* Modal unggah Excel */}
+      {isImportModalOpen && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <button
+              className="absolute top-0 right-0 p-2"
+              onClick={() => setIsImportModalOpen(false)}
+            >
+              Close
+            </button>
+            <ImportExcel />
+          </div>
+        </div>
+      )}
     </>
   );
 };
