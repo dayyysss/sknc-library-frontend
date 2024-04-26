@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, Link, useParams } from "react-router-dom";
+import React, { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const UpdateBook = ({ book }) => {
   const [title, setTitle] = useState("");
@@ -14,7 +14,6 @@ const UpdateBook = ({ book }) => {
   const [category, setCategory] = useState("");
   const [image, setImage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const [isEditFormOpen, setIsEditFormOpen] = useState(false); // Define isEditFormOpen state
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -46,6 +45,7 @@ const UpdateBook = ({ book }) => {
       if (response.data.success) {
         toast.success("Buku Berhasil Di Edit!", { position: "top-center" });
         navigate("/dashboard-admin/buku");
+        window.location.reload(); // Muat ulang halaman
       } else {
         toast.error("Gagal Edit Buku!", { position: "top-center" });
         setErrorMessage("Gagal Mengedit Buku!");
@@ -72,7 +72,6 @@ const UpdateBook = ({ book }) => {
     }
     return token;
   };
-
   return (
     <div className="px-[25px] pt-[25px] bg-[#F8F9FC]">
       <div className="flex items-center justify-between">
