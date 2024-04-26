@@ -17,11 +17,11 @@ const BookList = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalBooks, setTotalBooks] = useState(0);
-  const [selectedBook, setSelectedBook] = useState(null); // State to hold selected book for editing
   const [isModalOpen, setIsModalOpen] = useState(false); // State for modal
   const [isAddBookModalOpen, setIsAddBookModalOpen] = useState(false);
   const [isEditFormOpen, setIsEditFormOpen] = useState(false); // State to control edit form display
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [selectedBook, setSelectedBook] = useState(null);
 
   useEffect(() => {
     fetchData();
@@ -87,16 +87,14 @@ const BookList = () => {
   };
 
   const handleUpdate = (id) => {
-    // Log id buku yang dipilih ke console
-    console.log("Selected book id:", id);
-
     // Temukan buku yang sesuai dengan id dari daftar buku
     const selectedBook = books.find(book => book.id === id);
 
     // Periksa jika buku ditemukan
     if (selectedBook) {
-      // Set state isModalOpen menjadi true dan menyediakan data buku ke komponen UpdateBook
+      // Set state selectedBook menjadi detail buku yang dipilih
       setSelectedBook(selectedBook);
+      // Buka modal
       setIsModalOpen(true);
     } else {
       console.error("Book not found!");
@@ -228,13 +226,15 @@ const BookList = () => {
         </div>
       </div>
 
-      {/* Modal UpdateBook */}
       {isModalOpen && selectedBook && (
-        <div className="modal">
-          <div className="modal-content">
-            <span className="close-button" onClick={() => setIsModalOpen(false)}>
-              &times;
-            </span>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <button
+              className="absolute top-0 right-0 p-2"
+              onClick={() => setIsModalOpen(false)}
+            >
+              Close
+            </button>
             <UpdateBook book={selectedBook} />
           </div>
         </div>
