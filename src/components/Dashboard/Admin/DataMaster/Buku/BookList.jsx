@@ -9,6 +9,7 @@ import Swal from "sweetalert2";
 import UpdateBook from "./UpdateBook";
 import { PiMicrosoftExcelLogoLight } from "react-icons/pi";
 import ImportExcel from "../../ImportExcel";
+import DetailBook from "./DetailBook"
 
 const BookList = () => {
   document.title = "Dashboard Admin - Data Buku";
@@ -184,15 +185,14 @@ const BookList = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
           {books.map((book, index) => (
             <div key={index + 1} className="bg-white p-4 rounded shadow-md hover:shadow-lg flex flex-col">
-              <div className="cursor-pointer" onClick={() => handleBookClick(book.id)}>
+              <button onClick={() => handleBookClick(book.id)} className="cursor-pointer focus:outline-none">
                 <div className="flex justify-center">
                   <img src={book.image} alt={book.title} className="h-24 w-auto object-contain" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2">{book.title}</h3>
-              </div>
-              <p className="text-gray-600 mb-2 flex-grow">{book.synopsis}</p> {/* Sinopsis buku */}
+              </button>
+              <p className="text-gray-600 mb-2 flex-grow">{book.synopsis}</p>
 
-              {/* Komponen edit stok buku dan hapus di sini */}
               <div className="flex justify-between items-center mt-2">
                 <div>
                   <span className="text-sm font-medium text-gray-500">
@@ -210,6 +210,7 @@ const BookList = () => {
               </div>
             </div>
           ))}
+
         </div>
         <p className="text-left mt-8">
           Page: {page} of {totalPages}
@@ -254,6 +255,21 @@ const BookList = () => {
           </div>
         </div>
       )}
+
+      {isModalOpen && selectedBook && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <button
+              className="absolute top-0 right-0 p-2"
+              onClick={() => setIsModalOpen(false)}
+            >
+              Close
+            </button>
+            <DetailBook book={selectedBook} />
+          </div>
+        </div>
+      )}
+
     </>
   );
 };
