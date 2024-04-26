@@ -107,16 +107,14 @@ const Login = () => {
                 Email
               </label>
               <input
-                type="email"  // Ganti tipe input menjadi "email"
+                type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 name="email"
                 id="email"
                 placeholder="Masukkan email anda"
                 className="w-full border-2 border-green-500 rounded-lg p-2 placeholder:text-sm focus-visible:outline-none focus:border-green-400"
-                required={false} // Tidak menggunakan validasi "required"
               />
-
             </div>
 
             <div className="w-full flex flex-col mt-4">

@@ -50,7 +50,7 @@ const PeminjamanCompo = () => {
   const handleAccept = async (id) => {
     try {
       console.log("Accepting borrow with id:", id);
-      const token = localStorage.getItem("token");
+      const token = getAuthToken(); // Menggunakan fungsi getAuthToken() untuk mendapatkan token
       if (!token) {
         console.error("Token not available. Please login.");
         return;
@@ -67,24 +67,32 @@ const PeminjamanCompo = () => {
       );
   
       if (response.data.success) {
-        // Jika berhasil, panggil fetchData untuk memperbarui data
-        fetchData();
+        // Menampilkan swal sukses
         Swal.fire({
           title: "Accepted!",
           text: "Peminjaman Berhasil!",
           icon: "success",
-        }).then(() => {
-          // Tambahkan alert data berhasil diterima di sini
-          alert("Data berhasil diterima");
         });
+  
+        // Memperbarui data dengan melakukan fetch data baru
+        fetchData();
       }
     } catch (error) {
-      console.error("Error accepting borrow:", error);
+      console.error("Error accepting borrow:", error.response.data.message); // Menampilkan pesan kesalahan dari server
     }
-  };  
+  };   
 
   const handleChangePage = (event, value) => {
     setPage(value);
+  };
+
+  const getAuthToken = () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("Token not available. Please login.");
+      return null;
+    }
+    return token;
   };
 
   return (
