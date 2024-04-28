@@ -2,19 +2,31 @@ import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import Swal from 'sweetalert2';
 
-const UpdateUser = ({ userId, onClose }) => {
+const UpdateUser = ({ userId, onClose, user }) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     password_confirmation: "",
-    image: null, // Menyimpan gambar yang akan diunggah
+    image: null,
   });
+  const [error, setError] = useState("");
 
   const modalRef = useRef(null);
 
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || "",
+        email: user.email || "",
+        password: "",
+        password_confirmation: "",
+        image: null,
+      });
+    }
+  }, [user]);
+
   const handleChange = (e) => {
-    // Jika input adalah file, simpan file di formData
     if (e.target.type === "file") {
       setFormData({ ...formData, [e.target.name]: e.target.files[0] });
     } else {
@@ -22,17 +34,27 @@ const UpdateUser = ({ userId, onClose }) => {
     }
   };
 
-  const getAuthToken = () => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      console.error("Token not available. Please login.");
-      return null;
+  const validateForm = () => {
+    if (!formData.email || !formData.password) {
+      setError("Email dan password tidak boleh kosong.");
+      return false;
     }
-    return token;
+    if (!formData.email.includes("@")) {
+      setError("Email harus berisi karakter @.");
+      return false;
+    }
+    if (formData.password !== formData.password_confirmation) {
+      setError("Konfirmasi password tidak cocok.");
+      return false;
+    }
+    return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validateForm()) {
+      return;
+    }
     try {
       const token = getAuthToken();
       if (!token) {
@@ -40,16 +62,15 @@ const UpdateUser = ({ userId, onClose }) => {
         return;
       }
 
-      const formDataWithImage = new FormData(); // Buat objek FormData
+      const formDataWithImage = new FormData();
       Object.keys(formData).forEach((key) => {
-        // Masukkan setiap properti formData ke objek FormData
         formDataWithImage.append(key, formData[key]);
       });
 
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data", // Tentukan tipe konten sebagai form-data
+          "Content-Type": "multipart/form-data",
         },
       };
 
@@ -59,18 +80,17 @@ const UpdateUser = ({ userId, onClose }) => {
         config
       );
 
-    // Tampilkan swal notifikasi
-    Swal.fire({
-      icon: 'success',
-      title: 'Berhasil',
-      text: 'Data pengguna berhasil diperbarui!',
-    });
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil',
+        text: 'Data pengguna berhasil diperbarui!',
+      });
 
-    onClose();
-  } catch (error) {
-    console.error("Error updating user:", error);
-  }
-};
+      onClose();
+    } catch (error) {
+      console.error("Error updating user:", error);
+    }
+  };
 
   const handleCloseModal = (e) => {
     if (modalRef.current && !modalRef.current.contains(e.target)) {
@@ -85,6 +105,15 @@ const UpdateUser = ({ userId, onClose }) => {
       document.removeEventListener("mousedown", handleCloseModal);
     };
   }, []);
+
+  const getAuthToken = () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("Token not available. Please login.");
+      return null;
+    }
+    return token;
+  };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
@@ -107,7 +136,7 @@ const UpdateUser = ({ userId, onClose }) => {
           </div>
           <div className="mb-4">
             <input
-              type="email"
+              type="text"
               name="email"
               value={formData.email}
               onChange={handleChange}
@@ -141,10 +170,11 @@ const UpdateUser = ({ userId, onClose }) => {
               type="file"
               name="image"
               onChange={handleChange}
-              accept="image/*" // Hanya menerima file gambar
+              accept="image/*"
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
             />
           </div>
+          {error && <p className="text-red-500">{error}</p>}
           <button
             type="submit"
             className="w-full bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600"

@@ -153,7 +153,7 @@ const ListUser = () => {
     // Ketika tombol "Import Excel" diklik, buka modal unggah Excel
     setIsImportModalOpen(true);
   };
-  
+
   return (
     <>
       <div className="min-h-screen px-[25px] pt-[25px] pb-[auto] bg-[#F8F9FC] overflow-auto">
@@ -172,7 +172,7 @@ const ListUser = () => {
               onClick={handleImportExcel}
               className="bg-green-500 h-[32px] rounded-[3px] text-white flex items-center justify-center px-[8px]"
             >
-                <PiMicrosoftExcelLogoLight className="text-xl mr-2" />
+              <PiMicrosoftExcelLogoLight className="text-xl mr-2" />
               Import Excel
             </button>
           </div>
@@ -263,22 +263,22 @@ const ListUser = () => {
                   }}
                 >
                   {user.status}
-                </td>
+                </td> 
                 <td className="border px-4 py-2">
                   <div className="flex items-center">
                     {user.status === "loading" && (
                       <MdOutlineCheckBox
                         onClick={() => handleStatusChange(user.id)}
-                        className="text-green-500 cursor-pointer text-lg mr-2"
+                        className="text-white cursor-pointer text-lg bg-green-500 rounded-full p-1 mr-2 w-7 h-7"
                       />
                     )}
                     <FaEdit
                       onClick={() => handleUpdate(user.id)}
-                      className="text-blue-500 cursor-pointer text-lg mr-2"
+                      className="text-white cursor-pointer text-lg bg-blue-500 rounded-full p-1 mr-2 w-7 h-7"
                     />
                     <RiDeleteBin5Line
                       onClick={() => handleDelete(user.id)}
-                      className="text-red-500 cursor-pointer text-lg"
+                      className="text-white cursor-pointer w-7 h-7 bg-red-500 rounded-full p-1 mr-2"
                     />
                   </div>
                 </td>
@@ -326,8 +326,8 @@ const ListUser = () => {
         </div>
       )}
 
-        {/* Modal unggah Excel */}
-        {isImportModalOpen && (
+      {/* Modal unggah Excel */}
+      {isImportModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-md">
             <button
