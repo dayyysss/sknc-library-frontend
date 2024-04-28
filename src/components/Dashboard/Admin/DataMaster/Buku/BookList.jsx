@@ -24,6 +24,9 @@ const BookList = () => {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
 
+const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+
   useEffect(() => {
     fetchData();
   }, [page]);
@@ -87,20 +90,16 @@ const BookList = () => {
     }
   };
 
-  const handleUpdate = (id) => {
-    // Temukan buku yang sesuai dengan id dari daftar buku
-    const selectedBook = books.find(book => book.id === id);
-
-    // Periksa jika buku ditemukan
-    if (selectedBook) {
-      // Set state selectedBook menjadi detail buku yang dipilih
-      setSelectedBook(selectedBook);
-      // Buka modal
-      setIsModalOpen(true);
-    } else {
-      console.error("Book not found!");
-    }
-  };
+// Kemudian pada fungsi handleUpdate, buka modal edit
+const handleUpdate = (id) => {
+  const selectedBook = books.find(book => book.id === id);
+  if (selectedBook) {
+    setSelectedBook(selectedBook);
+    setIsEditModalOpen(true); // Buka modal edit
+  } else {
+    console.error("Book not found!");
+  }
+};
 
   const handleChangePage = (event, value) => {
     setPage(value);
@@ -111,24 +110,25 @@ const BookList = () => {
     setPage(1);
   };
 
-  const handleBookClick = async (bookId) => {
-    try {
-      const response = await axios.get(
-        `http://127.0.0.1:8000/api/book/${bookId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${getAuthToken()}`,
-          },
-        }
-      );
-      if (response.data.success) {
-        setSelectedBook(response.data.data); // Set selected book details
-        setIsModalOpen(true); // Open modal after getting book details
+ // Pada fungsi handleBookClick, buka modal detail
+const handleBookClick = async (bookId) => {
+  try {
+    const response = await axios.get(
+      `http://127.0.0.1:8000/api/book/${bookId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
       }
-    } catch (error) {
-      console.error(error);
+    );
+    if (response.data.success) {
+      setSelectedBook(response.data.data);
+      setIsDetailModalOpen(true); // Buka modal detail
     }
-  };
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   const handleAddBookModalOpen = () => {
     setIsAddBookModalOpen(true);
@@ -227,19 +227,33 @@ const BookList = () => {
         </div>
       </div>
 
-      {isModalOpen && selectedBook && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <button
-              className="absolute top-0 right-0 p-2"
-              onClick={() => setIsModalOpen(false)}
-            >
-              Close
-            </button>
-            <UpdateBook book={selectedBook} />
-          </div>
-        </div>
-      )}
+      {isEditModalOpen && selectedBook && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="bg-white p-6 rounded-lg shadow-md">
+      <button
+        className="absolute top-0 right-0 p-2"
+        onClick={() => setIsEditModalOpen(false)}
+      >
+        Close
+      </button>
+      <UpdateBook book={selectedBook} />
+    </div>
+  </div>
+)}
+
+{isDetailModalOpen && selectedBook && (
+  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="bg-white p-6 rounded-lg shadow-md">
+      <button
+        className="absolute top-0 right-0 p-2"
+        onClick={() => setIsDetailModalOpen(false)}
+      >
+        Close
+      </button>
+      <DetailBook book={selectedBook} />
+    </div>
+  </div>
+)}
 
       {/* Modal unggah Excel */}
       {isImportModalOpen && (
@@ -255,21 +269,6 @@ const BookList = () => {
           </div>
         </div>
       )}
-
-      {isModalOpen && selectedBook && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <button
-              className="absolute top-0 right-0 p-2"
-              onClick={() => setIsModalOpen(false)}
-            >
-              Close
-            </button>
-            <DetailBook book={selectedBook} />
-          </div>
-        </div>
-      )}
-
     </>
   );
 };
