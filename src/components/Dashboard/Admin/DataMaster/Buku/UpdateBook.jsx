@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -16,11 +16,26 @@ const UpdateBook = ({ book }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
+  // Inisialisasi state dengan nilai buku saat komponen diinisialisasi
+  useEffect(() => {
+    if (book) {
+      setTitle(book.title || "");
+      setSynopsis(book.synopsis || "");
+      setIsbn(book.isbn || "");
+      setWriter(book.writer || "");
+      setPageAmount(book.page_amount || "");
+      setStockAmount(book.stock_amount || "");
+      setPublished(book.published || "");
+      setCategory(book.category || "");
+      setImage(book.image || "");
+    }
+  }, [book]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const formData = new FormData();
-    formData.append("_method", "PUT"); // Ubah nilai _method menjadi "PUT"
+    formData.append("_method", "PUT");
     formData.append("title", title);
     formData.append("synopsis", synopsis);
     formData.append("isbn", isbn);
@@ -30,10 +45,10 @@ const UpdateBook = ({ book }) => {
     formData.append("published", published);
     formData.append("category", category);
     formData.append("image", image);
-  
+
     try {
       const response = await axios.post(
-        `http://127.0.0.1:8000/api/book/${book.id}/update`, // Use id from book object
+        `http://127.0.0.1:8000/api/book/${book.id}/update`,
         formData,
         {
           headers: {
@@ -41,11 +56,11 @@ const UpdateBook = ({ book }) => {
           },
         }
       );
-  
+
       if (response.data.success) {
         toast.success("Buku Berhasil Di Edit!", { position: "top-center" });
         navigate("/dashboard-admin/buku");
-        window.location.reload(); // Muat ulang halaman
+        window.location.reload();
       } else {
         toast.error("Gagal Edit Buku!", { position: "top-center" });
         setErrorMessage("Gagal Mengedit Buku!");
@@ -61,7 +76,7 @@ const UpdateBook = ({ book }) => {
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
-    setImage(file); // Set file object to image state
+    setImage(file);
   };
 
   const getAuthToken = () => {
@@ -72,6 +87,7 @@ const UpdateBook = ({ book }) => {
     }
     return token;
   };
+  
   return (
     <div className="px-[25px] pt-[25px] bg-[#F8F9FC]">
       <div className="flex items-center justify-between">
