@@ -32,7 +32,7 @@ const PeminjamanCompo = () => {
   useEffect(() => {
     fetchData();
   }, [page, rowsPerPage, searchQuery]);
-
+  
   const fetchData = async () => {
     try {
       const token = getAuthToken();
@@ -40,18 +40,18 @@ const PeminjamanCompo = () => {
         console.error("Token not available. Please login.");
         return;
       }
-
+  
       const response = await axios.get(`http://127.0.0.1:8000/api/borrow/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
         params: {
-          page: page,
+          page: page, // Gunakan nilai page yang diatur sebelumnya
           per_page: rowsPerPage,
           q: searchQuery,
         },
       });
-
+  
       if (response.data.success) {
         const { data, last_page, total } = response.data.data;
         setBooks(data);
@@ -81,30 +81,14 @@ const PeminjamanCompo = () => {
           },
         }
       );
-
-      if (response.data && response.data.success) {
-        Swal.fire({
-          title: "Accepted!",
-          text: "Peminjaman Berhasil!",
-          icon: "success",
-        });
-
-        fetchData();
-      } else {
-        console.error("Error accepting borrow:", response.data.message);
-        Swal.fire({
-          title: "Error",
-          text: "Gagal menerima peminjaman.",
-          icon: "error",
-        });
-      }
-    } catch (error) {
-      console.error("Error accepting borrow:", error.message);
+      fetchData();
       Swal.fire({
-        title: "Error",
-        text: "Gagal menerima peminjaman.",
-        icon: "error",
+        title: "Success!",
+        text: "Status peminjaman berhasil diubah menjadi Sukses.",
+        icon: "success",
       });
+    } catch (error) {
+      console.error("Error updating status peminjaman:", error);
     }
   };
 
@@ -119,12 +103,13 @@ const PeminjamanCompo = () => {
   };
 
   const handleChangePage = (event, newPage) => {
-    setPage(newPage);
+    setPage(newPage + 1); // Ubah indeks halaman agar dimulai dari 1
   };
 
   const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(1);
+    const newRowsPerPage = parseInt(event.target.value, 10);
+    setRowsPerPage(newRowsPerPage);
+    setPage(1); // Set halaman kembali ke 1 saat jumlah baris per halaman diubah
   };
 
   const handleSearchChange = (event) => {
@@ -149,30 +134,30 @@ const PeminjamanCompo = () => {
   };
 
   return (
-<div className="px-[25px] pt-[25px] pb-[370px] bg-[#F8F9FC]">
-  <div className="flex items-center justify-between mb-4">
-    <div className="flex items-center">
-      <h1 className="text-[28px] leading-[34px] font-normal text-[#5a5c69] cursor-pointer">
-        Peminjaman Buku
-      </h1>
-    </div>
-    <div className="flex items-center">
-      <TextField
-        label="Cari"
-        variant="outlined"
-        size="small"
-        className="px-4 py-2 mr-4 rounded"
-        value={searchQuery}
-        onChange={handleSearchChange}
-      />
-      <button
-        onClick={openAddModal}
-        className="bg-blue-500 text-white px-4 py-2 rounded mr-4 ml-4"
-      >
-        Tambah Peminjaman
-      </button>
-    </div>
-  </div>
+    <div className="px-[25px] pt-[25px] pb-[370px] bg-[#F8F9FC]">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center">
+          <h1 className="text-[28px] leading-[34px] font-normal text-[#5a5c69] cursor-pointer">
+            Peminjaman Buku
+          </h1>
+        </div>
+        <div className="flex items-center">
+          <TextField
+            label="Cari"
+            variant="outlined"
+            size="small"
+            className="px-4 py-2 mr-4 rounded"
+            value={searchQuery}
+            onChange={handleSearchChange}
+          />
+          <button
+            onClick={openAddModal}
+            className="bg-blue-500 text-white px-4 py-2 rounded mr-4 ml-4"
+          >
+            Tambah Peminjaman
+          </button>
+        </div>
+      </div>
       <TableContainer component={Paper} className="table_list mt-10">
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
@@ -189,7 +174,7 @@ const PeminjamanCompo = () => {
           <TableBody>
             {books.map((borrow, index) => (
               <TableRow key={borrow.id}>
-                <TableCell className="table_cell">{index + 1}</TableCell>
+                <TableCell className="table_cell"> {(page - 1) * 10 + index + 1}</TableCell>
                 <TableCell className="table_cell">
                   {borrow.borrowing_start}
                 </TableCell>
@@ -198,23 +183,35 @@ const PeminjamanCompo = () => {
                 </TableCell>
                 <TableCell className="table_cell">{borrow.book.title}</TableCell>
                 <TableCell className="table_cell">{borrow.user.name}</TableCell>
-                <TableCell className={`table_cell w-[30px] ${borrow.status === 'pending' ? 'bg-yellow-500' : borrow.status === 'accepted' ? 'bg-green-500' : borrow.status === 'completed' ? 'bg-blue-500' : ''}`}>
-                  <span className="text-white flex items-center justify-center">
+                <TableCell className="table_cell">
+                  <span
+                    className={`text-white px-3 rounded-full p-1 ${borrow.status === "pending"
+                      ? "bg-yellow-500"
+                      : borrow.status === "accepted"
+                        ? "bg-green-500"
+                        : borrow.status === "completed"
+                          ? "bg-blue-500"
+                          : ""
+                      }`}
+                  >
                     {borrow.status}
                   </span>
                 </TableCell>
                 <TableCell className="table_cell">
                   {borrow.status === "pending" ? (
-                    <MdOutlineCheckBox
+                    <Button
                       onClick={() => handleAccept(borrow.id)}
-                      className="text-white bg-blue-500 cursor-pointer ml-2"
-                      style={{ fontSize: "1.4rem" }}
-                    />
+                      variant="outlined"
+                      color="primary"
+                      className="ml-2"
+                    >
+                      Terima
+                    </Button>
                   ) : (
                     <Button
                       onClick={() => handleDetail(borrow)}
                       variant="contained"
-                      color="primary"
+                      color="info"
                       className="ml-2"
                     >
                       Detail
@@ -273,4 +270,3 @@ const PeminjamanCompo = () => {
 };
 
 export default PeminjamanCompo;
-  
