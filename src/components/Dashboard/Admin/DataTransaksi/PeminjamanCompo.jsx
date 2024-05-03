@@ -253,15 +253,17 @@ const PeminjamanCompo = () => {
         }}
       >
         <Fade in={isDetailModalOpen}>
-          <div className="modal">
-            {selectedBorrow && (
-              <div>
-                <h2 id="transition-modal-title">Detail Peminjaman</h2>
-                <p id="transition-modal-description">
-                  {JSON.stringify(selectedBorrow, null, 2)}
-                </p>
-              </div>
-            )}
+          <div className="fixed inset-0 flex items-center justify-center z-50">
+            <div className="bg-white p-8 rounded-lg w-96">
+              <h2 className="text-xl font-bold mb-4">Detail Peminjaman</h2>
+              {selectedBorrow && (
+                <div>
+                  <p>Judul Buku: {selectedBorrow.book.title}</p>
+                  <p>Nama Peminjam: {selectedBorrow.user.name}</p>
+                  <p>Status: {selectedBorrow.status}</p>
+                </div>
+              )}
+            </div>
           </div>
         </Fade>
       </Modal>
