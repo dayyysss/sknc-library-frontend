@@ -32,7 +32,7 @@ const PeminjamanCompo = () => {
   useEffect(() => {
     fetchData();
   }, [page, rowsPerPage, searchQuery]);
-  
+
   const fetchData = async () => {
     try {
       const token = getAuthToken();
@@ -40,7 +40,7 @@ const PeminjamanCompo = () => {
         console.error("Token not available. Please login.");
         return;
       }
-  
+
       const response = await axios.get(`http://127.0.0.1:8000/api/borrow/`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -51,7 +51,7 @@ const PeminjamanCompo = () => {
           q: searchQuery,
         },
       });
-  
+
       if (response.data.success) {
         const { data, last_page, total } = response.data.data;
         setBooks(data);
@@ -245,7 +245,7 @@ const PeminjamanCompo = () => {
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
         open={isDetailModalOpen}
-        onClose={handleCloseDetailModal}
+        onClose={handleCloseDetailModal} // Close modal when clicking outside the modal area
         closeAfterTransition
         BackdropComponent={Backdrop}
         BackdropProps={{
@@ -253,14 +253,51 @@ const PeminjamanCompo = () => {
         }}
       >
         <Fade in={isDetailModalOpen}>
-          <div className="fixed inset-0 flex items-center justify-center z-50">
-            <div className="bg-white p-8 rounded-lg w-96">
+          <div className="fixed inset-0 flex items-center justify-center" onClick={handleCloseDetailModal}>
+            <div className="bg-white p-8 rounded-lg w-[30%]" onClick={(e) => e.stopPropagation()}>
+              <Button variant="outlined" onClick={handleCloseDetailModal} className="absolute top-[-20px] right-[-5px] text-gray-500 hover:text-gray-700 focus:outline-none">
+                Kembali
+              </Button>
               <h2 className="text-xl font-bold mb-4">Detail Peminjaman</h2>
               {selectedBorrow && (
-                <div>
-                  <p>Judul Buku: {selectedBorrow.book.title}</p>
-                  <p>Nama Peminjam: {selectedBorrow.user.name}</p>
-                  <p>Status: {selectedBorrow.status}</p>
+                <div className=" md:flex-row">
+                  <div className="md:w-1/2 flex ">
+                    <div className="bg-gray-100 p-4 rounded-md mb-4 ">
+                      <p className="text-sm font-semibold">Nama Peminjam:</p>
+                      <p>{selectedBorrow.user.name}</p>
+                      <p className="text-sm font-semibold">Email:</p>
+                      <p>{selectedBorrow.user.email}</p>
+                      <p className="text-sm font-semibold">Status User:</p>
+                      <p>{selectedBorrow.user.status}</p>
+                    </div>
+                    <div className="md:w-1/2 md:ml-8 ">
+                      <div className="bg-gray-100 p-4 rounded-md mb-4 w-[200px]">
+                        <p className="text-sm font-semibold">Judul Buku:</p>
+                        <p>{selectedBorrow.book.title}</p>
+                        <p className="text-sm font-semibold">Pengarang:</p>
+                        <p>{selectedBorrow.book.writer}</p>
+                        <p className="text-sm font-semibold">Tahun Terbit:</p>
+                        <p>{selectedBorrow.book.published}</p>
+                      </div>
+                    </div>
+                  </div>
+
+
+
+                  <div className="md:w-1/2 md:ml-8 flex items-center w-full gap-5">
+                    <div className="bg-gray-100 p-4 rounded-md mb-4">
+                      <p className="text-sm font-semibold">Jumlah Buku Dipinjam:</p>
+                      <p>{selectedBorrow.quantity}</p>
+                    </div>
+                    <div className="bg-gray-100 p-4 rounded-md mb-4">
+                      <p className="text-sm font-semibold">Status:</p>
+                      <p>{selectedBorrow.status}</p>
+                    </div>
+                    <div className="bg-gray-100 p-4 rounded-md mb-4">
+                      <p className="text-sm font-semibold">Deadline:</p>
+                      <p>{selectedBorrow.deadline}</p>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
