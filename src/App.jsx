@@ -13,8 +13,8 @@ import Cookies from 'js-cookie';
 // Dashboard Admin
 import HomeAdmin from './components/Dashboard/Admin/Home/HomeAdmin';
 
-import ListAdmin from './views/Dashboard/Admin/DataMaster/Admin/AdminList'
-import TambahAdmin from './views/Dashboard/Admin/DataMaster/Admin/AddAdmin'
+import ListTamu from './views/Dashboard/Admin/DataMaster/Buku Tamu/TamuList'
+import TambahAdmin from './views/Dashboard/Admin/DataMaster/Buku Tamu/AddTamu'
 
 import ListPustakawan from './views/Dashboard/Admin/DataMaster/Pustakawan/PustakawanList'
 import TambahPustakawan from './views/Dashboard/Admin/DataMaster/Pustakawan/AddPustakawan'
@@ -71,11 +71,11 @@ function App() {
                     <Route path="/dashboard-admin">
                         <Route index element={<HomeAdmin />} />
                         {/* nested routes */}
-                        {/* <Route path="admin/*" element={<ListAdmin type="admin" />} />
-                        <Route path="/dashboard-admin/admin/add-admin/*" element={<TambahAdmin type="admin" />} />
+                        <Route path="buku-tamu/*" element={<ListTamu type="tamu" />} />
+                        {/* <Route path="/dashboard-admin/admin/add-admin/*" element={<TambahAdmin type="admin" />} />
 
-                        <Route path="pustakawan/*" element={<ListPustakawan type="pustakawan" />} />
-                        <Route path="/dashboard-admin/pustakawan/add-pustakawan/*" element={<TambahPustakawan type="pustakawan" />} /> */}
+                        <Route path="pustakawan/*" element={<ListPustakawan type="pustakawan" />} /> */}
+                         {/* <Route path="/dashboard-admin/pustakawan/add-pustakawan/*" element={<TambahPustakawan type="pustakawan" />} /> */}
 
                         <Route path="manajemen-user/*" element={<ListAnggota type="user" />} />
                         <Route path="user/tambah-user/*" element={<TambahAnggota type="user" />} />

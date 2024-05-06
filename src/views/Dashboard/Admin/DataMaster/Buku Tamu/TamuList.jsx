@@ -3,7 +3,7 @@ import SidebarAdmin from '../../../../../components/Dashboard/Admin/SidebarAdmin
 import NavbarAdmin from '../../../../../components/Dashboard/Admin/DashboardNav'
 import AdminListCompo from '../../../../../components/Dashboard/Admin/DataMaster/Admin/AdminList'
 
-const AdminList = () => {
+const TamuList = () => {
   return (
     <div className="flex overflow-scroll ">
         <div className="basis-[12%] h-[100vh]">
@@ -18,4 +18,4 @@ const AdminList = () => {
   )
 }
 
-export default AdminList
+export default TamuList

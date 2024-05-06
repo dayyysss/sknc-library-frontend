@@ -24,18 +24,18 @@ const SidebarAdmin = () => {
         <p className='text-[14px] leading-[20px] font-bold text-white'>Dashboard</p>
       </NavLink>
 
+      {/* Buku Tamu */}
+      <NavLink to="/dashboard-admin/buku-tamu" className='flex items-center justify-between gap-[10px] py-[15px] cursor-pointer' activeClassName="selected">
+        <div className='flex items-center gap-[10px]'>
+          <RiAdminFill color='white' /> <p className='text-[14px] leading-[20px] font-normal text-white'>Buku Tamu</p>
+        </div>
+        <FaChevronRight color='white' />
+      </NavLink>
+
       {/* Data Master Section */}
       <div className='pt-[15px] border-b-[1px] border-[#EDEDED]/[0.3]'>
         {/* Section Header */}
         <p className='text-[10px] font-extrabold leading-[16px] text-white/[0.4]'> DATA MASTER </p>
-
-        {/* Admin Link
-        <NavLink to="/dashboard-admin/admin" className='flex items-center justify-between gap-[10px] py-[15px] cursor-pointer' activeClassName="selected">
-          <div className='flex items-center gap-[10px]'>
-            <RiAdminFill color='white' /> <p className='text-[14px] leading-[20px] font-normal text-white'>Admin</p>
-          </div>
-          <FaChevronRight color='white' />
-        </NavLink> */}
 
         {/* Pustakawan Link
         <NavLink to="/dashboard-admin/pustakawan" className='flex items-center justify-between gap-[10px] py-[15px] cursor-pointer'>
@@ -56,7 +56,7 @@ const SidebarAdmin = () => {
         {/* Buku Link */}
         <NavLink to="/dashboard-admin/buku" className='flex items-center justify-between gap-[10px] py-[15px] cursor-pointer'>
           <div className='flex items-center gap-[10px]'>
-            <FaBook color='white'/> <p className='text-[14px] leading-[20px] font-normal text-white'>Buku</p>
+            <FaBook color='white' /> <p className='text-[14px] leading-[20px] font-normal text-white'>Buku</p>
           </div>
           <FaChevronRight color='white' />
         </NavLink>
@@ -98,7 +98,7 @@ const SidebarAdmin = () => {
           </div>
           <FaChevronRight color='white' />
         </NavLink> */}
-        </div>
+      </div>
 
       {/* Sidebar Collapse Button */}
       <div className='pt-[15px]'>
