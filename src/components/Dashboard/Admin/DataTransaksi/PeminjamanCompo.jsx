@@ -93,9 +93,26 @@ const PeminjamanCompo = () => {
   };
 
   const handleDetail = (borrow) => {
-    setSelectedBorrow(borrow);
+    // Copy the selectedBorrow object to avoid mutating the original state
+    const updatedBorrow = { ...borrow };
+  
+    // Mengambil tanggal deadline dari selectedBorrow
+    const deadline = new Date(updatedBorrow.borrowing_end);
+    
+    // Menghitung perbedaan antara tanggal akhir dan tanggal awal
+    const borrowingStart = new Date(updatedBorrow.borrowing_start);
+    const differenceInDays = Math.ceil((deadline - borrowingStart) / (1000 * 60 * 60 * 24));
+  
+    // Mengurangi jumlah hari yang diinginkan dari tanggal akhir
+    const newDeadline = new Date(deadline);
+    newDeadline.setDate(deadline.getDate() - differenceInDays);
+  
+    // Menyimpan tanggal deadline yang telah diubah kembali ke selectedBorrow
+    updatedBorrow.deadline = newDeadline.toISOString().slice(0, 10);
+  
+    setSelectedBorrow(updatedBorrow);
     setIsDetailModalOpen(true);
-  };
+  };  
 
   const handleCloseDetailModal = () => {
     setSelectedBorrow(null);
@@ -163,10 +180,11 @@ const PeminjamanCompo = () => {
           <TableHead>
             <TableRow>
               <TableCell className="table_cell">No</TableCell>
+              <TableCell className="table_cell">Nama Peminjam</TableCell>
+              <TableCell className="table_cell">Judul Buku</TableCell>
+              <TableCell className="table_cell">Jumlah Buku</TableCell>
               <TableCell className="table_cell">Peminjaman Awal</TableCell>
               <TableCell className="table_cell">Tenggat</TableCell>
-              <TableCell className="table_cell">Judul Buku</TableCell>
-              <TableCell className="table_cell">Nama Peminjam</TableCell>
               <TableCell className="table_cell">Status</TableCell>
               <TableCell className="table_cell">Aksi</TableCell>
             </TableRow>
@@ -175,14 +193,17 @@ const PeminjamanCompo = () => {
             {books.map((borrow, index) => (
               <TableRow key={borrow.id}>
                 <TableCell className="table_cell"> {(page - 1) * 10 + index + 1}</TableCell>
+                <TableCell className="table_cell">{borrow.user.name}</TableCell>
+                <TableCell className="table_cell">{borrow.book.title}</TableCell>
+                <TableCell className="table_cell">{borrow.amount_borrowed}</TableCell>
                 <TableCell className="table_cell">
                   {borrow.borrowing_start}
                 </TableCell>
                 <TableCell className="table_cell">
                   {borrow.borrowing_end}
                 </TableCell>
-                <TableCell className="table_cell">{borrow.book.title}</TableCell>
-                <TableCell className="table_cell">{borrow.user.name}</TableCell>
+              
+          
                 <TableCell className="table_cell">
                   <span
                     className={`text-white px-3 rounded-full p-1 ${borrow.status === "pending"
@@ -255,11 +276,12 @@ const PeminjamanCompo = () => {
         <Fade in={isDetailModalOpen}>
           <div className="fixed inset-0 flex items-center justify-center" onClick={handleCloseDetailModal}>
             <div className="bg-white p-8 rounded-lg w-[30%]" onClick={(e) => e.stopPropagation()}>
-              <Button variant="outlined" onClick={handleCloseDetailModal} className="absolute top-[-20px] right-[-5px] text-gray-500 hover:text-gray-700 focus:outline-none">
+              <Button variant="outlined" onClick={handleCloseDetailModal} className="absolute top-[-15px] right-[-5px] text-gray-500 hover:text-gray-700 focus:outline-none">
                 Kembali
               </Button>
               <h2 className="text-xl font-bold mb-4">Detail Peminjaman</h2>
               {selectedBorrow && (
+                // flex 1
                 <div className=" md:flex-row">
                   <div className="md:w-1/2 flex ">
                     <div className="bg-gray-100 p-4 rounded-md mb-4 ">
@@ -281,21 +303,30 @@ const PeminjamanCompo = () => {
                       </div>
                     </div>
                   </div>
-
-
-
+                  {/* flex 2 */}
                   <div className="md:w-1/2 md:ml-8 flex items-center w-full gap-5">
                     <div className="bg-gray-100 p-4 rounded-md mb-4">
                       <p className="text-sm font-semibold">Jumlah Buku Dipinjam:</p>
-                      <p>{selectedBorrow.quantity}</p>
+                      <p>{selectedBorrow.amount_borrowed}</p>
                     </div>
                     <div className="bg-gray-100 p-4 rounded-md mb-4">
                       <p className="text-sm font-semibold">Status:</p>
-                      <p>{selectedBorrow.status}</p>
+                      <p className=" rounded-full p-1 bg-green-500 px-4 text-white">{selectedBorrow.status}</p>
                     </div>
                     <div className="bg-gray-100 p-4 rounded-md mb-4">
                       <p className="text-sm font-semibold">Deadline:</p>
                       <p>{selectedBorrow.deadline}</p>
+                    </div>
+                  </div>
+                  {/* flex 3 */}
+                  <div className="md:w-1/2 md:ml-8 flex items-center w-full gap-5">
+                    <div className="bg-gray-100 p-4 rounded-md mb-4">
+                      <p className="text-sm font-semibold">Awal Peminjaman:</p>
+                      <p>{selectedBorrow.borrowing_start}</p>
+                    </div>
+                    <div className="bg-gray-100 p-4 rounded-md mb-4">
+                      <p className="text-sm font-semibold">Batas Waktu Pengembalian:</p>
+                      <p>{selectedBorrow.borrowing_end}</p>
                     </div>
                   </div>
                 </div>

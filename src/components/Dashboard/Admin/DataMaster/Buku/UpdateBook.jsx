@@ -35,7 +35,7 @@ const UpdateBook = ({ book }) => {
     e.preventDefault();
 
     const formData = new FormData();
-    formData.append("_method", "PUT");
+    formData.append("_method", "POST");
     formData.append("title", title);
     formData.append("synopsis", synopsis);
     formData.append("isbn", isbn);

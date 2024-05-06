@@ -11,6 +11,7 @@ import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 
 import Pagination from "@mui/material/Pagination";
+import { InputNumber } from 'antd';
 import Stack from "@mui/material/Stack";
 
 function DaftarBukuA() {
@@ -22,6 +23,7 @@ function DaftarBukuA() {
   const [totalBooks, setTotalBooks] = useState(0);
   const [page, setPage] = useState(1);
   const [selectedBook, setSelectedBook] = useState(null); // State untuk menyimpan detail buku yang dipilih
+  const [amountBorrowed, setAmountBorrowed] = useState(1);
 
   useEffect(() => {
     fetchData();
@@ -85,14 +87,19 @@ function DaftarBukuA() {
   const handlePinjamBuku = async () => {
     try {
       // Kirim request ke server untuk meminjam buku
-      await axios.post('http://127.0.0.1:8000/api/borrow/create', {
-        user_id: getUserId(), // Mengirim user_id yang benar
-        book_id: selectedBook.id, // Mengirim book_id yang benar
-      }, {
-        headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
+      await axios.post(
+        'http://127.0.0.1:8000/api/borrow/create',
+        {
+          user_id: getUserId(), // Mengirim user_id yang benar
+          book_id: selectedBook.id, // Mengirim book_id yang benar
+          amount_borrowed: amountBorrowed // Mengirim jumlah buku yang ingin dipinjam
         },
-      });
+        {
+          headers: {
+            Authorization: `Bearer ${getAuthToken()}`,
+          },
+        }
+      );
 
       // Tampilkan SweetAlert2 sukses
       await swal.fire({
@@ -127,6 +134,10 @@ function DaftarBukuA() {
   // Memisahkan books menjadi dua bagian, masing-masing menampilkan 4 buku
   const booksTop = books.slice(0, 4);
   const booksBottom = books.slice(4);
+
+  const onChange = (value) => {
+    console.log('changed', value);
+  };
 
   return (
     <>
@@ -305,36 +316,43 @@ function DaftarBukuA() {
         />
       </div>
 
-      {/* Konten modal */}
-      {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-auto">
-          <div className="absolute inset-0 bg-black opacity-50"></div>
-          <div className="z-50 bg-white p-8 rounded-lg max-w-lg w-full mx-4 flex">
-            {/* Gambar Sampul Buku */}
-            <div className="w-1/3 mr-4">
-              <img src={selectedBook.image} alt="Sampul Buku" className="w-full h-full object-cover" />
-            </div>
-            {/* Informasi Buku */}
-            <div className="w-2/3">
-              <h2 className="text-xl font-bold mb-4">Detail Buku </h2>
-              <p className="text-left">Judul: {selectedBook.title}</p>
-              <p className="text-left">Kategori: {selectedBook.category}</p>
-              <p className="text-left">ISBN: {selectedBook.isbn}</p>
-              <p className="text-left">Penulis: {selectedBook.writer}</p>
-              <p className="text-left">Diterbitkan: {selectedBook.published}</p>
-              <p className="text-left" style={{ color: selectedBook.stock_amount === 0 ? "red" : "#4CAF50" }}>
-                Status: {selectedBook.stock_amount === 0 ? "Tidak Tersedia" : "Tersedia"}
-              </p>
-              <p className="text-left">Sinopsis: {selectedBook.synopsis}</p>
-              {/* Tombol untuk menutup modal */}
-              <div className="mt-4">
-                <button className="bg-green-500 text-white px-4 py-2 mr-2" onClick={handlePinjamBuku}>Pinjam Buku</button>
-                <button className="bg-gray-500 text-white px-4 py-2" onClick={closeModal}>Tutup</button>
-              </div>
-            </div>
-          </div>
+    {/* Konten modal */}
+{modalOpen && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center overflow-auto">
+    <div className="absolute inset-0 bg-black opacity-50"></div>
+    <div className="z-50 bg-white p-8 rounded-lg max-w-lg w-full mx-4 flex">
+      {/* Gambar Sampul Buku */}
+      <div className="w-1/3 mr-4">
+        <img src={selectedBook.image} alt="Sampul Buku" className="w-full h-full object-cover" />
+      </div>
+      {/* Informasi Buku */}
+      <div className="w-2/3 flex flex-col"> {/* Mengubah flex menjadi flex-col untuk menata elemen secara vertikal */}
+        <h2 className="text-xl font-bold mb-4">Detail Buku </h2>
+        <p className="text-left">Judul: {selectedBook.title}</p>
+        <p className="text-left">Kategori: {selectedBook.category}</p>
+        <p className="text-left">ISBN: {selectedBook.isbn}</p>
+        <p className="text-left">Penulis: {selectedBook.writer}</p>
+        <p className="text-left">Diterbitkan: {selectedBook.published}</p>
+        <p className="text-left" style={{ color: selectedBook.stock_amount === 0 ? "red" : "#4CAF50" }}>
+          Status: {selectedBook.stock_amount === 0 ? "Tidak Tersedia" : "Tersedia"}
+        </p>
+        <p className="text-left">Sinopsis: {selectedBook.synopsis}</p>
+        {/* InputNumber dan tombol */}
+        <div className="mt-5 flex items-center"> {/* Menggunakan mt-auto untuk menempatkan div ini ke bawah */}
+          <InputNumber
+            min={1}
+            defaultValue={1}
+            onChange={value => setAmountBorrowed(value)}
+            size="large"
+            className="mr-3"
+          />
+          <button className="bg-green-500 text-white px-4 py-2 mr-2" onClick={handlePinjamBuku}>Pinjam</button>
+          <button className="bg-gray-500 text-white px-4 py-2" onClick={closeModal}>Tutup</button>
         </div>
-      )}
+      </div>
+    </div>
+  </div>
+)}
     </>
   );
 }
