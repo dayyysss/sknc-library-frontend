@@ -92,12 +92,12 @@ const SidebarAdmin = () => {
         </NavLink>
 
         {/* Denda Link */}
-        <NavLink to="/dashboard-admin/denda" className='flex items-center justify-between gap-[10px] py-[15px] cursor-pointer'>
+        {/* <NavLink to="/dashboard-admin/denda" className='flex items-center justify-between gap-[10px] py-[15px] cursor-pointer'>
           <div className='flex items-center gap-[10px]'>
             <FaRegCalendarAlt color='white' /> <p className='text-[14px] leading-[20px] font-normal text-white'>Denda</p>
           </div>
           <FaChevronRight color='white' />
-        </NavLink>
+        </NavLink> */}
         </div>
 
       {/* Sidebar Collapse Button */}

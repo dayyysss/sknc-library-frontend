@@ -1,8 +1,18 @@
 import React, { useState } from 'react';
 
 const DetailBook = ({ book }) => {
-  const getStatusColor = (status) => {
-    return status === 'available' ? 'text-green-600' : 'text-red-600';
+  const getStatusColor = (stockAmount) => {
+    if (stockAmount > 0) {
+      return {
+        status: 'Tersedia',
+        colorClass: 'text-green-600'
+      };
+    } else {
+      return {
+        status: 'Tidak Tersedia',
+        colorClass: 'text-red-600'
+      };
+    }
   };
 
   const [isModalOpen, setIsModalOpen] = useState(true);
@@ -10,6 +20,8 @@ const DetailBook = ({ book }) => {
   const closeModal = () => {
     setIsModalOpen(false);
   };
+
+  const { status, colorClass } = getStatusColor(book.stock_amount);
 
   return (
     <div className={`bg-white p-6 rounded-lg shadow-md ${isModalOpen ? 'block' : 'hidden'}`}>
@@ -26,7 +38,7 @@ const DetailBook = ({ book }) => {
           <p><span className="font-semibold">Stok Buku:</span> {book.stock_amount}</p>
           <p><span className="font-semibold">Diterbitkan:</span> {book.published}</p>
           <p><span className="font-semibold">Kategori:</span> {book.category}</p>
-          <p className="flex items-center"><span className="font-semibold mr-2">Status:</span> <span className={getStatusColor(book.status)}>{book.status}</span></p>
+          <p className="flex items-center"><span className="font-semibold mr-2">Status:</span> <span className={colorClass}>{status}</span></p>
           <div className='mt-4 flex'>
             <button className="bg-blue-500 text-white px-4 py-2 rounded mr-2">Edit</button>
             <button className="bg-red-500 text-white px-4 py-2 rounded mr-2">Hapus</button>

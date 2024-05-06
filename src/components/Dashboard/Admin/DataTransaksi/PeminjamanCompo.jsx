@@ -57,6 +57,7 @@ const PeminjamanCompo = () => {
         setBooks(data);
         setTotalPages(last_page);
         setTotalBooks(total);
+        console.log(data)
       }
     } catch (error) {
       console.error(error);
@@ -95,24 +96,24 @@ const PeminjamanCompo = () => {
   const handleDetail = (borrow) => {
     // Copy the selectedBorrow object to avoid mutating the original state
     const updatedBorrow = { ...borrow };
-  
+
     // Mengambil tanggal deadline dari selectedBorrow
     const deadline = new Date(updatedBorrow.borrowing_end);
-    
+
     // Menghitung perbedaan antara tanggal akhir dan tanggal awal
     const borrowingStart = new Date(updatedBorrow.borrowing_start);
     const differenceInDays = Math.ceil((deadline - borrowingStart) / (1000 * 60 * 60 * 24));
-  
+
     // Mengurangi jumlah hari yang diinginkan dari tanggal akhir
     const newDeadline = new Date(deadline);
     newDeadline.setDate(deadline.getDate() - differenceInDays);
-  
+
     // Menyimpan tanggal deadline yang telah diubah kembali ke selectedBorrow
     updatedBorrow.deadline = newDeadline.toISOString().slice(0, 10);
-  
+
     setSelectedBorrow(updatedBorrow);
     setIsDetailModalOpen(true);
-  };  
+  };
 
   const handleCloseDetailModal = () => {
     setSelectedBorrow(null);
@@ -202,8 +203,6 @@ const PeminjamanCompo = () => {
                 <TableCell className="table_cell">
                   {borrow.borrowing_end}
                 </TableCell>
-              
-          
                 <TableCell className="table_cell">
                   <span
                     className={`text-white px-3 rounded-full p-1 ${borrow.status === "pending"
@@ -314,8 +313,8 @@ const PeminjamanCompo = () => {
                       <p className=" rounded-full p-1 bg-green-500 px-4 text-white">{selectedBorrow.status}</p>
                     </div>
                     <div className="bg-gray-100 p-4 rounded-md mb-4">
-                      <p className="text-sm font-semibold">Deadline:</p>
-                      <p>{selectedBorrow.deadline}</p>
+                      <p className="text-sm font-semibold">Id Peminjaman:</p>
+                      <p>{selectedBorrow.id}</p>
                     </div>
                   </div>
                   {/* flex 3 */}

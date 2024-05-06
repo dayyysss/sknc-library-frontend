@@ -201,8 +201,8 @@ const PengembalianCompo = () => {
                     {(books.current_page - 1) * books.per_page + index + 1}
                   </TableCell>
                   <TableCell className="table_cell">{pengembalian.borrow_id}</TableCell>
-                  <TableCell className="table_cell">{pengembalian.user_id}</TableCell>
-                  <TableCell className="table_cell">{pengembalian.book_id}</TableCell>
+                  <TableCell className="table_cell">{pengembalian.user.name }</TableCell>
+                  <TableCell className="table_cell">{pengembalian.book.title}</TableCell>
                   <TableCell className="table_cell">{pengembalian.returndate}</TableCell>
                   <TableCell className="table_cell">{pengembalian.status}</TableCell>
                   <TableCell className="table_cell">{pengembalian.fine}</TableCell>
