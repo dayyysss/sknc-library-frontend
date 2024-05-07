@@ -2,13 +2,19 @@ import React, { useState } from 'react';
 import { FaTachometerAlt, FaUserTie, FaStickyNote, FaRegChartBar, FaRegCalendarAlt, FaChevronRight, FaChevronLeft, FaBook, FaUser } from "react-icons/fa";
 import { RiAdminFill } from "react-icons/ri";
 import { IoBookmarks } from "react-icons/io5";
-import { NavLink, Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
+import { FaBookReader } from "react-icons/fa";
 
 const SidebarAdmin = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // State untuk melacak apakah sidebar terbuka atau tertutup
+  const [activeSidebar, setActiveSidebar] = useState(null); // State untuk melacak menu sidebar yang sedang aktif
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen); // Mengubah status sidebar saat diklik
+  };
+
+  const handleSidebarClick = (sidebar) => {
+    setActiveSidebar(sidebar === activeSidebar ? null : sidebar); // Mengatur menu sidebar yang sedang aktif saat diklik
   };
 
   return (
@@ -19,17 +25,24 @@ const SidebarAdmin = () => {
       </div>
 
       {/* Dashboard Link */}
-      <NavLink to="/dashboard-admin" className='flex items-center gap-[15px] py-[20px] border-b-[1px] border-[#EDEDED]/[0.3]' activeClassName="selected">
+      <NavLink
+        to="/dashboard-admin"
+        className={`flex items-center gap-[15px] py-[20px] border-[#EDEDED]/[0.3] ${activeSidebar === 'dashboard' ? 'font-bold' : ''}`}
+        activeClassName="selected"
+        onClick={() => handleSidebarClick('dashboard')}
+      >
         <FaTachometerAlt color='white' />
-        <p className='text-[14px] leading-[20px] font-bold text-white'>Dashboard</p>
+        <p className='text-[14px] leading-[20px] text-white'>Dashboard</p>
       </NavLink>
 
       {/* Buku Tamu */}
-      <NavLink to="/dashboard-admin/buku-tamu" className='flex items-center justify-between gap-[10px] py-[15px] cursor-pointer' activeClassName="selected">
-        <div className='flex items-center gap-[10px]'>
-          <RiAdminFill color='white' /> <p className='text-[14px] leading-[20px] font-normal text-white'>Buku Tamu</p>
-        </div>
-        <FaChevronRight color='white' />
+      <NavLink
+        to="/dashboard-admin/buku-tamu"
+        className={`flex items-center gap-[15px] py-[20px] border-b-[1px] border-[#EDEDED]/[0.3] ${activeSidebar === 'buku-tamu' ? 'font-bold' : ''}`}
+        onClick={() => handleSidebarClick('buku-tamu')}
+      >
+        <FaBookReader color='white' />
+        <p className='text-[14px] leading-[20px] text-white'>Buku Tamu</p>
       </NavLink>
 
       {/* Data Master Section */}
@@ -37,37 +50,29 @@ const SidebarAdmin = () => {
         {/* Section Header */}
         <p className='text-[10px] font-extrabold leading-[16px] text-white/[0.4]'> DATA MASTER </p>
 
-        {/* Pustakawan Link
-        <NavLink to="/dashboard-admin/pustakawan" className='flex items-center justify-between gap-[10px] py-[15px] cursor-pointer'>
-          <div className='flex items-center gap-[10px]'>
-            <FaUserTie color='white' /> <p className='text-[14px] leading-[20px] font-normal text-white'>Pustakawan</p>
-          </div>
-          <FaChevronRight color='white' />
-        </NavLink> */}
-
         {/* Anggota Link */}
-        <NavLink to="/dashboard-admin/manajemen-user/*" className='flex items-center justify-between gap-[10px] py-[15px] cursor-pointer'>
+        <NavLink
+          to="/dashboard-admin/manajemen-user"
+          className={`flex items-center justify-between gap-[10px] py-[15px] cursor-pointer ${activeSidebar === 'user' ? 'font-bold' : ''}`}
+          onClick={() => handleSidebarClick('user')}
+        >
           <div className='flex items-center gap-[10px]'>
-            <FaUser color='white' /> <p className='text-[14px] leading-[20px] font-normal text-white'>User</p>
+            <FaUser color='white' /> <p className='text-[14px] leading-[20px] text-white'>User</p>
           </div>
           <FaChevronRight color='white' />
         </NavLink>
 
         {/* Buku Link */}
-        <NavLink to="/dashboard-admin/buku" className='flex items-center justify-between gap-[10px] py-[15px] cursor-pointer'>
+        <NavLink
+          to="/dashboard-admin/buku"
+          className={`flex items-center justify-between gap-[10px] py-[15px] cursor-pointer ${activeSidebar === 'buku' ? 'font-bold' : ''}`}
+          onClick={() => handleSidebarClick('buku')}
+        >
           <div className='flex items-center gap-[10px]'>
-            <FaBook color='white' /> <p className='text-[14px] leading-[20px] font-normal text-white'>Buku</p>
+            <FaBook color='white' /> <p className='text-[14px] leading-[20px] text-white'>Buku</p>
           </div>
           <FaChevronRight color='white' />
         </NavLink>
-
-        {/* Kategori Buku Link */}
-        {/* <NavLink to="/dashboard-admin/kategori" className='flex items-center justify-between gap-[10px] py-[15px] cursor-pointer'>
-          <div className='flex items-center gap-[10px]'>
-            <IoBookmarks color='white' /> <p className='text-[14px] leading-[20px] font-normal text-white'>Kategori</p>
-          </div>
-          <FaChevronRight color='white' />
-        </NavLink> */}
       </div>
 
       {/* Data Transaksi Section */}
@@ -78,7 +83,7 @@ const SidebarAdmin = () => {
         {/* Peminjaman Buku Link */}
         <NavLink to="/dashboard-admin/peminjaman" className='flex items-center justify-between gap-[10px] py-[15px] cursor-pointer'>
           <div className='flex items-center gap-[10px]'>
-            <FaStickyNote color='white' /> <p className='text-[14px] leading-[20px] font-normal text-white'>Peminjaman</p>
+            <FaStickyNote color='white' /> <p className='text-[14px] leading-[20px] text-white'>Peminjaman</p>
           </div>
           <FaChevronRight color='white' />
         </NavLink>
@@ -86,7 +91,7 @@ const SidebarAdmin = () => {
         {/* Pengembalian Buku Link */}
         <NavLink to="/dashboard-admin/pengembalian" className='flex items-center justify-between gap-[10px] py-[15px] cursor-pointer'>
           <div className='flex items-center gap-[10px]'>
-            <FaRegChartBar color='white' /> <p className='text-[14px] leading-[20px] font-normal text-white'>Pengembalian</p>
+            <FaRegChartBar color='white' /> <p className='text-[14px] leading-[20px] text-white'>Pengembalian</p>
           </div>
           <FaChevronRight color='white' />
         </NavLink>
@@ -94,7 +99,7 @@ const SidebarAdmin = () => {
         {/* Denda Link */}
         {/* <NavLink to="/dashboard-admin/denda" className='flex items-center justify-between gap-[10px] py-[15px] cursor-pointer'>
           <div className='flex items-center gap-[10px]'>
-            <FaRegCalendarAlt color='white' /> <p className='text-[14px] leading-[20px] font-normal text-white'>Denda</p>
+            <FaRegCalendarAlt color='white' /> <p className='text-[14px] leading-[20px] text-white'>Denda</p>
           </div>
           <FaChevronRight color='white' />
         </NavLink> */}

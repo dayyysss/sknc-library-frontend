@@ -1,7 +1,7 @@
 import React from 'react'
 import SidebarAdmin from '../../../../../components/Dashboard/Admin/SidebarAdmin'
 import NavbarAdmin from '../../../../../components/Dashboard/Admin/DashboardNav'
-import TambahAdminC from '../../../../../components/Dashboard/Admin/DataMaster/Admin/AddAdmin'
+import TambahTamu from '../../../../../components/Dashboard/Admin/DataMaster/Buku Tamu/TambahTamu'
 
 const AdminList = () => {
   return (
@@ -12,7 +12,7 @@ const AdminList = () => {
 
         <div className="basis-[88%] border overflow-scroll h-[100vh]">
           <NavbarAdmin />
-          <TambahAdminC />
+          <TambahTamu />
          </div>
   </div>
   )

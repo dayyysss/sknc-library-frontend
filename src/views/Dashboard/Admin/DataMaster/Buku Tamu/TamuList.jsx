@@ -1,7 +1,7 @@
 import React from 'react'
 import SidebarAdmin from '../../../../../components/Dashboard/Admin/SidebarAdmin'
 import NavbarAdmin from '../../../../../components/Dashboard/Admin/DashboardNav'
-import AdminListCompo from '../../../../../components/Dashboard/Admin/DataMaster/Admin/AdminList'
+import ListTamu from '../../../../../components/Dashboard/Admin/DataMaster/Buku Tamu/BukuTamu'
 
 const TamuList = () => {
   return (
@@ -12,7 +12,7 @@ const TamuList = () => {
 
         <div className="basis-[88%] border overflow-scroll h-[100vh]">
           <NavbarAdmin />
-          <AdminListCompo/>
+          <ListTamu/>
           </div>
   </div>
   )
