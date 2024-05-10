@@ -4,15 +4,15 @@ import { IoIosArrowDropdown } from "react-icons/io";
 import axios from "axios";
 import swal from 'sweetalert2';
 
-import Card from "@mui/material/Card";
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
+import Button from "@mui/material/Button"
 
 import Pagination from "@mui/material/Pagination";
-import { InputNumber } from 'antd';
 import Stack from "@mui/material/Stack";
+import { Card } from 'antd';
 
 function DaftarBukuA() {
   document.title = "Skanic Library - Daftar Buku";
@@ -23,7 +23,7 @@ function DaftarBukuA() {
   const [totalBooks, setTotalBooks] = useState(0);
   const [page, setPage] = useState(1);
   const [selectedBook, setSelectedBook] = useState(null); // State untuk menyimpan detail buku yang dipilih
-  const [amountBorrowed, setAmountBorrowed] = useState(1);
+  const { Meta } = Card;
 
   useEffect(() => {
     fetchData();
@@ -92,7 +92,6 @@ function DaftarBukuA() {
         {
           user_id: getUserId(), // Mengirim user_id yang benar
           book_id: selectedBook.id, // Mengirim book_id yang benar
-          amount_borrowed: amountBorrowed // Mengirim jumlah buku yang ingin dipinjam
         },
         {
           headers: {
@@ -135,9 +134,16 @@ function DaftarBukuA() {
   const booksTop = books.slice(0, 4);
   const booksBottom = books.slice(4);
 
-  const onChange = (value) => {
-    console.log('changed', value);
-  };
+    // Fungsi untuk menampilkan modal detail buku
+    const handleDetailClick = (bookId) => {
+      setSelectedBookId(bookId); // Tetapkan ID buku yang dipilih ke dalam state
+    };
+  
+    // Fungsi untuk menutup modal detail buku
+    const handleCloseModal = () => {
+      setSelectedBookId(null); // Kosongkan state ID buku yang dipilih
+    };
+  
 
   return (
     <>
@@ -227,45 +233,46 @@ function DaftarBukuA() {
           </Menu>
         </div>
 
-        {/* Daftar buku bagian atas */}
-        <div className="grid grid-cols-4 gap-5 mt-5">
-          {booksTop.map((book) => (
-            <Card key={book.id} sx={{ maxWidth: 200 }}>
-              <CardMedia
-                component="img"
-                alt="Cover Buku"
-                height="140"
-                image={book.image}
-                onClick={() => handleBookClick(book.id)} // Panggil fungsi handleBookClick saat buku diklik
-                style={{ cursor: "pointer" }} // Ubah kursor saat diarahkan ke gambar buku
-              />
-              <CardContent>
-                <Typography
-                  gutterBottom
-                  variant="h5"
-                  component="div"
-                  className="cursor-pointer"
-                  onClick={() => handleBookClick(book.id)} // Panggil fungsi handleBookClick saat judul buku diklik
-                  style={{ cursor: "pointer" }} // Ubah kursor saat diarahkan ke judul buku
-                >
-                  {book.title}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" align="center">
-                  Penulis: {book.writer}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" align="center">
-                  Kategori: {book.category}
-                </Typography>
-              </CardContent>
+ {/* Daftar buku bagian atas */}
+ <div className="grid grid-cols-4 gap-5 mt-5">
+        {booksTop.map((book) => (
+          <Card key={book.id} sx={{ maxWidth: 200 }}>
+            <CardMedia
+              component="img"
+              alt="Cover Buku"
+              height="140"
+              image={book.image}
+              onClick={() => handleDetailClick(book.id)} // Panggil fungsi handleDetailClick saat gambar buku diklik
+              style={{ cursor: "pointer" }} // Ubah kursor saat diarahkan ke gambar buku
+            />
+            <CardContent>
+              <Typography
+                gutterBottom
+                variant="h5"
+                component="div"
+                className="cursor-pointer"
+                onClick={() => handleDetailClick(book.id)} // Panggil fungsi handleDetailClick saat judul buku diklik
+                style={{ cursor: "pointer" }} // Ubah kursor saat diarahkan ke judul buku
+              >
+                {book.title}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" align="center">
+                {book.writer}
+              </Typography>
+            </CardContent>
 
-              <CardActions className="flex justify-center">
-                <Typography style={{ color: book.stock_amount === 0 ? "red" : "#4CAF50", fontWeight: "bold" }}>
-                  {book.stock_amount === 0 ? "Tidak Tersedia" : "Tersedia"}
-                </Typography>
-              </CardActions>
-            </Card>
-          ))}
-        </div>
+            <CardActions className="flex justify-between">
+              {/* Tombol detail di sebelah kiri */}
+              <Button onClick={() => handleDetailClick(book.id)} size="small" variant="outlined">Detail</Button>
+
+              {/* Status ketersediaan buku */}
+              <Typography style={{ color: book.stock_amount === 0 ? "red" : "#4CAF50", fontWeight: "bold" }}>
+                {book.stock_amount === 0 ? "Tidak Tersedia" : "Tersedia"}
+              </Typography>
+            </CardActions>
+          </Card>
+        ))}
+      </div>
 
         {/* Daftar buku bagian bawah */}
         <div className="grid grid-cols-4 gap-5 mt-5">
@@ -329,23 +336,17 @@ function DaftarBukuA() {
       <div className="w-2/3 flex flex-col"> {/* Mengubah flex menjadi flex-col untuk menata elemen secara vertikal */}
         <h2 className="text-xl font-bold mb-4">Detail Buku </h2>
         <p className="text-left">Judul: {selectedBook.title}</p>
+        <p className="text-left">Sinopsis: {selectedBook.synopsis}</p>
         <p className="text-left">Kategori: {selectedBook.category}</p>
         <p className="text-left">ISBN: {selectedBook.isbn}</p>
         <p className="text-left">Penulis: {selectedBook.writer}</p>
+        <p className="text-left">Stok Buku: {selectedBook.stock_amount}</p>
         <p className="text-left">Diterbitkan: {selectedBook.published}</p>
         <p className="text-left" style={{ color: selectedBook.stock_amount === 0 ? "red" : "#4CAF50" }}>
           Status: {selectedBook.stock_amount === 0 ? "Tidak Tersedia" : "Tersedia"}
         </p>
-        <p className="text-left">Sinopsis: {selectedBook.synopsis}</p>
         {/* InputNumber dan tombol */}
         <div className="mt-5 flex items-center"> {/* Menggunakan mt-auto untuk menempatkan div ini ke bawah */}
-          <InputNumber
-            min={1}
-            defaultValue={1}
-            onChange={value => setAmountBorrowed(value)}
-            size="large"
-            className="mr-3"
-          />
           <button className="bg-green-500 text-white px-4 py-2 mr-2" onClick={handlePinjamBuku}>Pinjam</button>
           <button className="bg-gray-500 text-white px-4 py-2" onClick={closeModal}>Tutup</button>
         </div>

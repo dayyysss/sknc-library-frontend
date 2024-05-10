@@ -14,7 +14,6 @@ import Cookies from 'js-cookie';
 import HomeAdmin from './components/Dashboard/Admin/Home/HomeAdmin';
 
 import ListTamu from './views/Dashboard/Admin/DataMaster/Buku Tamu/TamuList'
-import TambahAdmin from './views/Dashboard/Admin/DataMaster/Buku Tamu/AddTamu'
 
 import ListPustakawan from './views/Dashboard/Admin/DataMaster/Pustakawan/PustakawanList'
 import TambahPustakawan from './views/Dashboard/Admin/DataMaster/Pustakawan/AddPustakawan'
@@ -72,20 +71,10 @@ function App() {
                         <Route index element={<HomeAdmin />} />
                         {/* nested routes */}
                         <Route path="buku-tamu/*" element={<ListTamu type="tamu" />} />
-                        {/* <Route path="/dashboard-admin/admin/add-admin/*" element={<TambahAdmin type="admin" />} />
-
-                        <Route path="pustakawan/*" element={<ListPustakawan type="pustakawan" />} /> */}
-                         {/* <Route path="/dashboard-admin/pustakawan/add-pustakawan/*" element={<TambahPustakawan type="pustakawan" />} /> */}
-
                         <Route path="manajemen-user/*" element={<ListAnggota type="user" />} />
                         <Route path="user/tambah-user/*" element={<TambahAnggota type="user" />} />
-
                         <Route path="buku/*" element={<ListBook type="buku" />} />
                         <Route path="/dashboard-admin/buku/add-buku/*" element={<TambahBuku type="buku" />} />
-{/* 
-                        <Route path="kategori/*" element={<KategoriBook type="kategori" />} />
-                        <Route path="/dashboard-admin/kategori/add-kategori/*" element={<TambahKategori type="pustakawan" />} /> */}
-
                         <Route path="peminjaman/*" element={<TransPeminjaman type="peminjaman" />} />
                         <Route path="pengembalian/*" element={<TransPengembalian type="pengembalian" />} />
                         <Route path="denda/*" element={<TransDenda type="denda" />} />

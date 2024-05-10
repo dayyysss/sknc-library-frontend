@@ -1,23 +1,23 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
-import Pagination from "@mui/material/Pagination";
-import Stack from "@mui/material/Stack";
 import axios from "axios";
-import { RiDeleteBin5Line } from "react-icons/ri";
-import { FaEdit } from "react-icons/fa";
 import Swal from "sweetalert2";
-import UpdateUser from "./UpdateTamu";
-import { MdOutlineCheckBox } from "react-icons/md";
-import AddUserModal from "./TambahTamu";
-import ImportExcel from "../../ImportExcel";
 import Chart from 'chart.js/auto'
 import { GrBundle } from "react-icons/gr";
-import { Button as AntButton, Table, Popconfirm } from "antd";
+import { Button, Table, Pagination, Tooltip, Flex, Space, Select, Form, Input } from "antd";
+import { SearchOutlined } from '@ant-design/icons';
+import UpdateTamu from './UpdateTamu'
 
 const BukuTamu = () => {
   document.title = "Dashboard Admin - Buku Tamu";
   const [guestsToday, setGuestsToday] = useState([]);
+  const [page, setPage] = useState(1);
   const chartRef = useRef(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedGuestId, setSelectedGuestId] = useState(null);
+  const [selectedGoal, setSelectedGoal] = useState(null);
+  const [form] = Form.useForm();
+  const [totalGuests, setTotalGuests] = useState(0);
+  const pageSize = 10; // Misalnya, Anda ingin menampilkan 10 pengunjung per halaman
 
   const [guest, setGuest] = useState({
     name: "",
@@ -31,7 +31,7 @@ const BukuTamu = () => {
   useEffect(() => {
     fetchGuestsToday();
     createChart();
-  }, []);
+  }, [page]);
 
   const fetchGuestsToday = async () => {
     try {
@@ -49,16 +49,23 @@ const BukuTamu = () => {
           page: page,
         },
       });
+
       if (response.data.success) {
-        setGuestsToday(response.data.data);
+        if (response.data.data && Array.isArray(response.data.data.data)) {
+          setGuestsToday(response.data.data.data);
+          setTotalGuests(response.data.data.total); // Simpan total data pengunjung
+        } else {
+          console.error("Data received is not in the expected format:", response.data.data);
+        }
+      } else {
+        console.error("Failed to fetch guests data:", response.data.error);
       }
     } catch (error) {
-      console.error(error);
+      console.error("Error fetching guests data:", error);
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (values) => {
     try {
       const token = getAuthToken();
       if (!token) {
@@ -70,10 +77,8 @@ const BukuTamu = () => {
           Authorization: `Bearer ${token}`,
         },
       };
-      await axios.post("http://127.0.0.1:8000/api/guestbook/create", guest, config);
-      // Membersihkan formulir setelah pengiriman berhasil
-      setGuest({ name: "", class: "", departemen: "", email: "", goals: "", telp: "" });
-      // Memperbarui data tamu setelah pengiriman berhasil
+      await axios.post("http://127.0.0.1:8000/api/guestbook/create", values, config);
+      form.resetFields(); // Reset form setelah submit berhasil
       fetchGuestsToday();
       Swal.fire({
         icon: "success",
@@ -129,11 +134,6 @@ const BukuTamu = () => {
     } catch (error) {
       console.error("Error deleting user:", error);
     }
-  };
-
-  const handleUpdate = async (userId) => {
-    setSelectedBook(userId);
-    setIsModalOpen(true);
   };
 
   const handleChange = (e) => {
@@ -194,6 +194,26 @@ const BukuTamu = () => {
     console.log("Tombol Rekapitulasi Pengunjung diklik");
   };
 
+  const handleEdit = (guestId) => {
+    setSelectedGuestId(guestId);
+    setIsModalOpen(true);
+  };
+
+  const [goalOptions, setGoalOptions] = useState([
+    { label: "Membaca Buku", value: "Membaca Buku" },
+    { label: "Meminjam Buku", value: "Meminjam Buku" },
+    { label: "Mengerjakan Tugas", value: "Mengerjakan Tugas" },
+    { label: "Diskusi", value: "Diskusi" },
+  ]);
+
+  const handleGoalChange = (value) => {
+    setSelectedGoal(value);
+    setGuest((prevState) => ({
+      ...prevState,
+      goals: value,
+    }));
+  };
+
   return (
     <>
       <div className="min-h-screen px-[25px] pt-[25px] pb-[auto] bg-[#F8F9FC] overflow-auto">
@@ -207,76 +227,35 @@ const BukuTamu = () => {
         <div className="mt-8 flex space-x-8">
           <div className="w-1/2 bg-white p-4 rounded-md shadow-md">
             <h1 className="text-lg font-semibold mb-4">Identitas Pengunjung</h1>
-            <form onSubmit={handleSubmit}>
-              <div className="mb-4">
-                <input
-                  placeholder="Nama Pengunjung"
-                  type="text"
-                  name="name"
-                  value={guest.name}
-                  onChange={handleChange}
-                  className="mt-1 block px-4 py-2 w-full bg-gray-100 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
+            <Form form={form} onFinish={handleSubmit}>
+              <Form.Item name="name" rules={[{ required: true, message: 'Nama Pengunjung harus diisi!' }]}>
+                <Input placeholder="Nama Pengunjung" />
+              </Form.Item>
+              <Form.Item name="class">
+                <Input placeholder="Kelas" />
+              </Form.Item>
+              <Form.Item name="departemen">
+                <Input placeholder="Jurusan" />
+              </Form.Item>
+              <Form.Item name="email" rules={[{ type: 'email', message: 'Email tidak valid!' }]}>
+                <Input placeholder="Email" />
+              </Form.Item>
+              <Form.Item name="goals">
+                <Select
+                  placeholder="Pilih Tujuan"
+                  options={goalOptions}
+                  onChange={handleGoalChange}
                 />
-              </div>
-              <div className="mb-4">
-                <input
-                  placeholder="Kelas"
-                  type="text"
-                  name="class"
-                  value={guest.class}
-                  onChange={handleChange}
-                  className="mt-1 px-4 py-2 block w-full bg-gray-100 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                />
-              </div>
-              <div className="mb-4">
-                <input
-                  placeholder="Jurusan"
-                  type="text"
-                  name="departemen"
-                  value={guest.departemen}
-                  onChange={handleChange}
-                  className="mt-1 block px-4 py-2 w-full bg-gray-100 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                />
-              </div>
-              <div className="mb-4">
-                <input
-                  placeholder="Alamat Email"
-                  type="email"
-                  name="email"
-                  value={guest.email}
-                  onChange={handleChange}
-                  className="mt-1 block px-4 py-2 w-full bg-gray-100 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                />
-              </div>
-              <div className="mb-4">
-                <input
-                  placeholder="Tujuan"
-                  type="text"
-                  name="goals"
-                  value={guest.goals}
-                  onChange={handleChange}
-                  className="mt-1 block w-full px-4 py-2 bg-gray-100 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                />
-              </div>
-              <div className="mb-4">
-                <input
-                  placeholder="No Handphone"
-                  type="tel"
-                  name="telp"
-                  value={guest.telp}
-                  onChange={handleChange}
-                  className="mt-1 px-4 py-2 block w-full bg-gray-100 border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                />
-              </div>
+              </Form.Item>
+              <Form.Item name="telp">
+                <Input placeholder="No Handphone" />
+              </Form.Item>
               <div className="flex justify-end">
-                <button
-                  type="submit"
-                  className="w-full px-4 py-2 bg-blue-500 text-white rounded-md shadow-md hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-200 focus:ring-opacity-50"
-                >
+                <Button type="primary" htmlType="submit" className="w-full bg-blue-500">
                   Simpan Data
-                </button>
+                </Button>
               </div>
-            </form>
+            </Form>
           </div>
 
           {/* Statistik Pengunjung */}
@@ -293,36 +272,56 @@ const BukuTamu = () => {
           <h2 className="text-lg font-semibold mb-4">Daftar Pengunjung Hari Ini [{getTodayDate()}]</h2>
           {/* Tombol Rekapitulasi Pengunjung */}
           <div className="flex items-center mb-4">
-            <AntButton
+            <Button
               type="primary"
               icon={<GrBundle />} // Menambahkan ikon GrBundle di sebelah kiri teks tombol
               onClick={handleSummary} // Tentukan fungsi penanganan klik tombol di sini
-              className="mr-2" // Memberikan margin kanan untuk memisahkan tombol dan teks
+              className="mr-2 bg-blue-500" // Memberikan margin kanan untuk memisahkan tombol dan teks
             >
               Rekapitulasi Pengunjung
-            </AntButton>
+            </Button>
+            <div className="flex justify-end">
+              <Flex wrap gap="small">
+                <Tooltip title="search">
+                </Tooltip>
+                <Button icon={<SearchOutlined />}>Search</Button>
+              </Flex>
+            </div>
           </div>
-          <Table dataSource={guestsToday} pagination={false}>
-            {/* Tambahkan kolom tabel */}
-            <Table.Column title="No" dataIndex="key" render={(text, record, index) => index + 1} />
+          <Table
+            dataSource={guestsToday.map((guest, index) => ({
+              ...guest,
+              key: (page - 1) * pageSize + index + 1,
+            }))}
+            pagination={false}
+          >
+            <Table.Column title="No" dataIndex="key" />
             <Table.Column title="Nama Pengunjung" dataIndex="name" />
             <Table.Column title="Kelas" dataIndex="class" />
             <Table.Column title="Jurusan" dataIndex="departemen" />
             <Table.Column title="Email" dataIndex="email" />
             <Table.Column title="Tujuan" dataIndex="goals" />
-            <Table.Column title="No Telp" dataIndex="telp" />
+            <Table.Column title="No Handphone" dataIndex="telp" />
             <Table.Column
               title="Aksi"
-              dataIndex="operation"
-              render={(text, record) =>
-                dataSource.length >= 1 ? (
-                  <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.key)}>
-                    <a>Delete</a>
-                  </Popconfirm>
-                ) : null
-              }
+              render={(text, record) => (
+                <Space>
+                  <Button type="primary" shape="round" className="bg-blue-500" onClick={() => handleEdit(record.id)}>Edit</Button>
+                  <Button danger shape="round" onClick={() => handleDelete(record.id)}>Delete</Button>
+                </Space>
+              )}
             />
           </Table>
+          <Pagination
+            className="mt-5"
+            current={page}
+            total={totalGuests}
+            pageSize={pageSize}
+            onChange={(page) => setPage(page)}
+          />
+          {isModalOpen && (
+            <UpdateTamu userId={selectedGuestId} onClose={() => setIsModalOpen(false)} />
+          )}
         </div>
       </div>
     </>

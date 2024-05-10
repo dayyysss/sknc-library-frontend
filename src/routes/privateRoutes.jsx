@@ -1,5 +1,3 @@
-privateRoutes.jsx
-
 //import cookie
 import Cookies from "js-cookie";
 
