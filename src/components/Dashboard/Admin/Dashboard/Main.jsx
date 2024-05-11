@@ -14,24 +14,68 @@ import axios from "axios";
 
 const Main = () => {
   const [totalBooks, setTotalBooks] = useState(0);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const [totalPeminjaman, setTotalPeminjaman] = useState(0);
+  const [totalPengembalian, setTotalPengembalian] = useState(0);
   const [datas, setDatas] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchDataBuku = async () => {
       try {
         const responseBook = await axios.get('http://127.0.0.1:8000/api/book/', {
           headers: {
-            Authorization: `Bearer ${getAuthToken()}`, // Panggil sebagai fungsi
+            Authorization: `Bearer ${getAuthToken()}`,
           },
         });
-        console.log('Response Book:', responseBook.data); // Tambahkan ini untuk mencetak respons API
-        setTotalBooks(responseBook.data.total);
+        setTotalBooks(responseBook.data.data.total);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    const fetchDataUser = async () => {
+      try {
+        const responseUser = await axios.get('http://127.0.0.1:8000/api/user/', {
+          headers: {
+            Authorization: `Bearer ${getAuthToken()}`,
+          },
+        });
+        setTotalUsers(responseUser.data.data.total);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    const fetchDataPeminjaman = async () => {
+      try {
+        const responsePeminjaman = await axios.get('http://127.0.0.1:8000/api/borrow/', {
+          headers: {
+            Authorization: `Bearer ${getAuthToken()}`,
+          },
+        });
+        setTotalPeminjaman(responsePeminjaman.data.data.total);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    const fetchDataPengembalian = async () => {
+      try {
+        const responsePengembalian = await axios.get('http://127.0.0.1:8000/api/restore/', {
+          headers: {
+            Authorization: `Bearer ${getAuthToken()}`,
+          },
+        });
+        setTotalPengembalian(responsePengembalian.data.data.total);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
     };
   
-    fetchData();
+    fetchDataBuku();
+    fetchDataUser();
+    fetchDataPeminjaman();
+    fetchDataPengembalian();
   }, []);  
 
   const getAuthToken = () => {
@@ -83,7 +127,7 @@ const Main = () => {
               JUMLAH BUKU
             </h2>
             <h1 className="text-[20px] leading-[24px] font-bold text-[#5a5c69] mt-[5px]">
-              20
+            {totalBooks} 
             </h1>
           </div>
           <FaRegCalendarMinus fontSize={28} color="" />
@@ -98,7 +142,7 @@ const Main = () => {
               JUMLAH USER
             </h2>
             <h1 className="text-[20px] leading-[24px] font-bold text-[#5a5c69] mt-[5px]">
-              100
+            {totalUsers}
             </h1>
           </div>
           <FaRegCalendarMinus fontSize={28} />
@@ -113,7 +157,7 @@ const Main = () => {
               JUMLAH PEMINJAMAN
             </h2>
             <h1 className="text-[20px] leading-[24px] font-bold text-[#5a5c69] mt-[5px]">
-              100
+            {totalPeminjaman}
             </h1>
           </div>
           <FaRegCalendarMinus fontSize={28} />
@@ -128,7 +172,7 @@ const Main = () => {
               JUMLAH PENGEMBALIAN
             </h2>
             <h1 className="text-[20px] leading-[24px] font-bold text-[#5a5c69] mt-[5px]">
-              20
+            {totalPengembalian}
             </h1>
           </div>
           <FaRegCalendarMinus fontSize={28} />

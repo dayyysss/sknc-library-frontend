@@ -1,4 +1,3 @@
-/* eslint-disable jsx-a11y/no-static-element-interactions */
 import BookIcon from '@mui/icons-material/Book';
 import BookmarkAddIcon from '@mui/icons-material/BookmarkAdd';
 import BookmarkRemoveIcon from '@mui/icons-material/BookmarkRemove';
@@ -9,7 +8,7 @@ import { Link } from 'react-router-dom';
 import { ColorContext } from '../../../../context/darkContext';
 import './Sidebar.scss';
 import { toast } from 'react-hot-toast';
-import ProductionQuantityLimitsIcon from '@mui/icons-material/ProductionQuantityLimits';
+import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 
 function Sidebar() {
     // color state management using react context
@@ -51,6 +50,11 @@ function Sidebar() {
                             <BookIcon className="icon" /> Data Buku
                         </li>
                     </Link>
+                    <Link to="/dashboard-pustakawan/data-buku" style={{ textDecoration: 'none' }}>
+                        <li>
+                            <LocalLibraryIcon className="icon" /> Buku Tamu
+                        </li>
+                    </Link>
 
                     {/* <Link to="/dashboard-pustakawan/kategori-buku" style={{ textDecoration: 'none' }}>
                         <li>
@@ -67,11 +71,6 @@ function Sidebar() {
                     <Link to="/dashboard-pustakawan/pengembalian-buku" style={{ textDecoration: 'none' }}>
                         <li>
                             <BookmarkRemoveIcon className="icon" /> Pengembalian Buku
-                        </li>
-                    </Link>
-                    <Link to="/dashboard-pustakawan/denda" style={{ textDecoration: 'none' }}>
-                        <li>
-                            <ProductionQuantityLimitsIcon className="icon" /> Denda
                         </li>
                     </Link>
                     <li onClick={handleLogout}>

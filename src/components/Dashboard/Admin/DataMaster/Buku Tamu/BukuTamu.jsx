@@ -17,7 +17,7 @@ const BukuTamu = () => {
   const [selectedGoal, setSelectedGoal] = useState(null);
   const [form] = Form.useForm();
   const [totalGuests, setTotalGuests] = useState(0);
-  const pageSize = 10; // Misalnya, Anda ingin menampilkan 10 pengunjung per halaman
+  const pageSize = 10;
 
   const [guest, setGuest] = useState({
     name: "",

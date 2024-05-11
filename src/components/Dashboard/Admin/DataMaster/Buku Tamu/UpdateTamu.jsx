@@ -57,7 +57,6 @@ const UpdateTamu = ({ userId, onClose, user, fetchData }) => {
         return;
       }
       
-      // Tambahkan konfigurasi untuk Authorization
       const config = {
         headers: {
           Authorization: `Bearer ${token}`

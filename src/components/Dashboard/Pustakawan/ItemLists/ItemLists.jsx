@@ -1,24 +1,97 @@
-import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import AttachMoneyOutlinedIcon from '@mui/icons-material/AttachMoneyOutlined';
-import LocalGroceryStoreOutlinedIcon from '@mui/icons-material/LocalGroceryStoreOutlined';
-import PaidOutlinedIcon from '@mui/icons-material/PaidOutlined';
-import PermIdentityIcon from '@mui/icons-material/PermIdentity';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './itemlists.scss';
+import BookmarkAddIcon from '@mui/icons-material/BookmarkAdd';
+import BookmarkRemoveIcon from '@mui/icons-material/BookmarkRemove';
+import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import AttachMoneyOutlinedIcon from '@mui/icons-material/AttachMoneyOutlined';
+import BookIcon from '@mui/icons-material/Book';
+import axios from 'axios';
 
 function ItemLists({ type }) {
+    const [totalBooks, setTotalBooks] = useState(0);
+    const [totalTamu, setTotalTamu] = useState(0);
+    const [totalPeminjaman, setTotalPeminjaman] = useState(0);
+    const [totalPengembalian, setTotalPengembalian] = useState(0);
+
+    const getAuthToken = () => {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("Token not available. Please login.");
+          return null;
+        }
+        return token;
+      };
+
+    useEffect(() => {
+        fetchDataBuku();
+        fetchDataTamu();
+        fetchDataPengembalian();
+        fetchDataPeminjaman();
+    }, []);
+
+    const fetchDataBuku = async () => {
+        try {
+          const responseBook = await axios.get('http://127.0.0.1:8000/api/book/', {
+            headers: {
+              Authorization: `Bearer ${getAuthToken()}`,
+            },
+          });
+          setTotalBooks(responseBook.data.data.total);
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      };
+
+      const fetchDataTamu = async () => {
+        try {
+          const responseTamu = await axios.get('http://127.0.0.1:8000/api/guestbook/', {
+            headers: {
+              Authorization: `Bearer ${getAuthToken()}`,
+            },
+          });
+          setTotalTamu(responseTamu.data.data.total);
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      };
+
+      const fetchDataPeminjaman = async () => {
+        try {
+          const responsePeminjaman = await axios.get('http://127.0.0.1:8000/api/borrow/', {
+            headers: {
+              Authorization: `Bearer ${getAuthToken()}`,
+            },
+          });
+          setTotalPeminjaman(responsePeminjaman.data.data.total);
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      };
+
+      const fetchDataPengembalian = async () => {
+        try {
+          const responsePengembalian = await axios.get('http://127.0.0.1:8000/api/restore/', {
+            headers: {
+              Authorization: `Bearer ${getAuthToken()}`,
+            },
+          });
+          setTotalPengembalian(responsePengembalian.data.data.total);
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      };
+
     let data;
 
-    // Dynamicaly change the ui content
     switch (type) {
         case 'data-buku':
             data = {
-                title: 'Data Buku',
-                isMoney: false,
-                count: 232,
+                title: 'Jumlah Buku',
+                count: totalBooks,
                 icon: (
-                    <PermIdentityIcon
+                    <BookIcon
                         style={{
                             color: '#FF74B1',
                             backgroundColor: '#FFD6EC',
@@ -32,12 +105,11 @@ function ItemLists({ type }) {
             break;
         case 'peminjaman-buku':
             data = {
-                title: 'Peminjaman Buku',
-                isMoney: false,
-                count: 34,
+                title: 'Jumlah Tamu',
+                count: totalTamu,
 
                 icon: (
-                    <LocalGroceryStoreOutlinedIcon
+                    <LocalLibraryIcon
                         style={{
                             color: '#AC7088',
                             backgroundColor: '#FFF38C',
@@ -51,11 +123,10 @@ function ItemLists({ type }) {
             break;
         case 'pengembalian-buku':
             data = {
-                title: 'Pengembalian Buku',
-                isMoney: false,
-                count: 107,
+                title: 'Jumlah Peminjaman',
+                count: totalPeminjaman,
                 icon: (
-                    <AttachMoneyOutlinedIcon
+                    <BookmarkAddIcon
                         style={{
                             color: '#367E18',
                             backgroundColor: '#A7FFE4',
@@ -69,11 +140,10 @@ function ItemLists({ type }) {
             break;
         case 'denda':
             data = {
-                title: 'Jumlah Denda',
-                count: 444,
-                isMoney: true,
+                title: 'Jumlah Pengembalian',
+                count: totalPengembalian,
                 icon: (
-                    <PaidOutlinedIcon
+                    <BookmarkRemoveIcon
                         style={{
                             color: '#AC7088',
                             backgroundColor: '#B1B2FF',
