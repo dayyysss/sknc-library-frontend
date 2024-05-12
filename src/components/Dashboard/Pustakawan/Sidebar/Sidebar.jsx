@@ -50,7 +50,7 @@ function Sidebar() {
                             <BookIcon className="icon" /> Data Buku
                         </li>
                     </Link>
-                    <Link to="/dashboard-pustakawan/data-buku" style={{ textDecoration: 'none' }}>
+                    <Link to="/dashboard-pustakawan/buku-tamu" style={{ textDecoration: 'none' }}>
                         <li>
                             <LocalLibraryIcon className="icon" /> Buku Tamu
                         </li>

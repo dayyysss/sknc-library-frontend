@@ -99,7 +99,7 @@ function ItemLists({ type }) {
                         className="icon"
                     />
                 ),
-                link: 'Lihat semua data buku',
+                link: 'Lihat semua data tamu',
                 linkto: '/dashboard-pustakawan/data-buku',
             };
             break;
@@ -134,8 +134,8 @@ function ItemLists({ type }) {
                         className="icon"
                     />
                 ),
-                link: 'Lihat semua pengembalian',
-                linkto: '/dashboard-pustakawan/pengembalian-buku',
+                link: 'Lihat semua peminjaman',
+                linkto: '/dashboard-pustakawan/peminjaman-buku',
             };
             break;
         case 'denda':
@@ -151,8 +151,8 @@ function ItemLists({ type }) {
                         className="icon"
                     />
                 ),
-                link: 'Lihat semua denda',
-                linkto: '/',
+                link: 'Lihat semua pengemblian',
+                linkto: '/dashboard-pustakawan/pengembalian-buku',
             };
             break;
         default:

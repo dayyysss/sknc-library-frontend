@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './DataBuku.scss';
-
-// mui table
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
+import TablePagination from "@mui/material/TablePagination";
+import TableFooter from "@mui/material/TableFooter";
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import TableFooter from '@mui/material/TableFooter';
-import Pagination from '@mui/material/Pagination';
 import { FaEdit } from "react-icons/fa";
 import { RiDeleteBin5Line } from "react-icons/ri";
 import Swal from 'sweetalert2';
@@ -22,8 +20,9 @@ function TableList() {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const [totalBooks, setTotalBooks] = useState(0);
-    const [isModalOpen, setIsModalOpen] = useState(false); // State for modal
-    const [selectedBook, setSelectedBook] = useState(null); // State to hold selected book for editing
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedBook, setSelectedBook] = useState(null);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
 
     useEffect(() => {
         fetchData();
@@ -89,13 +88,18 @@ function TableList() {
     };
 
     const handleUpdate = async (bookId) => {
-        setIsModalOpen(true); // Open modal
-        setSelectedBook(bookId); // Set selected book for editing
+        setIsModalOpen(true);
+        setSelectedBook(bookId);
     };
 
-    const handleChangePage = (event, value) => {
-        setPage(value);
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage + 1); // MUI's TablePagination page starts from 0, so adding 1 to make it start from 1
     };
+    
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(1); // Reset to the first page when rows per page changes
+    };    
 
     return (
         <div className="table-wrapper pb-20">
@@ -104,7 +108,7 @@ function TableList() {
                     <TableHead>
                         <TableRow>
                             <TableCell className="table_cell">No</TableCell>
-                            <TableCell className="table_cell">Nama Buku</TableCell>
+                            <TableCell className="table_cell">Judul Buku</TableCell>
                             <TableCell className="table_cell">Sinopsis</TableCell>
                             <TableCell className="table_cell">ISBN</TableCell>
                             <TableCell className="table_cell">Penulis</TableCell>
@@ -137,30 +141,38 @@ function TableList() {
                                     <div className="flex justify-between items-center">
                                         <FaEdit
                                             onClick={() => handleUpdate(book.id)}
-                                            className="text-blue-500 cursor-pointer"
+                                            className="text-white rounded-full cursor-pointer bg-blue-500"
                                             style={{ fontSize: "1.4rem" }}
                                         />
                                         <RiDeleteBin5Line
                                             onClick={() => handleDelete(book.id)}
-                                            className="text-red-500 cursor-pointer"
+                                            className="text-white rounded-full cursor-pointer bg-red-500"
                                             style={{ fontSize: "1.4rem" }}
                                         />
                                     </div>
                                 </TableCell>
                             </TableRow>
                         ))}
-                    </TableBody>
-                    <TableFooter>
-                        <TableRow>
-                            <TableCell colSpan={12}>
-                                <div className="pagination-wrapper pt-6">
-                                    <Pagination count={totalPages} page={page} onChange={handleChangePage} />
-                                </div>
-                            </TableCell>
-                        </TableRow>
-                    </TableFooter>
-                </Table>
-            </TableContainer>
+                 </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                colSpan={12}
+                count={totalBooks}
+                rowsPerPage={rowsPerPage}
+                page={page - 1}
+                SelectProps={{
+                  inputProps: { 'aria-label': 'rows per page' },
+                  native: true,
+                }}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </TableRow>
+          </TableFooter>
+        </Table>
+      </TableContainer>
         </div>
     );
 }

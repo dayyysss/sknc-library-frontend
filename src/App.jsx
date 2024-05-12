@@ -42,6 +42,7 @@ import PeminjamanBuku from './views/Dashboard/Pustakawan/Peminjaman/PeminjamanBu
 import PengembalianBuku from './views/Dashboard/Pustakawan/Pengembalian/PengembalianBuku'
 import ProfilePustakawan from './views/Dashboard/Pustakawan/Profile/Profile'
 import DendaPustakawan from './views/Dashboard/Pustakawan/Denda/DendaP'
+import BukuTamu from './views/Dashboard/Pustakawan/BukuTamu/bukutamu'
 import './app.scss'
 
 // Dashboard Anggota
@@ -89,6 +90,8 @@ function App() {
                         <Route path="/dashboard-pustakawan/profile" element={<ProfilePustakawan type="profile" />} />
                         <Route path="data-buku/*" element={<ListBooks type="buku" />} />
                         <Route path="/dashboard-pustakawan/data-buku/tambah-buku/*" element={<TambahBukuP type="buku" />} />
+
+                        <Route path="/dashboard-pustakawan/buku-tamu/*" element={<BukuTamu type="tamu" />} />
 
                         <Route path="kategori-buku/*" element={<ListKategori type="kategori" />} />
                         <Route path="/dashboard-pustakawan/kategori-buku/tambah-kategori/*" element={<ListBooks type="buku" />} />
