@@ -3,7 +3,7 @@ import BookmarkAddIcon from '@mui/icons-material/BookmarkAdd';
 import BookmarkRemoveIcon from '@mui/icons-material/BookmarkRemove';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import LogoutIcon from '@mui/icons-material/Logout';
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ColorContext } from '../../../../context/darkContext';
 import './Sidebar.scss';
@@ -13,6 +13,13 @@ import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 function Sidebar() {
     // color state management using react context
     const { darkMode, dispatch } = useContext(ColorContext);
+    
+    // State untuk menyimpan menu yang aktif
+    const [activeMenu, setActiveMenu] = useState('dashboard');
+
+    const handleMenuClick = (menu) => {
+        setActiveMenu(menu);
+    };
 
     const handleLogout = () => {
         // Hapus token dari local storage
@@ -25,7 +32,7 @@ function Sidebar() {
         setTimeout(() => {
           window.location.href = "/";
         }, 2000); // Ubah angka 2000 menjadi jumlah milidetik yang Anda inginkan
-      };
+    };
 
     return (
         <div className="sidebar">
@@ -39,19 +46,19 @@ function Sidebar() {
                 <ul>
                     <p className="spann menu1">Main</p>
                     <Link to="/dashboard-pustakawan" style={{ textDecoration: 'none' }}>
-                        <li>
+                        <li className={activeMenu === 'dashboard' ? 'active' : ''} onClick={() => handleMenuClick('dashboard')}>
                             <DashboardIcon className="icon" /> Dashboard
                         </li>
                     </Link>
 
                     <p className="spann menu2">Data Master</p>
                     <Link to="/dashboard-pustakawan/data-buku" style={{ textDecoration: 'none' }}>
-                        <li>
+                        <li className={activeMenu === 'data-buku' ? 'active' : ''} onClick={() => handleMenuClick('data-buku')}>
                             <BookIcon className="icon" /> Data Buku
                         </li>
                     </Link>
                     <Link to="/dashboard-pustakawan/buku-tamu" style={{ textDecoration: 'none' }}>
-                        <li>
+                        <li className={activeMenu === 'buku-tamu' ? 'active' : ''} onClick={() => handleMenuClick('buku-tamu')}>
                             <LocalLibraryIcon className="icon" /> Buku Tamu
                         </li>
                     </Link>
@@ -64,12 +71,12 @@ function Sidebar() {
 
                     <p className="spann menu3">Data Transaksi</p>
                     <Link to="/dashboard-pustakawan/peminjaman-buku" style={{ textDecoration: 'none' }}>
-                        <li>
+                        <li className={activeMenu === 'peminjaman-buku' ? 'active' : ''} onClick={() => handleMenuClick('peminjaman-buku')}>
                             <BookmarkAddIcon className="icon" /> Peminjaman Buku
                         </li>
                     </Link>
                     <Link to="/dashboard-pustakawan/pengembalian-buku" style={{ textDecoration: 'none' }}>
-                        <li>
+                        <li className={activeMenu === 'pengembalian-buku' ? 'active' : ''} onClick={() => handleMenuClick('pengembalian-buku')}>
                             <BookmarkRemoveIcon className="icon" /> Pengembalian Buku
                         </li>
                     </Link>

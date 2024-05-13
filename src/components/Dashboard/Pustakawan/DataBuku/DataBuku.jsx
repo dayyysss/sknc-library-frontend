@@ -14,7 +14,7 @@ import { FaEdit } from "react-icons/fa";
 import { RiDeleteBin5Line } from "react-icons/ri";
 import Swal from 'sweetalert2';
 
-function TableList() {
+function DataBuku() {
     document.title = "Skanic Library - Data Buku";
     const [books, setBooks] = useState([]);
     const [page, setPage] = useState(1);
@@ -95,11 +95,11 @@ function TableList() {
     const handleChangePage = (event, newPage) => {
         setPage(newPage + 1); // MUI's TablePagination page starts from 0, so adding 1 to make it start from 1
     };
-    
+
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(1); // Reset to the first page when rows per page changes
-    };    
+    };
 
     return (
         <div className="table-wrapper pb-20">
@@ -136,12 +136,16 @@ function TableList() {
                                 <TableCell className="table_cell">
                                     <img src={book.image} alt={book.title} className='w-auto mx-auto object-cover' />
                                 </TableCell>
-                                <TableCell className="table_cell">{book.status}</TableCell>
+                                <TableCell className="table_cell">
+                                    <span className={`rounded-full p-2 text-white ${book.stock_amount > 0 ? 'bg-green-500' : 'bg-red-500'}`}>
+                                        {book.stock_amount > 0 ? 'Tersedia' : 'Habis'}
+                                    </span>
+                                </TableCell>
                                 <TableCell className="table_cell">
                                     <div className="flex justify-between items-center">
                                         <FaEdit
                                             onClick={() => handleUpdate(book.id)}
-                                            className="text-white rounded-full cursor-pointer bg-blue-500"
+                                            className="text-white rounded-full cursor-pointer bg-blue-500 mr-1"
                                             style={{ fontSize: "1.4rem" }}
                                         />
                                         <RiDeleteBin5Line
@@ -153,28 +157,28 @@ function TableList() {
                                 </TableCell>
                             </TableRow>
                         ))}
-                 </TableBody>
-          <TableFooter>
-            <TableRow>
-              <TablePagination
-                rowsPerPageOptions={[5, 10, 25]}
-                colSpan={12}
-                count={totalBooks}
-                rowsPerPage={rowsPerPage}
-                page={page - 1}
-                SelectProps={{
-                  inputProps: { 'aria-label': 'rows per page' },
-                  native: true,
-                }}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-              />
-            </TableRow>
-          </TableFooter>
-        </Table>
-      </TableContainer>
+                    </TableBody>
+                    <TableFooter>
+                        <TableRow>
+                            <TablePagination
+                                rowsPerPageOptions={[5, 10, 25]}
+                                colSpan={12}
+                                count={totalBooks}
+                                rowsPerPage={rowsPerPage}
+                                page={page - 1}
+                                SelectProps={{
+                                    inputProps: { 'aria-label': 'rows per page' },
+                                    native: true,
+                                }}
+                                onPageChange={handleChangePage}
+                                onRowsPerPageChange={handleChangeRowsPerPage}
+                            />
+                        </TableRow>
+                    </TableFooter>
+                </Table>
+            </TableContainer>
         </div>
     );
 }
 
-export default TableList;
+export default DataBuku;

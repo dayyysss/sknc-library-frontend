@@ -184,7 +184,6 @@ const PengembalianCompo = () => {
           <TableHead>
             <TableRow>
               <TableCell className="table_cell">No</TableCell>
-              <TableCell className="table_cell">ID Peminjaman</TableCell>
               <TableCell className="table_cell">Nama Peminjam</TableCell>
               <TableCell className="table_cell">Judul Buku</TableCell>
               <TableCell className="table_cell">Tanggal Pengembalian</TableCell>
@@ -194,29 +193,44 @@ const PengembalianCompo = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {Array.isArray(books.data) &&
+            {Array.isArray(books.data) && books.data.length > 0 ? (
               books.data.map((pengembalian, index) => (
                 <TableRow key={pengembalian.id}>
                   <TableCell className="table_cell">
                     {(books.current_page - 1) * books.per_page + index + 1}
                   </TableCell>
-                  <TableCell className="table_cell">{pengembalian.borrow_id}</TableCell>
-                  <TableCell className="table_cell">{pengembalian.user.name }</TableCell>
+                  <TableCell className="table_cell">{pengembalian.user.name}</TableCell>
                   <TableCell className="table_cell">{pengembalian.book.title}</TableCell>
                   <TableCell className="table_cell">{pengembalian.returndate}</TableCell>
                   <TableCell className="table_cell">{pengembalian.status}</TableCell>
                   <TableCell className="table_cell">{pengembalian.fine}</TableCell>
                   <TableCell className="table_cell">
-                    <Button
-                      variant="outlined"
-                      color="primary"
-                      onClick={() => handleDetailClick(pengembalian.id)}
-                    >
-                      Detail
-                    </Button>
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => handleDetailClick(pengembalian.id)}
+                      >
+                        Detail
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        onClick={() => handleDelete(pengembalian.id)} // Tambahkan fungsi handleDelete untuk menghapus data
+                      >
+                        Delete
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
-              ))}
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center">
+                  Tidak ada data pengembalian.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
           <TableFooter>
             <TableRow>

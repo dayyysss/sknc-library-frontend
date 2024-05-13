@@ -1,114 +1,156 @@
-/* eslint-disable no-constant-condition */
-/* eslint-disable no-nested-ternary */
-/* eslint-disable jsx-a11y/img-redundant-alt */
 import { DataGrid } from '@mui/x-data-grid';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import { Link } from 'react-router-dom';
+import Paper from "@mui/material/Paper";
 import Navbar from '../../../../components/Dashboard/Pustakawan/Navbar/Navbar';
 import Sidebar from '../../../../components/Dashboard/Pustakawan/Sidebar/Sidebar';
-import blog1 from '../../../../assets/ImagesNew/blog1.jpg';
-import blog2 from '../../../../assets/ImagesNew/blog2.jpg';
-import blog3 from '../../../../assets/ImagesNew/blog3.jpg';
-import blog4 from '../../../../assets/ImagesNew/blog4.jpg';
-import blog5 from '../../../../assets/ImagesNew/book3.jpg';
-import blog6 from '../../../../assets/ImagesNew/book5.jpg';
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TableRow from "@mui/material/TableRow";
+import TableFooter from "@mui/material/TableFooter";
+import TablePagination from "@mui/material/TablePagination";
 import './Pengembalian.scss';
 
-const userData = [
-    {
-        id: '630343eb94c2812e4cd7e45d',
-        title: 'Want to know how to manage multiple projects at once.',
-        author: 'devidbom23',
-        image: blog1,
-        createdAt: new Date(Date.now()).toLocaleString(),
-    },
-    {
-        id: '6303234eb94c2812e4cd7e45e',
-        title: 'How to Choose a right product?',
-        author: 'john03',
-        image: blog2,
-        createdAt: new Date(Date.now()).toLocaleString(),
-    },
-    {
-        id: 'e40343eb94c2812e4cd7e4233',
-        title: 'How do you create a compelling  title',
-        author: 'dilvibhasanjohn',
-        image: blog4,
-        createdAt: new Date(Date.now()).toLocaleString(),
-    },
-    {
-        id: '930343eb94c2812e4cd7e45g',
-        title: 'How to cure wanderlust without leaving your home?',
-        author: 'doejelia88',
-        image: blog5,
-        createdAt: new Date(Date.now()).toLocaleString(),
-    },
-    {
-        id: '60443eb94c2812e4cd7e45ii',
-        title: 'The Seven People You Should Always Meet.',
-        author: 'lucashossel',
-        image: blog6,
-        createdAt: new Date(Date.now()).toLocaleString(),
-    },
-    {
-        id: 'e23343eb94c2812e4cd7e45kk',
-        title: 'Which search queries drive traffic to my website?',
-        author: 'anniejhon',
-        image: blog3,
-        createdAt: new Date(Date.now()).toLocaleString(),
-    },
-];
 
 function PengembalianBuku({ type }) {
     document.title = "Skanic Library - Pengembalian Buku";
-    const [data, setData] = useState(userData);
+    const [books, setBooks] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalBooks, setTotalBooks] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [selectedBorrow, setSelectedBorrow] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
-    const handleDlt = (id) => {
-        setData(data.filter((item) => item.id !== id));
-    };
+  useEffect(() => {
+    fetchData();
+  }, [page, rowsPerPage, searchQuery]);
 
-    const columns = [
-        {
-            field: 'id',
-            headerName: 'ID',
-            width: 310,
-            renderCell: (param) => (
-                <div className="userr">
-                    <img src={param.row.image} alt="User Image" className="userr_image" />
-                    {param.row.id}
-                </div>
-            ),
+  const fetchData = async () => {
+    try {
+      const token = getAuthToken();
+      if (!token) {
+        console.error("Token not available. Please login.");
+        return;
+      }
+
+      const response = await axios.get(`http://127.0.0.1:8000/api/restore/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
         },
-        {
-            field: 'title',
-            headerName: 'Title',
-            width: 400,
-            style: { color: 'red' },
+        params: {
+          page: page,
+          per_page: rowsPerPage,
+          q: searchQuery,
         },
-        { field: 'author', headerName: 'Author', width: 170 },
-        { field: 'createdAt', headerName: 'CreatedAt', width: 200 },
+      });
+
+      if (response.data.success) {
+        const { data, last_page, total } = response.data;
+        setBooks(data); // Mengatur data pengembalian
+        setTotalPages(last_page);
+        setTotalBooks(total);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleAccept = async (id) => {
+    try {
+      console.log("Accepting borrow with id:", id);
+      const token = getAuthToken();
+      if (!token) {
+        console.error("Token not available. Please login.");
+        return;
+      }
+
+      const response = await axios.put(
+        `http://127.0.0.1:8000/api/borrow/${id}/update-status`,
+        { status: "accepted" },
         {
-            field: 'action',
-            headerName: 'Action',
-            width: 160,
-            renderCell: (params) => (
-                <div className="actionn">
-                    <Link to={params.row.id}>
-                        <button type="button" className="view_btn">
-                            View
-                        </button>
-                    </Link>
-                    <button
-                        type="button"
-                        className="delete_btn"
-                        onClick={() => handleDlt(params.row.id)}
-                    >
-                        Delete
-                    </button>
-                </div>
-            ),
-        },
-    ];
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      fetchData();
+      Swal.fire({
+        title: "Success!",
+        text: "Status peminjaman berhasil diubah menjadi Sukses.",
+        icon: "success",
+      });
+    } catch (error) {
+      console.error("Error updating status peminjaman:", error);
+    }
+  };
+
+  const handleDetail = (borrow) => {
+    // Copy the selectedBorrow object to avoid mutating the original state
+    const updatedBorrow = { ...borrow };
+
+    // Mengambil tanggal deadline dari selectedBorrow
+    const deadline = new Date(updatedBorrow.borrowing_end);
+
+    // Menghitung perbedaan antara tanggal akhir dan tanggal awal
+    const borrowingStart = new Date(updatedBorrow.borrowing_start);
+    const differenceInDays = Math.ceil((deadline - borrowingStart) / (1000 * 60 * 60 * 24));
+
+    // Mengurangi jumlah hari yang diinginkan dari tanggal akhir
+    const newDeadline = new Date(deadline);
+    newDeadline.setDate(deadline.getDate() - differenceInDays);
+
+    // Menyimpan tanggal deadline yang telah diubah kembali ke selectedBorrow
+    updatedBorrow.deadline = newDeadline.toISOString().slice(0, 10);
+
+    setSelectedBorrow(updatedBorrow);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleCloseDetailModal = () => {
+    setSelectedBorrow(null);
+    setIsDetailModalOpen(false);
+  };
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage + 1); // Ubah indeks halaman agar dimulai dari 1
+  };
+
+  const handleChangeRowsPerPage = (event) => {
+    const newRowsPerPage = parseInt(event.target.value, 10);
+    setRowsPerPage(newRowsPerPage);
+    setPage(1); // Set halaman kembali ke 1 saat jumlah baris per halaman diubah
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const getAuthToken = () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      console.error("Token not available. Please login.");
+      return null;
+    }
+    return token;
+  };
+
+  const openAddModal = () => {
+    setIsAddModalOpen(true);
+  };
+
+  const closeAddModal = () => {
+    setIsAddModalOpen(false);
+  };
+
+  const handleDetailClick = (id) => {
+    fetchDetail(id);
+  };
 
     return (
         <div className="blog_page">
@@ -120,14 +162,78 @@ function PengembalianBuku({ type }) {
                 <div className="blog_page_table">
                     <div className="btnn">
                     </div>
-                    <DataGrid
-                        className="data_grid"
-                        rows={data}
-                        columns={columns}
-                        pageSize={10}
-                        rowsPerPageOptions={[10]}
-                        checkboxSelection
-                    />
+                    <TableContainer component={Paper} className="table_list mt-10">
+        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell className="table_cell">No</TableCell>
+              <TableCell className="table_cell">Nama Peminjam</TableCell>
+              <TableCell className="table_cell">Judul Buku</TableCell>
+              <TableCell className="table_cell">Tanggal Pengembalian</TableCell>
+              <TableCell className="table_cell">Status</TableCell>
+              <TableCell className="table_cell">Denda</TableCell>
+              <TableCell className="table_cell">Aksi</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {Array.isArray(books.data) && books.data.length > 0 ? (
+              books.data.map((pengembalian, index) => (
+                <TableRow key={pengembalian.id}>
+                  <TableCell className="table_cell">
+                    {(books.current_page - 1) * books.per_page + index + 1}
+                  </TableCell>
+                  <TableCell className="table_cell">{pengembalian.user.name}</TableCell>
+                  <TableCell className="table_cell">{pengembalian.book.title}</TableCell>
+                  <TableCell className="table_cell">{pengembalian.returndate}</TableCell>
+                  <TableCell className="table_cell">{pengembalian.status}</TableCell>
+                  <TableCell className="table_cell">{pengembalian.fine}</TableCell>
+                  <TableCell className="table_cell">
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => handleDetailClick(pengembalian.id)}
+                      >
+                        Detail
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        onClick={() => handleDelete(pengembalian.id)} // Tambahkan fungsi handleDelete untuk menghapus data
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center">
+                  Tidak ada data pengembalian.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                colSpan={12}
+                count={totalBooks}
+                rowsPerPage={rowsPerPage}
+                page={page - 1}
+                SelectProps={{
+                  inputProps: { 'aria-label': 'rows per page' },
+                  native: true,
+                }}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </TableRow>
+          </TableFooter>
+        </Table>
+      </TableContainer>
                 </div>
             </div>
         </div>
@@ -135,3 +241,4 @@ function PengembalianBuku({ type }) {
 }
 
 export default PengembalianBuku;
+    

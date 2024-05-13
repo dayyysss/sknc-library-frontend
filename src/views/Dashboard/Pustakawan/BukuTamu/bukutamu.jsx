@@ -1,11 +1,7 @@
-/* eslint-disable no-constant-condition */
-/* eslint-disable no-nested-ternary */
 import React from 'react';
-import { Link } from 'react-router-dom';
-import DataTable from '../../../../components/Dashboard/Pustakawan/DataTable/DataTable';
 import Navbar from '../../../../components/Dashboard/Pustakawan/Navbar/Navbar';
 import Sidebar from '../../../../components/Dashboard/Pustakawan/Sidebar/Sidebar';
-import PeminjamanBukuP from '../../../../components/Dashboard/Pustakawan/Peminjaman/PeminjamanBukuP';
+import BukuTamuP from '../../../../components/Dashboard/Pustakawan/BukuTamu/BukuTamu';
 import './bukutamu.scss';
 
 function BukuTamu({ type }) {
@@ -20,13 +16,10 @@ function BukuTamu({ type }) {
 
                 {/* mui data table */}
                 <div className="data_table">
-                    <div className="btnn">
-                    </div>
-
-                    {type === 'user' ? <DataTable /> : <PeminjamanBukuP />}
+                <BukuTamuP />
+                 </div>
                 </div>
             </div>
-        </div>
     );
 }
 

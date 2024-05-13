@@ -218,7 +218,25 @@ const PeminjamanCompo = () => {
                   </span>
                 </TableCell>
                 <TableCell className="table_cell">
-                  {borrow.status === "pending" ? (
+                  {borrow.status !== "pending" && (
+                    <div className="flex space-x-2">
+                      <Button
+                        onClick={() => handleDetail(borrow)}
+                        variant="contained"
+                        color="info"
+                      >
+                        Detail
+                      </Button>
+                      <Button
+                        onClick={() => handleDelete(borrow.id)} // Ganti handleDelete dengan fungsi untuk menghapus
+                        variant="contained"
+                        color="error"
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  )}
+                  {borrow.status === "pending" && (
                     <Button
                       onClick={() => handleAccept(borrow.id)}
                       variant="outlined"
@@ -227,19 +245,17 @@ const PeminjamanCompo = () => {
                     >
                       Terima
                     </Button>
-                  ) : (
-                    <Button
-                      onClick={() => handleDetail(borrow)}
-                      variant="contained"
-                      color="info"
-                      className="ml-2"
-                    >
-                      Detail
-                    </Button>
                   )}
                 </TableCell>
               </TableRow>
             ))}
+            {books.length === 0 && ( // Tambahkan kondisi untuk menampilkan pesan jika tidak ada data
+              <TableRow>
+                <TableCell colSpan={8} className="text-center">
+                  Tidak ada data peminjaman.
+                </TableCell>
+              </TableRow>
+            )}
           </TableBody>
           <TableFooter>
             <TableRow>
@@ -274,7 +290,7 @@ const PeminjamanCompo = () => {
       >
         <Fade in={isDetailModalOpen}>
           <div className="fixed inset-0 flex items-center justify-center" onClick={handleCloseDetailModal}>
-            <div className="bg-white p-8 rounded-lg w-[30%]" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-white p-10 rounded-lg w-[30%]" onClick={(e) => e.stopPropagation()}>
               <Button variant="outlined" onClick={handleCloseDetailModal} className="absolute top-[-15px] right-[-5px] text-gray-500 hover:text-gray-700 focus:outline-none">
                 Kembali
               </Button>
@@ -308,11 +324,11 @@ const PeminjamanCompo = () => {
                       <p className="text-sm font-semibold">Jumlah Buku Dipinjam:</p>
                       <p>{selectedBorrow.amount_borrowed}</p>
                     </div>
-                    <div className="bg-gray-100 p-4 rounded-md mb-4">
+                    <div className="bg-gray-100 p-8 rounded-md mb-4">
                       <p className="text-sm font-semibold">Status:</p>
                       <p className=" rounded-full p-1 bg-green-500 px-4 text-white">{selectedBorrow.status}</p>
                     </div>
-                    <div className="bg-gray-100 p-4 rounded-md mb-4">
+                    <div className="bg-gray-100 p-6 rounded-md mb-4">
                       <p className="text-sm font-semibold">Id Peminjaman:</p>
                       <p>{selectedBorrow.id}</p>
                     </div>
