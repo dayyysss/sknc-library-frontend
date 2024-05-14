@@ -12,12 +12,13 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import TableFooter from "@mui/material/TableFooter";
 import TablePagination from "@mui/material/TablePagination";
+import axios from 'axios';
+import Button from "@mui/material/Button";
 import './Pengembalian.scss';
 
-
 function PengembalianBuku({ type }) {
-    document.title = "Skanic Library - Pengembalian Buku";
-    const [books, setBooks] = useState([]);
+  document.title = "Skanic Library - Pengembalian Buku";
+  const [books, setBooks] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalBooks, setTotalBooks] = useState(0);
@@ -148,97 +149,110 @@ function PengembalianBuku({ type }) {
     setIsAddModalOpen(false);
   };
 
+  const exportPDF = () => {
+    // Placeholder for the export PDF functionality
+    console.log("Export PDF clicked");
+  };
+
   const handleDetailClick = (id) => {
     fetchDetail(id);
   };
 
-    return (
-        <div className="blog_page">
-            <Sidebar />
+  return (
+    <div className="blog_page">
+      <Sidebar />
 
-            <div className="blog_page_main">
-                <Navbar />
+      <div className="blog_page_main">
+        <Navbar />
 
-                <div className="blog_page_table">
-                    <div className="btnn">
-                    </div>
-                    <TableContainer component={Paper} className="table_list mt-10">
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
-          <TableHead>
-            <TableRow>
-              <TableCell className="table_cell">No</TableCell>
-              <TableCell className="table_cell">Nama Peminjam</TableCell>
-              <TableCell className="table_cell">Judul Buku</TableCell>
-              <TableCell className="table_cell">Tanggal Pengembalian</TableCell>
-              <TableCell className="table_cell">Status</TableCell>
-              <TableCell className="table_cell">Denda</TableCell>
-              <TableCell className="table_cell">Aksi</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {Array.isArray(books.data) && books.data.length > 0 ? (
-              books.data.map((pengembalian, index) => (
-                <TableRow key={pengembalian.id}>
-                  <TableCell className="table_cell">
-                    {(books.current_page - 1) * books.per_page + index + 1}
-                  </TableCell>
-                  <TableCell className="table_cell">{pengembalian.user.name}</TableCell>
-                  <TableCell className="table_cell">{pengembalian.book.title}</TableCell>
-                  <TableCell className="table_cell">{pengembalian.returndate}</TableCell>
-                  <TableCell className="table_cell">{pengembalian.status}</TableCell>
-                  <TableCell className="table_cell">{pengembalian.fine}</TableCell>
-                  <TableCell className="table_cell">
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => handleDetailClick(pengembalian.id)}
-                      >
-                        Detail
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        color="error"
-                        onClick={() => handleDelete(pengembalian.id)} // Tambahkan fungsi handleDelete untuk menghapus data
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={7} className="text-center">
-                  Tidak ada data pengembalian.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-          <TableFooter>
-            <TableRow>
-              <TablePagination
-                rowsPerPageOptions={[5, 10, 25]}
-                colSpan={12}
-                count={totalBooks}
-                rowsPerPage={rowsPerPage}
-                page={page - 1}
-                SelectProps={{
-                  inputProps: { 'aria-label': 'rows per page' },
-                  native: true,
-                }}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-              />
-            </TableRow>
-          </TableFooter>
-        </Table>
-      </TableContainer>
-                </div>
+        <div className="blog_page_table">
+          <div className="flex justify-between items-center">
+            <h2 className="text-3xl font-bold">Daftar Pengembalian</h2>
+            <div>
+              <Button variant="contained" color="secondary" onClick={exportPDF} style={{ marginRight: '10px' }}>
+                Export PDF
+              </Button>
+              <Button variant="contained" color="primary" onClick={openAddModal}>
+                Tambah Pengembalian
+              </Button>
             </div>
+          </div>
+          <TableContainer component={Paper} className="table_list mt-10">
+            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+              <TableHead>
+                <TableRow>
+                  <TableCell className="table_cell">No</TableCell>
+                  <TableCell className="table_cell">Nama Peminjam</TableCell>
+                  <TableCell className="table_cell">Judul Buku</TableCell>
+                  <TableCell className="table_cell">Tanggal Pengembalian</TableCell>
+                  <TableCell className="table_cell">Status</TableCell>
+                  <TableCell className="table_cell">Denda</TableCell>
+                  <TableCell className="table_cell">Aksi</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {Array.isArray(books.data) && books.data.length > 0 ? (
+                  books.data.map((pengembalian, index) => (
+                    <TableRow key={pengembalian.id}>
+                      <TableCell className="table_cell">
+                        {(books.current_page - 1) * books.per_page + index + 1}
+                      </TableCell>
+                      <TableCell className="table_cell">{pengembalian.user.name}</TableCell>
+                      <TableCell className="table_cell">{pengembalian.book.title}</TableCell>
+                      <TableCell className="table_cell">{pengembalian.returndate}</TableCell>
+                      <TableCell className="table_cell">{pengembalian.status}</TableCell>
+                      <TableCell className="table_cell">{pengembalian.fine}</TableCell>
+                      <TableCell className="table_cell">
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="outlined"
+                            color="primary"
+                            onClick={() => handleDetailClick(pengembalian.id)}
+                          >
+                            Detail
+                          </Button>
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            onClick={() => handleDelete(pengembalian.id)} // Tambahkan fungsi handleDelete untuk menghapus data
+                          >
+                            Delete
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center">
+                      Tidak ada data pengembalian.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+              <TableFooter>
+                <TableRow>
+                  <TablePagination
+                    rowsPerPageOptions={[5, 10, 25]}
+                    colSpan={12}
+                    count={totalBooks}
+                    rowsPerPage={rowsPerPage}
+                    page={page - 1}
+                    SelectProps={{
+                      inputProps: { 'aria-label': 'rows per page' },
+                      native: true,
+                    }}
+                    onPageChange={handleChangePage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                  />
+                </TableRow>
+              </TableFooter>
+            </Table>
+          </TableContainer>
         </div>
-    );
+      </div>
+    </div>
+  );
 }
 
 export default PengembalianBuku;
-    
