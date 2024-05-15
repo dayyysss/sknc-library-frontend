@@ -21,17 +21,35 @@ function Sidebar() {
         setActiveMenu(menu);
     };
 
-    const handleLogout = () => {
-        // Hapus token dari local storage
-        localStorage.removeItem("token");
-        // Tampilkan pemberitahuan logout berhasil di tengah layar
-        toast.success("Logout berhasil!", {
-          position: "top-center",
-        });
-        // Tunda pengalihan ke halaman login setelah 2 detik
-        setTimeout(() => {
-          window.location.href = "/";
-        }, 2000); // Ubah angka 2000 menjadi jumlah milidetik yang Anda inginkan
+    const handleLogout = async () => {
+        try {
+            const response = await fetch('http://127.0.0.1:8000/api/logout', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem("token")}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Logout failed');
+            }
+
+            // Hapus token dari local storage
+            localStorage.removeItem("token");
+            // Tampilkan pemberitahuan logout berhasil di tengah layar
+            toast.success("Logout berhasil!", {
+                position: "top-center",
+            });
+            // Tunda pengalihan ke halaman login setelah 2 detik
+            setTimeout(() => {
+                window.location.href = "/";
+            }, 2000); // Ubah angka 2000 menjadi jumlah milidetik yang Anda inginkan
+        } catch (error) {
+            toast.error("Logout gagal!", {
+                position: "top-center",
+            });
+        }
     };
 
     return (

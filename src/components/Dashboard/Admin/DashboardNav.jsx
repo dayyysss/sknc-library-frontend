@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { FaSearch, FaEnvelope, FaRegBell } from "react-icons/fa";
-import profile from "../../../assets/images/profile.png";
+import { FaSearch, FaEnvelope, FaRegBell, FaUserCircle } from "react-icons/fa";
 import { toast } from 'react-hot-toast';
 
 const DashboardNav = () => {
@@ -10,21 +9,37 @@ const DashboardNav = () => {
         setOpen(!open);
     };
 
-    const handleLogout = () => {
-        // Hapus token dari local storage
-        localStorage.removeItem("token");
-        // Tampilkan pemberitahuan logout berhasil di tengah layar
-        toast.success("Logout berhasil!", {
-            position: "top-center",
-        });
-        // Tunda pengalihan ke halaman login setelah 2 detik
-        setTimeout(() => {
-            window.location.href = "/";
-        }, 2000); // Ubah angka 2000 menjadi jumlah milidetik yang Anda inginkan
+    const handleLogout = async () => {
+        try {
+            const response = await fetch('http://127.0.0.1:8000/api/logout', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem("token")}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Logout failed');
+            }
+
+            // Hapus token dari local storage
+            localStorage.removeItem("token");
+            // Tampilkan pemberitahuan logout berhasil di tengah layar
+            toast.success("Logout berhasil!", {
+                position: "top-center",
+            });
+            // Tunda pengalihan ke halaman login setelah 2 detik
+            setTimeout(() => {
+                window.location.href = "/";
+            }, 2000); // Ubah angka 2000 menjadi jumlah milidetik yang Anda inginkan
+        } catch (error) {
+            toast.error("Logout gagal!", {
+                position: "top-center",
+            });
+        }
     };
     
-    
-
     return (
         <div className=''>
             <div className='flex items-center justify-between h-[70px] shadow-lg px-[25px] '>
@@ -33,7 +48,6 @@ const DashboardNav = () => {
                     <div className='bg-[#4E73DF] h-[40px] px-[14px] flex items-center justify-center cursor-pointer rounded-tr-[5px] rounded-br-[5px]'>
                         <FaSearch color='white' />
                     </div>
-
                 </div>
                 <div className='flex items-center gap-[20px]'>
                     <div className='flex items-center gap-[25px] border-r-[1px] pr-[25px]'>
@@ -43,13 +57,11 @@ const DashboardNav = () => {
                     <div className='flex items-center gap-[15px] relative' onClick={showProfile} >
                         <p>Admin</p>
                         <div className='h-[50px] w-[50px] rounded-full bg-[#4E73DF] cursor-pointer flex items-center justify-center relative z-40' >
-                            <img src={profile} alt="" />
+                            <FaUserCircle color='white' size={40} />
                         </div>
                         {open &&
-                            <div className='bg-white border h-[120px] w-[150px] absolute bottom-[-135px] z-20 right-0 pt-[15px] pl-[15px] space-y-[10px]'>
-                                <p className='cursor-pointer hover:text-[blue] font-semibold'>Profile</p>
-                                <p className='cursor-pointer hover:text-[blue] font-semibold'>Settings</p>
-                                <p className='cursor-pointer hover:text-[blue] font-semibold' onClick={handleLogout}>Log out</p>
+                            <div className='bg-white border h-[40px] w-[150px] absolute bottom-[-70px] z-20 right-0 pt-[5px] pl-[5px] space-y-[10px]'>
+                                <p className='cursor-pointer hover:text-[blue] font-semibold' onClick={handleLogout}>Logout</p>
                             </div>
                         }
                     </div>

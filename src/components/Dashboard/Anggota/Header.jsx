@@ -12,28 +12,34 @@ function Header() {
 
   const handleLogout = async () => {
     try {
-      // Lakukan request untuk logout ke server
-      await axios.post("http://localhost:8000/api/logout", {
-        // Tambahkan body request jika diperlukan
-      });
-      // Hapus token dari local storage
-      localStorage.removeItem("token");
-      // Tampilkan pemberitahuan logout berhasil di tengah layar
-      toast.success("Logout berhasil!", {
-        position: "top-center",
-      });
-      // Tunda pengalihan ke halaman login setelah 2 detik
-      setTimeout(() => {
-        navigate("/");
-      }, 2000); // Ubah angka 2000 menjadi jumlah milidetik yang Anda inginkan
+        const response = await fetch('http://127.0.0.1:8000/api/logout', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem("token")}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Logout failed');
+        }
+
+        // Hapus token dari local storage
+        localStorage.removeItem("token");
+        // Tampilkan pemberitahuan logout berhasil di tengah layar
+        toast.success("Logout berhasil!", {
+            position: "top-center",
+        });
+        // Tunda pengalihan ke halaman login setelah 2 detik
+        setTimeout(() => {
+            window.location.href = "/";
+        }, 2000); // Ubah angka 2000 menjadi jumlah milidetik yang Anda inginkan
     } catch (error) {
-      console.error("Error logging out:", error);
-      // Tampilkan pemberitahuan gagal logout jika terjadi kesalahan
-      toast.error("Gagal melakukan logout. Silakan coba lagi.", {
-        position: "top-center",
-      });
+        toast.error("Logout gagal!", {
+            position: "top-center",
+        });
     }
-  };
+};
 
   return (
     <div className="block md:flex items-center justify-between px-8 py-3 bg-neutral-50 mb-2">

@@ -3,8 +3,9 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import Chart from 'chart.js/auto'
 import { GrBundle } from "react-icons/gr";
-import { Button, Table, Pagination, Tooltip, Flex, Space, Select, Form, Input } from "antd";
+import { Button, Table, Pagination, Tooltip, Space, Select, Form, Input } from "antd";
 import { SearchOutlined } from '@ant-design/icons';
+import { IoPeopleSharp } from "react-icons/io5";
 import UpdateTamu from './UpdateTamu'
 
 const BukuTamu = () => {
@@ -27,6 +28,8 @@ const BukuTamu = () => {
     goals: "",
     telp: "",
   });
+
+  const identityRef = useRef(null);
 
   useEffect(() => {
     fetchGuestsToday();
@@ -213,6 +216,10 @@ const BukuTamu = () => {
       goals: value,
     }));
   };
+  
+  const handleAddGuest = () => {
+    identityRef.current.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
     <>
@@ -224,9 +231,9 @@ const BukuTamu = () => {
         </div>
 
         {/* Form Input Identitas Pengunjung */}
-        <div className="mt-8 flex space-x-8">
-          <div className="w-1/2 bg-white p-4 rounded-md shadow-md">
-            <h1 className="text-lg font-semibold mb-4">Identitas Pengunjung</h1>
+        <div ref={identityRef} className="mt-8 flex space-x-8">
+          <div className="w-1/2 bg-white p-4 rounded-md shadow-md ">
+            <h1 className="font-semibold mb-4 text-xl">Tambah Identitas Pengunjung</h1>
             <Form form={form} onFinish={handleSubmit}>
               <Form.Item name="name" rules={[{ required: true, message: 'Nama Pengunjung harus diisi!' }]}>
                 <Input placeholder="Nama Pengunjung" />
@@ -260,7 +267,7 @@ const BukuTamu = () => {
 
           {/* Statistik Pengunjung */}
           <div className="w-1/2 bg-white p-4 rounded-md shadow-md">
-            <h2 className="text-lg font-semibold mb-4">Statistik Pengunjung</h2>
+            <h2 className="text-xl font-semibold mb-4">Statistik Pengunjung</h2>
             <div className="grid grid-cols-2 gap-4">
               <canvas ref={chartRef}></canvas>
             </div>
@@ -269,25 +276,34 @@ const BukuTamu = () => {
 
         {/* Daftar Pengunjung Hari Ini */}
         <div className="mt-8 bg-white p-4 rounded-md shadow-md">
-          <h2 className="text-lg font-semibold mb-4">Daftar Pengunjung Hari Ini [{getTodayDate()}]</h2>
+          <h1 className="text-2xl text-start font-semibold mb-4 text-blue-400 flex items-center">
+            <IoPeopleSharp className="mr-2 text-blue-400" /> Daftar Tamu
+          </h1>
           {/* Tombol Rekapitulasi Pengunjung */}
           <div className="flex items-center mb-4">
+        <Button
+          type="primary"
+          icon={<GrBundle />} // Menambahkan ikon GrBundle di sebelah kiri teks tombol
+          onClick={handleSummary} // Tentukan fungsi penanganan klik tombol di sini
+          className="mr-2 bg-blue-500" // Memberikan margin kanan untuk memisahkan tombol dan teks
+        >
+          Rekapitulasi Pengunjung
+        </Button>
+        <div className="flex justify-end flex-grow">
+          <div className="flex items-center gap-2">
+            <Tooltip title="Search">
+              <Button icon={<SearchOutlined />}>Search</Button>
+            </Tooltip>
             <Button
               type="primary"
-              icon={<GrBundle />} // Menambahkan ikon GrBundle di sebelah kiri teks tombol
-              onClick={handleSummary} // Tentukan fungsi penanganan klik tombol di sini
-              className="mr-2 bg-blue-500" // Memberikan margin kanan untuk memisahkan tombol dan teks
+              onClick={handleAddGuest}
+              className="bg-blue-500"
             >
-              Rekapitulasi Pengunjung
+              Tambah Tamu
             </Button>
-            <div className="flex justify-end">
-              <Flex wrap gap="small">
-                <Tooltip title="search">
-                </Tooltip>
-                <Button icon={<SearchOutlined />}>Search</Button>
-              </Flex>
-            </div>
           </div>
+        </div>
+      </div>
           <Table
             dataSource={guestsToday.map((guest, index) => ({
               ...guest,
