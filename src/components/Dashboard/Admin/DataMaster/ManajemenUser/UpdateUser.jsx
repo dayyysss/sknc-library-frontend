@@ -21,7 +21,6 @@ const UpdateUser = ({ userId, onClose, user }) => {
         email: user.email || "",
         password: "",
         password_confirmation: "",
-        image: null,
       });
     }
   }, [user]);
@@ -82,7 +81,7 @@ const UpdateUser = ({ userId, onClose, user }) => {
 
       Swal.fire({
         icon: 'success',
-        title: 'Berhasil',
+        title: 'Sukses!',
         text: 'Data pengguna berhasil diperbarui!',
       });
 
@@ -162,15 +161,6 @@ const UpdateUser = ({ userId, onClose, user }) => {
               value={formData.password_confirmation}
               onChange={handleChange}
               placeholder="Konfirmasi Kata Sandi"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
-            />
-          </div>
-          <div className="mb-4">
-            <input
-              type="file"
-              name="image"
-              onChange={handleChange}
-              accept="image/*"
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500"
             />
           </div>

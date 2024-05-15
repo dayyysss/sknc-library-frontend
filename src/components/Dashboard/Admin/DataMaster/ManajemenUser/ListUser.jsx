@@ -127,8 +127,8 @@ const ListUser = () => {
       );
       fetchData();
       Swal.fire({
-        title: "Success!",
-        text: "User status has been changed to active.",
+        title: "Sukses!",
+        text: "Status user berhasil terubah menjadi Aktif!.",
         icon: "success",
       });
     } catch (error) {
@@ -243,30 +243,21 @@ const ListUser = () => {
                 </td>
                 <td className="border px-4 py-2">{user.name}</td>
                 <td className="border px-4 py-2">{user.email}</td>
-                {/* <td className="border px-4 py-2">
-      <img
-        src={user.image}
-        alt={user.username}
-        className="h-24 w-auto mx-auto object-cover"
-        style={{ maxWidth: "180px" }}
-      />
-    </td> */}
-                <td
-                  className="border px-4 py-2"
-                  style={{
-                    color:
-                      user.status === "active"
-                        ? "green"
-                        : user.status === "loading"
-                          ? "yellow"
-                          : "black",
-                  }}
-                >
-                  {user.status}
-                </td> 
+                <td className="border px-4 py-2">
+                  <span
+                    className={`text-white px-3 rounded-full p-1 ${user.status === "Belum Aktif"
+                        ? "bg-yellow-500"
+                        : user.status === "Aktif"
+                          ? "bg-green-500"
+                          : ""
+                      }`}
+                  >
+                    {user.status}
+                  </span>
+                </td>
                 <td className="border px-4 py-2">
                   <div className="flex items-center">
-                    {user.status === "loading" && (
+                    {user.status === "Belum Aktif" && (
                       <MdOutlineCheckBox
                         onClick={() => handleStatusChange(user.id)}
                         className="text-white cursor-pointer text-lg bg-green-500 rounded-full p-1 mr-2 w-7 h-7"

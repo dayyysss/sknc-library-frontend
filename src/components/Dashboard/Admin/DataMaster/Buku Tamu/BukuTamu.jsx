@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
-import Chart from 'chart.js/auto'
+import Chart from 'chart.js/auto';
 import { GrBundle } from "react-icons/gr";
 import { Button, Table, Pagination, Tooltip, Space, Select, Form, Input } from "antd";
 import { SearchOutlined } from '@ant-design/icons';
 import { IoPeopleSharp } from "react-icons/io5";
-import UpdateTamu from './UpdateTamu'
+import UpdateTamu from './UpdateTamu';
 
 const BukuTamu = () => {
   document.title = "Dashboard Admin - Buku Tamu";
@@ -56,7 +56,7 @@ const BukuTamu = () => {
       if (response.data.success) {
         if (response.data.data && Array.isArray(response.data.data.data)) {
           setGuestsToday(response.data.data.data);
-          setTotalGuests(response.data.data.total); // Simpan total data pengunjung
+          setTotalGuests(response.data.data.total);
         } else {
           console.error("Data received is not in the expected format:", response.data.data);
         }
@@ -81,7 +81,7 @@ const BukuTamu = () => {
         },
       };
       await axios.post("http://127.0.0.1:8000/api/guestbook/create", values, config);
-      form.resetFields(); // Reset form setelah submit berhasil
+      form.resetFields();
       fetchGuestsToday();
       Swal.fire({
         icon: "success",
@@ -127,7 +127,7 @@ const BukuTamu = () => {
             Authorization: `Bearer ${getAuthToken()}`,
           },
         });
-        fetchGuestsToday(); // Mengganti 'fetchData()' menjadi 'fetchGuestsToday()' untuk memperbarui data setelah penghapusan pengguna
+        fetchGuestsToday();
         Swal.fire({
           title: "Deleted!",
           text: "Your file has been deleted.",
@@ -139,6 +139,43 @@ const BukuTamu = () => {
     }
   };
 
+  const handleSearch = async (values) => {
+    try {
+      const token = getAuthToken();
+      if (!token) {
+        console.error("Token not available. Please login.");
+        return;
+      }
+
+      const response = await axios.get("http://127.0.0.1:8000/api/guestbook/search", {
+        headers: {
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+        params: {
+          identity: values.identity,
+        },
+      });
+
+      if (response.data.success) {
+        if (Array.isArray(response.data.data)) {
+          setGuestsToday(response.data.data);
+          setTotalGuests(response.data.total);
+        } else {
+          console.error("Invalid response format: data should be an array");
+        }
+      } else {
+        console.error("Failed to fetch data");
+      }
+    } catch (error) {
+      console.error("Error fetching search results:", error);
+    }
+  };
+
+  const handleReset = () => {
+    form.resetFields();
+    fetchGuestsToday();
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setGuest((prevState) => ({
@@ -147,21 +184,12 @@ const BukuTamu = () => {
     }));
   };
 
-  // Konfigurasi data untuk chart
   const data = {
-    labels: [
-      'Bulan Ini',
-      'Bulan Kemarin',
-      'Hari Ini'
-    ],
+    labels: ['Bulan Ini', 'Bulan Kemarin', 'Hari Ini'],
     datasets: [{
       label: 'My First Dataset',
       data: [300, 50, 100],
-      backgroundColor: [
-        'rgb(255, 99, 132)',
-        'rgb(54, 162, 235)',
-        'rgb(255, 205, 86)'
-      ],
+      backgroundColor: ['rgb(255, 99, 132)', 'rgb(54, 162, 235)', 'rgb(255, 205, 86)'],
       hoverOffset: 4
     }]
   };
@@ -170,16 +198,15 @@ const BukuTamu = () => {
     type: 'doughnut',
     data: data,
     options: {
-      aspectRatio: 1.6, // Menentukan rasio aspek (lebar:tinggi), dapat disesuaikan sesuai kebutuhan
-      maintainAspectRatio: true, // Menyatakan apakah chart harus mempertahankan rasio aspek saat ukuran container berubah
+      aspectRatio: 1.6,
+      maintainAspectRatio: true,
     },
   };
 
-  // Fungsi untuk membuat chart
   const createChart = () => {
     if (chartRef && chartRef.current) {
       if (chartRef.current.chart) {
-        chartRef.current.chart.destroy(); // Destroy existing chart instance
+        chartRef.current.chart.destroy();
       }
       chartRef.current.chart = new Chart(chartRef.current, config);
     }
@@ -216,7 +243,7 @@ const BukuTamu = () => {
       goals: value,
     }));
   };
-  
+
   const handleAddGuest = () => {
     identityRef.current.scrollIntoView({ behavior: "smooth" });
   };
@@ -230,9 +257,8 @@ const BukuTamu = () => {
           </h1>
         </div>
 
-        {/* Form Input Identitas Pengunjung */}
         <div ref={identityRef} className="mt-8 flex space-x-8">
-          <div className="w-1/2 bg-white p-4 rounded-md shadow-md ">
+          <div className="w-1/2 bg-white p-4 rounded-md shadow-md">
             <h1 className="font-semibold mb-4 text-xl">Tambah Identitas Pengunjung</h1>
             <Form form={form} onFinish={handleSubmit}>
               <Form.Item name="name" rules={[{ required: true, message: 'Nama Pengunjung harus diisi!' }]}>
@@ -265,7 +291,6 @@ const BukuTamu = () => {
             </Form>
           </div>
 
-          {/* Statistik Pengunjung */}
           <div className="w-1/2 bg-white p-4 rounded-md shadow-md">
             <h2 className="text-xl font-semibold mb-4">Statistik Pengunjung</h2>
             <div className="grid grid-cols-2 gap-4">
@@ -274,36 +299,39 @@ const BukuTamu = () => {
           </div>
         </div>
 
-        {/* Daftar Pengunjung Hari Ini */}
         <div className="mt-8 bg-white p-4 rounded-md shadow-md">
           <h1 className="text-2xl text-start font-semibold mb-4 text-blue-400 flex items-center">
             <IoPeopleSharp className="mr-2 text-blue-400" /> Daftar Tamu
           </h1>
-          {/* Tombol Rekapitulasi Pengunjung */}
+          
           <div className="flex items-center mb-4">
-        <Button
-          type="primary"
-          icon={<GrBundle />} // Menambahkan ikon GrBundle di sebelah kiri teks tombol
-          onClick={handleSummary} // Tentukan fungsi penanganan klik tombol di sini
-          className="mr-2 bg-blue-500" // Memberikan margin kanan untuk memisahkan tombol dan teks
-        >
-          Rekapitulasi Pengunjung
-        </Button>
-        <div className="flex justify-end flex-grow">
-          <div className="flex items-center gap-2">
-            <Tooltip title="Search">
-              <Button icon={<SearchOutlined />}>Search</Button>
-            </Tooltip>
-            <Button
-              type="primary"
-              onClick={handleAddGuest}
-              className="bg-blue-500"
-            >
-              Tambah Tamu
-            </Button>
+            <Form form={form} onFinish={handleSearch}>
+              <Space>
+                <Form.Item name="identity">
+                  <Input placeholder="Search by name" />
+                </Form.Item>
+                <Form.Item>
+                  <Button type="primary" htmlType="submit" className="bg-blue-500" icon={<SearchOutlined />}>
+                    Search
+                  </Button>
+                </Form.Item>
+                <Form.Item>
+                  <Button onClick={handleReset}>Reset</Button>
+                </Form.Item>
+              </Space>
+            </Form>
+            <div className="flex justify-end flex-grow">
+              <div className="flex items-center gap-2">
+                <Button
+                  type="primary"
+                  onClick={handleAddGuest}
+                  className="bg-blue-500"
+                >
+                  Tambah Tamu
+                </Button>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
           <Table
             dataSource={guestsToday.map((guest, index) => ({
               ...guest,

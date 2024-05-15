@@ -45,6 +45,17 @@ const UpdateTamu = ({ userId, onClose, user, fetchData }) => {
     return true;
   };
 
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      class: "",
+      departemen: "",
+      email: "",
+      goals: "",
+      telp: "",
+    });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
@@ -75,6 +86,7 @@ const UpdateTamu = ({ userId, onClose, user, fetchData }) => {
         text: 'Data pengguna berhasil diperbarui!',
       });
 
+      resetForm(); // Reset form setelah berhasil update
       onClose();
       fetchData(); // Panggil fungsi fetchData untuk memperbarui data setelah berhasil update
     } catch (error) {
@@ -198,6 +210,5 @@ const UpdateTamu = ({ userId, onClose, user, fetchData }) => {
     </div>
   );
 };
-
 
 export default UpdateTamu;
