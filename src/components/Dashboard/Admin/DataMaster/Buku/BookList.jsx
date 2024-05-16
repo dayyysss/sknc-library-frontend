@@ -187,11 +187,11 @@ const BookList = () => {
             <div key={index + 1} className="bg-white p-4 rounded shadow-md hover:shadow-lg flex flex-col">
               <button onClick={() => handleBookClick(book.id)} className="cursor-pointer focus:outline-none">
                 <div className="flex justify-center">
-                  <img src={book.image} alt={book.title} className="h-24 w-auto object-contain" />
+                  <img src={book.image} alt={book.title} className="h-[200px] w-full object-cover" />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">{book.title}</h3>
+                <h3 className="text-lg font-semibold mb-2 mt-5">{book.title}</h3>
               </button>
-              <p className="text-gray-600 mb-2 flex-grow">{book.synopsis}</p>
+              <p className="text-gray-600 mb-2 flex-grow">{book.writer}</p>
 
               <div className="flex justify-between items-center mt-2">
                 <div>
@@ -213,7 +213,6 @@ const BookList = () => {
               </div>
             </div>
           ))}
-
         </div>
         <p className="text-left mt-8">
           Page: {page} of {totalPages}
