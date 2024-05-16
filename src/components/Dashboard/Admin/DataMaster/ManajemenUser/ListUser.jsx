@@ -9,7 +9,7 @@ import Swal from "sweetalert2";
 import UpdateUser from "./UpdateUser";
 import { MdOutlineCheckBox } from "react-icons/md";
 import AddUserModal from "./AddUser";
-import { PiMicrosoftExcelLogoLight } from "react-icons/pi";
+import { PiMicrosoftExcelLogoLight, PiExportLight } from "react-icons/pi";
 import ImportExcel from "../../ImportExcel";
 
 
@@ -154,6 +154,50 @@ const ListUser = () => {
     setIsImportModalOpen(true);
   };
 
+  const handleExportUser = async () => {
+    try {
+      const token = getAuthToken();
+      if (!token) {
+        console.error("Token not available. Please login.");
+        return;
+      }
+
+      const response = await axios.get(
+        "http://127.0.0.1:8000/api/user/export-user",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          responseType: "blob", // Menentukan jenis respons yang diharapkan
+        }
+      );
+
+      // Menggunakan objek URL untuk membuat link download
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "users.xlsx");
+      document.body.appendChild(link);
+      link.click();
+
+      // Membersihkan objek URL setelah file didownload
+      window.URL.revokeObjectURL(url);
+
+      Swal.fire({
+        icon: "success",
+        title: "Export Berhasil",
+        text: "Data pengguna berhasil diekspor.",
+      });
+    } catch (error) {
+      console.error("Error exporting users:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Export Gagal",
+        text: "Terjadi kesalahan saat mengekspor data pengguna.",
+      });
+    }
+  };
+
   return (
     <>
       <div className="min-h-screen px-[25px] pt-[25px] pb-[auto] bg-[#F8F9FC] overflow-auto">
@@ -169,11 +213,18 @@ const ListUser = () => {
               Tambah User
             </button>
             <button
+              className="bg-slate-500 h-[32px] rounded-[3px] text-white flex items-center justify-center px-[8px] mr-4"
+              onClick={handleExportUser}
+            >
+              <PiExportLight className="text-xl mr-2" />
+              Export User
+            </button>
+            <button
               onClick={handleImportExcel}
               className="bg-green-500 h-[32px] rounded-[3px] text-white flex items-center justify-center px-[8px]"
             >
               <PiMicrosoftExcelLogoLight className="text-xl mr-2" />
-              Import Excel
+              Import User
             </button>
           </div>
         </div>
@@ -246,10 +297,10 @@ const ListUser = () => {
                 <td className="border px-4 py-2">
                   <span
                     className={`text-white px-3 rounded-full p-1 ${user.status === "Belum Aktif"
-                        ? "bg-yellow-500"
-                        : user.status === "Aktif"
-                          ? "bg-green-500"
-                          : ""
+                      ? "bg-yellow-500"
+                      : user.status === "Aktif"
+                        ? "bg-green-500"
+                        : ""
                       }`}
                   >
                     {user.status}

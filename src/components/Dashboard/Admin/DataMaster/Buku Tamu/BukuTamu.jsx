@@ -2,15 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import Chart from 'chart.js/auto';
-import { GrBundle } from "react-icons/gr";
-import { Button, Table, Pagination, Tooltip, Space, Select, Form, Input } from "antd";
-import { SearchOutlined } from '@ant-design/icons';
+import { Button, Table, Pagination, Space, Select, Form, Input } from "antd";
 import { IoPeopleSharp } from "react-icons/io5";
 import UpdateTamu from './UpdateTamu';
 
 const BukuTamu = () => {
   document.title = "Dashboard Admin - Buku Tamu";
   const [guestsToday, setGuestsToday] = useState([]);
+  const [searchKeyword, setSearchKeyword] = useState('');
   const [page, setPage] = useState(1);
   const chartRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,15 +18,7 @@ const BukuTamu = () => {
   const [form] = Form.useForm();
   const [totalGuests, setTotalGuests] = useState(0);
   const pageSize = 10;
-
-  const [guest, setGuest] = useState({
-    name: "",
-    class: "",
-    departemen: "",
-    email: "",
-    goals: "",
-    telp: "",
-  });
+  const nameInputRef = useRef(null);
 
   const identityRef = useRef(null);
 
@@ -35,6 +26,10 @@ const BukuTamu = () => {
     fetchGuestsToday();
     createChart();
   }, [page]);
+
+  useEffect(() => {
+    nameInputRef.current && nameInputRef.current.focus();
+  }, []);  
 
   const fetchGuestsToday = async () => {
     try {
@@ -139,50 +134,9 @@ const BukuTamu = () => {
     }
   };
 
-  const handleSearch = async (values) => {
-    try {
-      const token = getAuthToken();
-      if (!token) {
-        console.error("Token not available. Please login.");
-        return;
-      }
-
-      const response = await axios.get("http://127.0.0.1:8000/api/guestbook/search", {
-        headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
-        },
-        params: {
-          identity: values.identity,
-        },
-      });
-
-      if (response.data.success) {
-        if (Array.isArray(response.data.data)) {
-          setGuestsToday(response.data.data);
-          setTotalGuests(response.data.total);
-        } else {
-          console.error("Invalid response format: data should be an array");
-        }
-      } else {
-        console.error("Failed to fetch data");
-      }
-    } catch (error) {
-      console.error("Error fetching search results:", error);
-    }
-  };
-
-  const handleReset = () => {
-    form.resetFields();
-    fetchGuestsToday();
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setGuest((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  };
+  const filteredGuests = guestsToday.filter((guest) =>
+    guest.name.toLowerCase().includes(searchKeyword.toLowerCase())
+  );
 
   const data = {
     labels: ['Bulan Ini', 'Bulan Kemarin', 'Hari Ini'],
@@ -246,7 +200,7 @@ const BukuTamu = () => {
 
   const handleAddGuest = () => {
     identityRef.current.scrollIntoView({ behavior: "smooth" });
-  };
+  };  
 
   return (
     <>
@@ -305,21 +259,13 @@ const BukuTamu = () => {
           </h1>
           
           <div className="flex items-center mb-4">
-            <Form form={form} onFinish={handleSearch}>
-              <Space>
-                <Form.Item name="identity">
-                  <Input placeholder="Search by name" />
-                </Form.Item>
-                <Form.Item>
-                  <Button type="primary" htmlType="submit" className="bg-blue-500" icon={<SearchOutlined />}>
-                    Search
-                  </Button>
-                </Form.Item>
-                <Form.Item>
-                  <Button onClick={handleReset}>Reset</Button>
-                </Form.Item>
-              </Space>
-            </Form>
+            <Input 
+              type="text" 
+              placeholder="Cari data tamu berdasarkan nama..." 
+              value={searchKeyword} 
+              onChange={(e) => setSearchKeyword(e.target.value)} 
+              className="border p-2 rounded-md mr-10" 
+            />
             <div className="flex justify-end flex-grow">
               <div className="flex items-center gap-2">
                 <Button
@@ -333,7 +279,7 @@ const BukuTamu = () => {
             </div>
           </div>
           <Table
-            dataSource={guestsToday.map((guest, index) => ({
+            dataSource={filteredGuests.map((guest, index) => ({
               ...guest,
               key: (page - 1) * pageSize + index + 1,
             }))}

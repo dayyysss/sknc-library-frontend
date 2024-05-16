@@ -8,10 +8,11 @@ const AddBook = () => {
   const [synopsis, setSynopsis] = useState("");
   const [isbn, setIsbn] = useState("");
   const [writer, setWriter] = useState("");
-  const [page_amount, setPageAmount] = useState("");
-  const [stock_amount, setStockAmount] = useState("");
+  const [pageAmount, setPageAmount] = useState("");
+  const [stockAmount, setStockAmount] = useState("");
   const [published, setPublished] = useState("");
-  const [category, setCategory] = useState("");
+  const [publisher, setPublisher] = useState("");
+  const [category, setCategory] = useState("Buku Fiksi"); // Default to the first category
   const [image, setImage] = useState("");
   const [status, setStatus] = useState("Tersedia");
   const [errorMessage, setErrorMessage] = useState("");
@@ -25,9 +26,10 @@ const AddBook = () => {
     formData.append("synopsis", synopsis);
     formData.append("isbn", isbn);
     formData.append("writer", writer);
-    formData.append("page_amount", page_amount);
-    formData.append("stock_amount", stock_amount);
+    formData.append("page_amount", pageAmount);
+    formData.append("stock_amount", stockAmount);
     formData.append("published", published);
+    formData.append("publisher", publisher);
     formData.append("category", category);
     formData.append("image", image);
 
@@ -44,36 +46,33 @@ const AddBook = () => {
       );
 
       if (response.data.success) {
-        // Jika sukses, tampilkan swal success
         Swal.fire({
           icon: 'success',
           title: 'Sukses!',
-          text: 'Buku berhasil ditambahkan',
+          text: 'Data Buku berhasil ditambahkan',
           showConfirmButton: false,
-          timer: 1500 // Durasi tampilan swal dalam milidetik
+          timer: 1500
         }).then(() => {
           navigate("/dashboard-admin/buku");
         });
       } else {
-        // Jika gagal, tampilkan swal error
         Swal.fire({
           icon: 'error',
           title: 'Gagal!',
           text: 'Gagal menambahkan buku',
           showConfirmButton: false,
-          timer: 1500 // Durasi tampilan swal dalam milidetik
+          timer: 1500
         });
         setErrorMessage("Gagal menambahkan buku");
       }
     } catch (error) {
       console.error("Error:", error);
-      // Tampilkan swal error jika terjadi kesalahan
       Swal.fire({
         icon: 'error',
         title: 'Oops...',
         text: 'Terjadi kesalahan saat menambahkan buku',
         showConfirmButton: false,
-        timer: 1500 // Durasi tampilan swal dalam milidetik
+        timer: 1500
       });
       setErrorMessage("Terjadi kesalahan saat menambahkan buku");
     }
@@ -81,7 +80,7 @@ const AddBook = () => {
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
-    setImage(file); // Set file object to image state
+    setImage(file);
   };
 
   const getAuthToken = () => {
@@ -162,7 +161,7 @@ const AddBook = () => {
             <div className="flex">
               <input
                 type="number"
-                value={page_amount}
+                value={pageAmount}
                 onChange={(e) => setPageAmount(e.target.value)}
                 placeholder="Masukkan jumlah halaman buku"
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
@@ -176,12 +175,25 @@ const AddBook = () => {
             <div className="flex">
               <input
                 type="number"
-                value={stock_amount}
+                value={stockAmount}
                 onChange={(e) => setStockAmount(e.target.value)}
                 placeholder="Masukkan stok buku"
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               />
             </div>
+          </div>
+          <div className="mb-4">
+            <label className="block text-gray-700 text-sm font-bold mb-2">
+              Penerbit
+            </label>
+            <input
+              type="text"
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              value={publisher}
+              onChange={(e) => setPublisher(e.target.value)}
+              placeholder="Masukkan penerbit buku"
+              required={true}
+            />
           </div>
           <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2">
@@ -200,14 +212,19 @@ const AddBook = () => {
             <label className="block text-gray-700 text-sm font-bold mb-2">
               Kategori
             </label>
-            <input
-              type="text"
+            <select
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              placeholder="Masukkan kategori buku"
               required={true}
-            />
+            >
+              <option value="Buku Fiksi">Buku Fiksi</option>
+              <option value="Buku Pengetahuan (Non paket)">Buku Pengetahuan (Non paket)</option>
+              <option value="Kamus">Kamus</option>
+              <option value="Ensiklopedia">Ensiklopedia</option>
+              <option value="Al-Quran Tafsir">Al-Quran Tafsir</option>
+              <option value="Buku Paket">Buku Paket</option>
+            </select>
           </div>
           <div className="mb-4 flex flex-col">
             <label className="text-gray-700 text-sm font-bold mb-2">
@@ -231,7 +248,7 @@ const AddBook = () => {
             </button>
             <Link
               to="/dashboard-admin/buku"
-              className="bg-blue-500 hover:bg-blue-700 text-white font-booold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-4"
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ml-4"
             >
               Batal
             </Link>

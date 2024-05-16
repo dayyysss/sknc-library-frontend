@@ -24,8 +24,8 @@ const BookList = () => {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
 
-const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   useEffect(() => {
     fetchData();
@@ -90,16 +90,16 @@ const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     }
   };
 
-// Kemudian pada fungsi handleUpdate, buka modal edit
-const handleUpdate = (id) => {
-  const selectedBook = books.find(book => book.id === id);
-  if (selectedBook) {
-    setSelectedBook(selectedBook);
-    setIsEditModalOpen(true); // Buka modal edit
-  } else {
-    console.error("Book not found!");
-  }
-};
+  // Kemudian pada fungsi handleUpdate, buka modal edit
+  const handleUpdate = (id) => {
+    const selectedBook = books.find(book => book.id === id);
+    if (selectedBook) {
+      setSelectedBook(selectedBook);
+      setIsEditModalOpen(true); // Buka modal edit
+    } else {
+      console.error("Book not found!");
+    }
+  };
 
   const handleChangePage = (event, value) => {
     setPage(value);
@@ -110,25 +110,25 @@ const handleUpdate = (id) => {
     setPage(1);
   };
 
- // Pada fungsi handleBookClick, buka modal detail
-const handleBookClick = async (bookId) => {
-  try {
-    const response = await axios.get(
-      `http://127.0.0.1:8000/api/book/${bookId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
-        },
+  // Pada fungsi handleBookClick, buka modal detail
+  const handleBookClick = async (bookId) => {
+    try {
+      const response = await axios.get(
+        `http://127.0.0.1:8000/api/book/${bookId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${getAuthToken()}`,
+          },
+        }
+      );
+      if (response.data.success) {
+        setSelectedBook(response.data.data);
+        setIsDetailModalOpen(true); // Buka modal detail
       }
-    );
-    if (response.data.success) {
-      setSelectedBook(response.data.data);
-      setIsDetailModalOpen(true); // Buka modal detail
+    } catch (error) {
+      console.error(error);
     }
-  } catch (error) {
-    console.error(error);
-  }
-};
+  };
 
   const handleAddBookModalOpen = () => {
     setIsAddBookModalOpen(true);
@@ -200,6 +200,9 @@ const handleBookClick = async (bookId) => {
                   </span>
                 </div>
                 <div className="flex space-x-2">
+                  <button onClick={() => handleBookClick(book.id)} className="text-green-500">
+                    Detail
+                  </button>
                   <button onClick={() => handleUpdate(book.id)} className="text-blue-500">
                     Edit
                   </button>
@@ -228,32 +231,24 @@ const handleBookClick = async (bookId) => {
       </div>
 
       {isEditModalOpen && selectedBook && (
-  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <button
-        className="absolute top-0 right-0 p-2"
-        onClick={() => setIsEditModalOpen(false)}
-      >
-        Close
-      </button>
-      <UpdateBook book={selectedBook} />
-    </div>
-  </div>
-)}
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-md">
+            <button
+              className="absolute top-0 right-0 p-2"
+              onClick={() => setIsEditModalOpen(false)}
+            >
+              Close
+            </button>
+            <UpdateBook book={selectedBook} />
+          </div>
+        </div>
+      )}
 
-{isDetailModalOpen && selectedBook && (
-  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-    <div className="bg-white p-6 rounded-lg shadow-md">
-      <button
-        className="absolute top-0 right-0 p-2"
-        onClick={() => setIsDetailModalOpen(false)}
-      >
-        Close
-      </button>
-      <DetailBook book={selectedBook} />
-    </div>
-  </div>
-)}
+      {isDetailModalOpen && selectedBook && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <DetailBook book={selectedBook} closeModal={() => setIsDetailModalOpen(false)} />
+        </div>
+      )}
 
       {/* Modal unggah Excel */}
       {isImportModalOpen && (
