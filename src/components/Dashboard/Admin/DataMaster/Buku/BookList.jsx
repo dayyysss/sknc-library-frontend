@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Pagination from "@mui/material/Pagination";
+import Alert from '@mui/material/Alert';
 import Stack from "@mui/material/Stack";
 import axios from "axios";
 import { RiDeleteBin5Line } from "react-icons/ri";
@@ -140,10 +141,10 @@ const BookList = () => {
   };
 
   const filteredBooks = searchKeyword
-  ? books.filter((book) =>
+    ? books.filter((book) =>
       book.title.toLowerCase().includes(searchKeyword.toLowerCase())
     )
-  : books;
+    : books;
 
   return (
     <>
@@ -189,6 +190,11 @@ const BookList = () => {
         </div>
         <p className="mt-4 text-left">Total Buku : {totalBooks}</p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+          {filteredBooks.length === 0 && (
+            <Alert variant="outlined" severity="warning">
+              Tidak ada data buku yang tersedia!
+            </Alert>
+          )}
           {filteredBooks.map((book, index) => (
             <div key={index + 1} className="bg-white p-4 rounded shadow-md hover:shadow-lg flex flex-col">
               <button onClick={() => handleBookClick(book.id)} className="cursor-pointer focus:outline-none">

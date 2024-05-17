@@ -62,7 +62,7 @@ const PengembalianA = () => {
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                     <TableHead>
                         <TableRow>
-                            <TableCell className="table_cell">Id</TableCell>
+                            <TableCell className="table_cell">No</TableCell>
                             <TableCell className="table_cell">Tanggal Pengembalian</TableCell>
                             <TableCell className="table_cell">Status</TableCell>
                             <TableCell className="table_cell">Denda</TableCell>
@@ -70,22 +70,22 @@ const PengembalianA = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {loading ? (
-                            <TableRow>
-                                <TableCell colSpan={6} className="text-center">
-                                    Loading...
-                                </TableCell>
-                            </TableRow>
-                        ) : (
-                            data.map((row) => (
-                                <TableRow key={row.id}>
-                                    <TableCell className="table_cell">{row.id}</TableCell>
-                                    <TableCell className="table_cell">{row.return_date}</TableCell>
-                                    <TableCell className="table_cell">{row.status}</TableCell>
-                                    <TableCell className="table_cell">{row.fine}</TableCell>
-                                    <TableCell className="table_cell">{row.borrow.book.title}</TableCell>
+                        {Array.isArray(data) && data.length > 0 ? (
+                            data.map((pengembalian, index) => (
+                                <TableRow key={index}>
+                                    <TableCell className="table_cell">{index + 1}</TableCell>
+                                    <TableCell className="table_cell">{pengembalian.return_date}</TableCell>
+                                    <TableCell className="table_cell">{pengembalian.status}</TableCell>
+                                    <TableCell className="table_cell">{pengembalian.fine}</TableCell>
+                                    <TableCell className="table_cell">{pengembalian.borrow.book.title}</TableCell>
                                 </TableRow>
                             ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={5} className="text-center">
+                                    No data available
+                                </TableCell>
+                            </TableRow>
                         )}
                     </TableBody>
                 </Table>
