@@ -16,6 +16,7 @@ import Fade from "@mui/material/Fade";
 import TextField from "@mui/material/TextField";
 import Swal from "sweetalert2";
 import { MdOutlineCheckBox } from "react-icons/md";
+import { FaFilePdf } from "react-icons/fa";
 import AddPeminjaman from "./AddPeminjaman";
 
 const PeminjamanCompo = () => {
@@ -25,13 +26,14 @@ const PeminjamanCompo = () => {
   const [totalBooks, setTotalBooks] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
   const [selectedBorrow, setSelectedBorrow] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchKeyword, setSearchKeyword] = useState('');
 
   useEffect(() => {
     fetchData();
-  }, [page, rowsPerPage, searchQuery]);
+  }, [page, rowsPerPage, searchKeyword]);
 
   const fetchData = async () => {
     try {
@@ -48,7 +50,7 @@ const PeminjamanCompo = () => {
         params: {
           page: page, // Gunakan nilai page yang diatur sebelumnya
           per_page: rowsPerPage,
-          q: searchQuery,
+          q: searchKeyword,
         },
       });
 
@@ -57,7 +59,6 @@ const PeminjamanCompo = () => {
         setBooks(data);
         setTotalPages(last_page);
         setTotalBooks(total);
-        console.log(data)
       }
     } catch (error) {
       console.error(error);
@@ -97,18 +98,31 @@ const PeminjamanCompo = () => {
     // Copy the selectedBorrow object to avoid mutating the original state
     const updatedBorrow = { ...borrow };
 
-    // Mengambil tanggal deadline dari selectedBorrow
+    // Log the borrowing_start and borrowing_end values for debugging
+    console.log("borrowing_start:", updatedBorrow.borrowing_start);
+    console.log("borrowing_end:", updatedBorrow.borrowing_end);
+
+    // Convert date strings to Date objects (assuming format is "YYYY-MM-DD")
     const deadline = new Date(updatedBorrow.borrowing_end);
-
-    // Menghitung perbedaan antara tanggal akhir dan tanggal awal
     const borrowingStart = new Date(updatedBorrow.borrowing_start);
-    const differenceInDays = Math.ceil((deadline - borrowingStart) / (1000 * 60 * 60 * 24));
 
-    // Mengurangi jumlah hari yang diinginkan dari tanggal akhir
+    // Check if the dates are valid
+    if (isNaN(deadline.getTime()) || isNaN(borrowingStart.getTime())) {
+      console.error("Invalid date value for borrowing_start or borrowing_end");
+      return;
+    }
+
+    // Calculate the current date
+    const currentDate = new Date();
+
+    // Calculate the difference in days between the current date and the deadline
+    const differenceInDays = Math.ceil((deadline - currentDate) / (1000 * 60 * 60 * 24));
+
+    // Adjust the deadline based on the difference
     const newDeadline = new Date(deadline);
     newDeadline.setDate(deadline.getDate() - differenceInDays);
 
-    // Menyimpan tanggal deadline yang telah diubah kembali ke selectedBorrow
+    // Save the adjusted deadline back to selectedBorrow
     updatedBorrow.deadline = newDeadline.toISOString().slice(0, 10);
 
     setSelectedBorrow(updatedBorrow);
@@ -131,7 +145,7 @@ const PeminjamanCompo = () => {
   };
 
   const handleSearchChange = (event) => {
-    setSearchQuery(event.target.value);
+    setSearchKeyword(event.target.value);
   };
 
   const getAuthToken = () => {
@@ -151,6 +165,67 @@ const PeminjamanCompo = () => {
     setIsAddModalOpen(false);
   };
 
+  const generatePdf = async () => {
+    try {
+      const token = getAuthToken();
+      if (!token) {
+        console.error("Token not available. Please login.");
+        return;
+      }
+
+      const response = await axios.get('http://127.0.0.1:8000/api/borrow/generateBorrowPdf', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        responseType: 'blob', // Important for handling PDF response
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'PeminjamanReport.pdf'); // or any other extension
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const result = await Swal.fire({
+        title: "Yakin Mau Hapus?",
+        text: "Data akan dihapus dari database",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Ya, Hapus saja!",
+      });
+      if (result.isConfirmed) {
+        await axios.delete(`http://127.0.0.1:8000/api/borrow/${id}`, {
+          headers: {
+            Authorization: `Bearer ${getAuthToken()}`,
+          },
+        });
+        fetchData();
+        Swal.fire({
+          title: "Deleted!",
+          text: "Your file has been deleted.",
+          icon: "success",
+        });
+      }
+    } catch (error) {
+      console.error("error hapus peminjaman:", error);
+    }
+  };
+
+  const filteredBorrow = books.filter((borrow) =>
+    borrow.user.name.toLowerCase().includes(searchKeyword.toLowerCase()) ||
+    borrow.book.title.toLowerCase().includes(searchKeyword.toLowerCase())
+  );
+
   return (
     <div className="px-[25px] pt-[25px] pb-[370px] bg-[#F8F9FC]">
       <div className="flex items-center justify-between mb-4">
@@ -161,19 +236,26 @@ const PeminjamanCompo = () => {
         </div>
         <div className="flex items-center">
           <TextField
-            label="Cari"
+            label="Cari data user..."
             variant="outlined"
             size="small"
-            className="px-4 py-2 mr-4 rounded"
-            value={searchQuery}
+            className="searchKeyword-4 px-4 py-2 mr-4 rounded"
+            value={searchKeyword}
             onChange={handleSearchChange}
           />
           <button
+            onClick={generatePdf}
+            className="bg-blue-500 text-white px-4 py-2 rounded mr-4 ml-4 flex items-center"
+          >
+            <FaFilePdf className="mr-2" />
+            Generate Peminjaman
+          </button>
+          {/* <button
             onClick={openAddModal}
             className="bg-blue-500 text-white px-4 py-2 rounded mr-4 ml-4"
           >
             Tambah Peminjaman
-          </button>
+          </button> */}
         </div>
       </div>
       <TableContainer component={Paper} className="table_list mt-10">
@@ -183,7 +265,6 @@ const PeminjamanCompo = () => {
               <TableCell className="table_cell">No</TableCell>
               <TableCell className="table_cell">Nama Peminjam</TableCell>
               <TableCell className="table_cell">Judul Buku</TableCell>
-              <TableCell className="table_cell">Jumlah Buku</TableCell>
               <TableCell className="table_cell">Peminjaman Awal</TableCell>
               <TableCell className="table_cell">Tenggat</TableCell>
               <TableCell className="table_cell">Status</TableCell>
@@ -191,12 +272,11 @@ const PeminjamanCompo = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {books.map((borrow, index) => (
+            {filteredBorrow.map((borrow, index) => (
               <TableRow key={borrow.id}>
                 <TableCell className="table_cell"> {(page - 1) * 10 + index + 1}</TableCell>
                 <TableCell className="table_cell">{borrow.user.name}</TableCell>
                 <TableCell className="table_cell">{borrow.book.title}</TableCell>
-                <TableCell className="table_cell">{borrow.amount_borrowed}</TableCell>
                 <TableCell className="table_cell">
                   {borrow.borrowing_start}
                 </TableCell>
@@ -205,11 +285,11 @@ const PeminjamanCompo = () => {
                 </TableCell>
                 <TableCell className="table_cell">
                   <span
-                    className={`text-white px-3 rounded-full p-1 ${borrow.status === "pending"
+                    className={`text-white px-3 rounded-full p-1 ${borrow.status === "Menunggu"
                       ? "bg-yellow-500"
-                      : borrow.status === "accepted"
+                      : borrow.status === "Diterima"
                         ? "bg-green-500"
-                        : borrow.status === "completed"
+                        : borrow.status === "Selesai"
                           ? "bg-blue-500"
                           : ""
                       }`}
@@ -218,34 +298,44 @@ const PeminjamanCompo = () => {
                   </span>
                 </TableCell>
                 <TableCell className="table_cell">
-                  {borrow.status !== "pending" && (
-                    <div className="flex space-x-2">
+                  <div className="flex space-x-2">
+                    {borrow.status === "Menunggu" && (
                       <Button
-                        onClick={() => handleDetail(borrow)}
+                        onClick={() => handleAccept(borrow.id)}
                         variant="contained"
-                        color="info"
+                        color="success"
+                        className="px-2 py-2"
+                      >
+                        Terima
+                      </Button>
+                    )}
+                    {borrow.status === "Diterima" && (
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={() => handleDetail(borrow)}
                       >
                         Detail
                       </Button>
+                    )}
+                    {borrow.status === "Menunggu" && (
                       <Button
-                        onClick={() => handleDelete(borrow.id)} // Ganti handleDelete dengan fungsi untuk menghapus
                         variant="contained"
-                        color="error"
+                        color="primary"
+                        disabled
                       >
-                        Delete
+                        Detail
                       </Button>
-                    </div>
-                  )}
-                  {borrow.status === "pending" && (
+                    )}
                     <Button
-                      onClick={() => handleAccept(borrow.id)}
-                      variant="outlined"
-                      color="primary"
-                      className="ml-2"
+                      onClick={() => handleDelete(borrow.id)}
+                      variant="contained"
+                      color="error"
+                      className="px-4 py-2 order-last"
                     >
-                      Terima
+                      Hapus
                     </Button>
-                  )}
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
@@ -307,8 +397,8 @@ const PeminjamanCompo = () => {
                       <p className="text-sm font-semibold">Status User:</p>
                       <p>{selectedBorrow.user.status}</p>
                     </div>
-                    <div className="md:w-1/2 md:ml-8 ">
-                      <div className="bg-gray-100 p-4 rounded-md mb-4 w-[200px]">
+                    <div className="md:w-1/2 md:ml-8">
+                      <div className="bg-gray-100 p-4 rounded-md mb-4 w-[200px] pb-[50px]">
                         <p className="text-sm font-semibold">Judul Buku:</p>
                         <p>{selectedBorrow.book.title}</p>
                         <p className="text-sm font-semibold">Pengarang:</p>
@@ -319,29 +409,30 @@ const PeminjamanCompo = () => {
                     </div>
                   </div>
                   {/* flex 2 */}
-                  <div className="md:w-1/2 md:ml-8 flex items-center w-full gap-5">
-                    <div className="bg-gray-100 p-4 rounded-md mb-4">
-                      <p className="text-sm font-semibold">Jumlah Buku Dipinjam:</p>
-                      <p>{selectedBorrow.amount_borrowed}</p>
-                    </div>
-                    <div className="bg-gray-100 p-8 rounded-md mb-4">
+                  <div className="md:w-1/2 flex">
+                    <div className="bg-gray-100 p-4 pl-[70px] rounded-md mb-4 text-left">
                       <p className="text-sm font-semibold">Status:</p>
-                      <p className=" rounded-full p-1 bg-green-500 px-4 text-white">{selectedBorrow.status}</p>
+                      <p className="rounded-full p-1 bg-green-500 px-4 text-white">{selectedBorrow.status}</p>
                     </div>
-                    <div className="bg-gray-100 p-6 rounded-md mb-4">
-                      <p className="text-sm font-semibold">Id Peminjaman:</p>
-                      <p>{selectedBorrow.id}</p>
+                    <div className="md:w-1/2 md:ml-8 text-left">
+                      <div className="bg-gray-100 p-4 rounded-md mb-4 w-[200px]">
+                        <p className="text-sm font-semibold">Id Peminjaman:</p>
+                        <p>{selectedBorrow.id}</p>
+                      </div>
                     </div>
                   </div>
+
                   {/* flex 3 */}
-                  <div className="md:w-1/2 md:ml-8 flex items-center w-full gap-5">
-                    <div className="bg-gray-100 p-4 rounded-md mb-4">
+                  <div className="md:w-1/2 flex">
+                    <div className="bg-gray-100 p-4 pl-[75px] rounded-md mb-4 text-left">
                       <p className="text-sm font-semibold">Awal Peminjaman:</p>
                       <p>{selectedBorrow.borrowing_start}</p>
                     </div>
-                    <div className="bg-gray-100 p-4 rounded-md mb-4">
-                      <p className="text-sm font-semibold">Batas Waktu Pengembalian:</p>
-                      <p>{selectedBorrow.borrowing_end}</p>
+                    <div className="md:w-1/2 md:ml-8 text-left">
+                      <div className="bg-gray-100 p-4 rounded-md mb-4 w-[200px]">
+                        <p className="text-sm font-semibold">Batas Waktu Pengembalian:</p>
+                        <p>{selectedBorrow.borrowing_end}</p>
+                      </div>
                     </div>
                   </div>
                 </div>

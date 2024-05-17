@@ -18,18 +18,18 @@ const BookList = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalBooks, setTotalBooks] = useState(0);
-  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddBookModalOpen, setIsAddBookModalOpen] = useState(false);
-  const [isEditFormOpen, setIsEditFormOpen] = useState(false); // State to control edit form display
+  const [isEditFormOpen, setIsEditFormOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
-
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [searchKeyword, setSearchKeyword] = useState("");
 
   useEffect(() => {
     fetchData();
-  }, [page]);
+  }, [page, searchKeyword]);
 
   const fetchData = async () => {
     try {
@@ -107,7 +107,7 @@ const BookList = () => {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    setPage(1);
+    setSearchKeyword(query); // Set search keyword
   };
 
   // Pada fungsi handleBookClick, buka modal detail
@@ -130,14 +130,20 @@ const BookList = () => {
     }
   };
 
-  const handleAddBookModalOpen = () => {
-    setIsAddBookModalOpen(true);
-  };
-
   const handleImportExcel = () => {
     // Ketika tombol "Import Excel" diklik, buka modal unggah Excel
     setIsImportModalOpen(true);
   };
+
+  const handleCloseImportModal = () => {
+    setIsImportModalOpen(false);
+  };
+
+  const filteredBooks = searchKeyword
+  ? books.filter((book) =>
+      book.title.toLowerCase().includes(searchKeyword.toLowerCase())
+    )
+  : books;
 
   return (
     <>
@@ -170,10 +176,10 @@ const BookList = () => {
                 className="w-full py-2 px-4 outline-none"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Cari sesuatu di sini..."
+                placeholder="Cari data buku di sini..."
               />
               <button
-                type="submit"
+                onClick={handleSearch}
                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
               >
                 Cari
@@ -183,7 +189,7 @@ const BookList = () => {
         </div>
         <p className="mt-4 text-left">Total Buku : {totalBooks}</p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
-          {books.map((book, index) => (
+          {filteredBooks.map((book, index) => (
             <div key={index + 1} className="bg-white p-4 rounded shadow-md hover:shadow-lg flex flex-col">
               <button onClick={() => handleBookClick(book.id)} className="cursor-pointer focus:outline-none">
                 <div className="flex justify-center">
@@ -253,13 +259,7 @@ const BookList = () => {
       {isImportModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <button
-              className="absolute top-0 right-0 p-2"
-              onClick={() => setIsImportModalOpen(false)}
-            >
-              Close
-            </button>
-            <ImportExcel />
+            <ImportExcel onClose={handleCloseImportModal} />
           </div>
         </div>
       )}

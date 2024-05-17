@@ -1,6 +1,5 @@
-import React from 'react'
-
-// mui table
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -9,68 +8,90 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 
-// import dummy image
-import book1 from '../../../../assets/ImagesNew/book1.jpg';
-
 const PengembalianA = () => {
-    document.title = "Skanic Library - Pengembalian Buku";
-      // Replace this data with your own
-      const data = [
-        {
-            _id: 1,
-            product: '11/03/2024',
-            customer: 'Devid John',
-            date: '3 October, 2022',
-            ammount: 45,
-            method: 'Online Payment',
-            status: 'Approved',
-        },
-        ];
-  return (
-    <>
-    <div className="px-[25px] pt-[25px] bg-[#F8F9FC] pb-[500px]">
-      <h1 className="text-[28px] leading-[34px] font-normal text-[#5a5c69] cursor-pointer">
-        Buku Yang Di Belum Di Kembalikan
-      </h1>
+    document.title = 'Skanic Library - Pengembalian Buku';
 
-      <TableContainer component={Paper} className="table_list mt-7">
-            <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                <TableHead>
-                    <TableRow>
-                        <TableCell className="table_cell">Id</TableCell>
-                        <TableCell className="table_cell">Tanggal Pengembalian</TableCell>
-                        <TableCell className="table_cell">Status</TableCell>
-                        <TableCell className="table_cell">Fine</TableCell>
-                        <TableCell className="table_cell">Buku</TableCell>
-                        <TableCell className="table_cell">User</TableCell>
-                        <TableCell className="table_cell">Peminjman</TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {data.map((row) => (
-                        <TableRow key={row._id}>
-                            <TableCell component="th" scope="row" className="table_cell">
-                                <div className="product_idd">
-                                    <img src={row.image} alt="product" className="product_img" />
-                                    {row._id}
-                                </div>
-                            </TableCell>
-                            <TableCell className="table_cell">{row.product}</TableCell>
-                            <TableCell className="table_cell">{row.customer}</TableCell>
-                            <TableCell className="table_cell">{row.ammount}</TableCell>
-                            <TableCell className="table_cell">{row.date}</TableCell>
-                            <TableCell className="table_cell">{row.method}</TableCell>
-                            <TableCell className="table_cell">
-                                <span className={`status ${row.status}`}>{row.status}</span>
-                            </TableCell>
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            const token = getAuthToken();
+            const user_id = getUserId();
+            if (!token || !user_id) {
+                console.error('Token or user_id not available. Please login.');
+                return;
+            }
+
+            const response = await axios.get(
+                `http://127.0.0.1:8000/api/restore/${user_id}/index-restore`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
+            const responseData = response.data['List Data Pengembalian User'];
+            setData(responseData);
+            setLoading(false);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
+    const getAuthToken = () => {
+        return localStorage.getItem('token');
+    };
+
+    const getUserId = () => {
+        return localStorage.getItem('user_id');
+    };
+
+    return (
+        <div className="px-[25px] pt-[25px] bg-[#F8F9FC] pb-[500px]">
+            <h1 className="text-[28px] leading-[34px] font-normal text-[#5a5c69] cursor-pointer">
+                Buku Yang Belum Dikembalikan
+            </h1>
+
+            <TableContainer component={Paper} className="table_list mt-7">
+                <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell className="table_cell">Id</TableCell>
+                            <TableCell className="table_cell">Tanggal Pengembalian</TableCell>
+                            <TableCell className="table_cell">Status</TableCell>
+                            <TableCell className="table_cell">Denda</TableCell>
+                            <TableCell className="table_cell">Buku</TableCell>
                         </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-        </TableContainer>
-    </div>
-  </>
-  )
-}
+                    </TableHead>
+                    <TableBody>
+                        {loading ? (
+                            <TableRow>
+                                <TableCell colSpan={6} className="text-center">
+                                    Loading...
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            data.map((row) => (
+                                <TableRow key={row.id}>
+                                    <TableCell className="table_cell">{row.id}</TableCell>
+                                    <TableCell className="table_cell">{row.return_date}</TableCell>
+                                    <TableCell className="table_cell">{row.status}</TableCell>
+                                    <TableCell className="table_cell">{row.fine}</TableCell>
+                                    <TableCell className="table_cell">{row.borrow.book.title}</TableCell>
+                                </TableRow>
+                            ))
+                        )}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        </div>
+    );
+};
 
-export default PengembalianA
+export default PengembalianA;

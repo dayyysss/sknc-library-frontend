@@ -38,8 +38,9 @@ const Login = () => {
       }
 
       if (response.data.success) {
-        const { roles, token } = response.data;
+        const { roles, token, user_id } = response.data;
         localStorage.setItem("token", token);
+        localStorage.setItem("user_id", user_id); // Menyimpan user_id di localStorage
 
         let redirectPath = "";
         if (roles.includes("admin")) {

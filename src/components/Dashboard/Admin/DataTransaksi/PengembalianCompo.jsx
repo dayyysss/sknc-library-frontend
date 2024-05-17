@@ -16,6 +16,7 @@ import Fade from "@mui/material/Fade";
 import TextField from "@mui/material/TextField";
 import Swal from "sweetalert2";
 import { MdOutlineCheckBox } from "react-icons/md";
+import { FaFilePdf } from "react-icons/fa";
 import AddPeminjaman from "./AddPeminjaman";
 
 const PengembalianCompo = () => {
@@ -154,6 +155,62 @@ const PengembalianCompo = () => {
     fetchDetail(id);
   };
 
+  const generatePdf = async () => {
+    try {
+      const token = getAuthToken();
+      if (!token) {
+        console.error("Token not available. Please login.");
+        return;
+      }
+
+      const response = await axios.get('http://127.0.0.1:8000/api/restore/generateRestorePdf', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        responseType: 'blob', // Important for handling PDF response
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'PengembalianReport.pdf'); // or any other extension
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const result = await Swal.fire({
+        title: "Yakin Mau Hapus?",
+        text: "Data akan dihapus dari database",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Ya, Hapus saja!",
+      });
+      if (result.isConfirmed) {
+        await axios.delete(`http://127.0.0.1:8000/api/restore/${id}`, {
+          headers: {
+            Authorization: `Bearer ${getAuthToken()}`,
+          },
+        });
+        fetchData();
+        Swal.fire({
+          title: "Deleted!",
+          text: "Your file has been deleted.",
+          icon: "success",
+        });
+      }
+    } catch (error) {
+      console.error("error hapus peminjaman:", error);
+    }
+  };
+
   return (
     <div className="px-[25px] pt-[25px] pb-[370px] bg-[#F8F9FC]">
       <div className="flex items-center justify-between mb-4">
@@ -164,19 +221,26 @@ const PengembalianCompo = () => {
         </div>
         <div className="flex items-center">
           <TextField
-            label="Cari"
+            label="Cari data pengembalian.."
             variant="outlined"
             size="small"
             className="px-4 py-2 mr-4 rounded"
             value={searchQuery}
             onChange={handleSearchChange}
           />
-          <button
+                    <button
+            onClick={generatePdf}
+            className="bg-blue-500 text-white px-4 py-2 rounded mr-4 ml-4 flex items-center"
+          >
+            <FaFilePdf className="mr-2" />
+            Generate Pengembalian
+          </button>
+          {/* <button
             onClick={openAddModal}
             className="bg-blue-500 text-white px-4 py-2 rounded mr-4 ml-4"
           >
             Tambah Pengembalian
-          </button>
+          </button> */}
         </div>
       </div>
       <TableContainer component={Paper} className="table_list mt-10">

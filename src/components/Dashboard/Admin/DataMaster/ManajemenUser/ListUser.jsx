@@ -11,6 +11,7 @@ import { MdOutlineCheckBox } from "react-icons/md";
 import AddUserModal from "./AddUser";
 import { PiMicrosoftExcelLogoLight, PiExportLight } from "react-icons/pi";
 import ImportExcel from "../../ImportExcel";
+import TextField from "@mui/material/TextField";
 
 
 const ListUser = () => {
@@ -24,6 +25,7 @@ const ListUser = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [searchKeyword, setSearchKeyword] = useState('');
 
   useEffect(() => {
     fetchData();
@@ -36,7 +38,7 @@ const ListUser = () => {
           Authorization: `Bearer ${getAuthToken()}`,
         },
         params: {
-          role: role,
+          role: role, // Mengirim parameter role ke server
           page: page,
         },
       });
@@ -145,6 +147,10 @@ const ListUser = () => {
     fetchData(); // Perbarui data setelah menutup modal
   };
 
+  const handleCloseImportModal = () => {
+    setIsImportModalOpen(false);
+  };
+
   const refreshData = () => {
     fetchData();
   };
@@ -198,6 +204,10 @@ const ListUser = () => {
     }
   };
 
+  const filteredBooks = books.filter((book) =>
+    book.name.toLowerCase().includes(searchKeyword.toLowerCase())
+  );
+
   return (
     <>
       <div className="min-h-screen px-[25px] pt-[25px] pb-[auto] bg-[#F8F9FC] overflow-auto">
@@ -229,23 +239,15 @@ const ListUser = () => {
           </div>
         </div>
         <div className="mt-4 flex items-start justify-between">
-          <form onSubmit={handleSearch} className="w-full max-w-md">
-            <div className="flex items-center border border-slate-500 rounded">
-              <input
-                type="text"
-                className="w-full py-2 px-4 outline-none"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Cari sesuatu di sini..."
-              />
-              <button
-                type="submit"
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-              >
-                Cari
-              </button>
-            </div>
-          </form>
+          <TextField
+            label="Cari data user..."
+            variant="outlined"
+            size="small"
+            className="searchKeyword-4 py-2 mr-4 rounded"
+            value={searchKeyword}
+            onChange={(e) => setSearchKeyword(e.target.value)}
+          />
+
           <div className="relative ml-4">
             <select
               className="block appearance-none bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
@@ -287,7 +289,7 @@ const ListUser = () => {
             </tr>
           </thead>
           <tbody>
-            {books.map((user, index) => (
+            {filteredBooks.map((user, index) => (
               <tr key={user.id}>
                 <td className="border px-4 py-2">
                   {(page - 1) * 10 + index + 1}
@@ -372,13 +374,7 @@ const ListUser = () => {
       {isImportModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <button
-              className="absolute top-0 right-0 p-2"
-              onClick={() => setIsImportModalOpen(false)}
-            >
-              Close
-            </button>
-            <ImportExcel />
+            <ImportExcel onClose={handleCloseImportModal} />
           </div>
         </div>
       )}

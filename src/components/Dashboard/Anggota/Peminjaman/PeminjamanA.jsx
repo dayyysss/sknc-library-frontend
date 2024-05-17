@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-
-// Import MUI components
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -9,15 +7,19 @@ import TableCell from "@mui/material/TableCell";
 import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
+import TableFooter from "@mui/material/TableFooter";
+import TablePagination from "@mui/material/TablePagination";
 
 const PeminjamanA = () => {
     document.title = "Skanic Library - Peminjaman Buku";
 
     const [data, setData] = useState([]); // State untuk menyimpan data peminjaman
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
 
     useEffect(() => {
         fetchData(); // Panggil fetchData saat komponen dimuat
-    }, []);
+    }, [page, rowsPerPage]);
 
     const fetchData = async () => {
         try {
@@ -29,46 +31,42 @@ const PeminjamanA = () => {
             }
 
             const response = await axios.get(
-                `http://127.0.0.1:8000/api/borrow/`,
+                `http://127.0.0.1:8000/api/borrow/${user_id}/index-borrow`, // Gunakan endpoint yang benar
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
+                    params: {
+                        page: page + 1,
+                        per_page: rowsPerPage,
+                    },
                 }
             );
-            if (response.data.success) {
-                setData(response.data.data); // Simpan data peminjaman dalam state
-            }
+
+            // Ambil data dari kunci yang benar di respons
+            const dataPeminjaman = response.data["List Data Peminjaman User"];
+            setData(dataPeminjaman);
         } catch (error) {
-            console.error(error);
+            console.error("Error fetching data:", error);
         }
     };
 
     const getAuthToken = () => {
-        const token = localStorage.getItem("token");
-        return token;
+        return localStorage.getItem("token");
     };
 
     const getUserId = () => {
-        const user_id = localStorage.getItem("user_id");
-        return user_id;
+        return localStorage.getItem("user_id");
     };
 
-    // Dummy data
-    const dummyData = [
-        {
-            _id: 1,
-            borrowing_start: '04/03/2024',
-            borrowing_end: '11/03/2024',
-            status: 'Accepted',
-        },
-        {
-            _id: 2,
-            borrowing_start: '04/03/2024',
-            borrowing_end: '11/03/2024',
-            status: 'Pending',
-        },
-    ];
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
 
     return (
         <>
@@ -82,40 +80,59 @@ const PeminjamanA = () => {
                     <Table sx={{ minWidth: 650 }} aria-label="simple table">
                         <TableHead>
                             <TableRow>
-                                <TableCell className="table_cell">Id</TableCell>
-                                <TableCell className="table_cell">Peminjaman Awal</TableCell>
-                                <TableCell className="table_cell">
-                                    Peminjaman Berakhir
-                                </TableCell>
-                                <TableCell className="table_cell">Status</TableCell>
+                                <TableCell className="table_cell">No</TableCell>
                                 <TableCell className="table_cell">Buku</TableCell>
-                                <TableCell className="table_cell">Peminjam</TableCell>
+                                <TableCell className="table_cell">Peminjaman Awal</TableCell>
+                                <TableCell className="table_cell">Peminjaman Berakhir</TableCell>
+                                <TableCell className="table_cell">Status</TableCell>
+               
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {dummyData.map((borrow) => (
-                                <TableRow key={borrow._id}>
-                                    <TableCell className="table_cell">
-                                        {borrow._id}
-                                    </TableCell>
-                                    <TableCell className="table_cell">
-                                        {borrow.borrowing_start}
-                                    </TableCell>
-                                    <TableCell className="table_cell">
-                                        {borrow.borrowing_end}
-                                    </TableCell>
-                                    <TableCell className="table_cell">
-                                        {borrow.status}
-                                    </TableCell>
-                                    <TableCell className="table_cell">
-                                        {/* Anda dapat menambahkan detail buku di sini */}
-                                    </TableCell>
-                                    <TableCell className="table_cell">
-                                        {borrow.customer}
+                            {Array.isArray(data) && data.length > 0 ? (
+                                data.map((borrow, index) => (
+                                    <TableRow key={index}>
+                                        <TableCell className="table_cell">{index + 1 + page * rowsPerPage}</TableCell>
+                                        <TableCell className="table_cell">{borrow.book.title}</TableCell>
+                                        <TableCell className="table_cell">{borrow.borrowing_start}</TableCell>
+                                        <TableCell className="table_cell">{borrow.borrowing_end}</TableCell>
+                                        <TableCell className="table_cell">
+                                            <span
+                                                className={`text-white px-3 rounded-full p-1 ${borrow.status === "Menunggu"
+                                                    ? "bg-yellow-500"
+                                                    : borrow.status === "Diterima"
+                                                        ? "bg-green-500"
+                                                        : borrow.status === "Selesai"
+                                                            ? "bg-blue-500"
+                                                            : ""
+                                                    }`}
+                                            >
+                                                {borrow.status}
+                                            </span>
+                                        </TableCell>
+                         
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={6} className="text-center">
+                                        Tidak ada data peminjaman.
                                     </TableCell>
                                 </TableRow>
-                            ))}
+                            )}
                         </TableBody>
+                        <TableFooter>
+                            <TableRow>
+                                <TablePagination
+                                    rowsPerPageOptions={[5, 10, 25]}
+                                    count={Array.isArray(data) ? data.length : 0}
+                                    rowsPerPage={rowsPerPage}
+                                    page={page}
+                                    onPageChange={handleChangePage}
+                                    onRowsPerPageChange={handleChangeRowsPerPage}
+                                />
+                            </TableRow>
+                        </TableFooter>
                     </Table>
                 </TableContainer>
             </div>

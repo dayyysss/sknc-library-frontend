@@ -205,7 +205,7 @@ const Main = () => {
               <Legend />
               <Line
                 type="monotone"
-                dataKey="pv"
+                dataKey="peminjaman"
                 stroke="#8884d8"
                 activeDot={{ r: 8 }}
               />

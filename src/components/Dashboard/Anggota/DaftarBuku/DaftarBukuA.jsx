@@ -8,7 +8,7 @@ import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button"
+import Button from "@mui/material/Button";
 
 import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
@@ -99,14 +99,24 @@ function DaftarBukuA() {
           },
         }
       );
-
+  
+      // Update stok buku di state frontend
+      setBooks(prevBooks => 
+        prevBooks.map(book => 
+          book.id === selectedBook.id ? { ...book, stock_amount: book.stock_amount - 1 } : book
+        )
+      );
+  
+      // Update stok buku di selectedBook state
+      setSelectedBook(prevBook => ({ ...prevBook, stock_amount: prevBook.stock_amount - 1 }));
+  
       // Tampilkan SweetAlert2 sukses
       await swal.fire({
         icon: 'success',
         title: 'Buku Sedang Di Proses!',
         text: 'Terima kasih! Tunggu DiTerima Ya.',
       });
-
+  
       // Tutup modal setelah sukses meminjam buku
       closeModal();
     } catch (error) {
@@ -128,22 +138,35 @@ function DaftarBukuA() {
         });
       }
     }
-  };
+  };  
 
   // Memisahkan books menjadi dua bagian, masing-masing menampilkan 4 buku
   const booksTop = books.slice(0, 4);
   const booksBottom = books.slice(4);
 
   // Fungsi untuk menampilkan modal detail buku
-  const handleDetailClick = (bookId) => {
-    setSelectedBookId(bookId); // Tetapkan ID buku yang dipilih ke dalam state
+  const handleDetailClick = async (bookId) => {
+    try {
+      const response = await axios.get(`http://127.0.0.1:8000/api/book/${bookId}`, {
+        headers: {
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+      });
+      if (response.data.success) {
+        setSelectedBook(response.data.data); // Set detail buku yang dipilih
+        openModal(); // Buka modal setelah mendapatkan detail buku
+      }
+    } catch (error) {
+      console.error(error);
+    }
   };
+  
 
   // Fungsi untuk menutup modal detail buku
   const handleCloseModal = () => {
-    setSelectedBookId(null); // Kosongkan state ID buku yang dipilih
+    setSelectedBook(null); // Kosongkan state buku yang dipilih
+    closeModal();
   };
-
 
   return (
     <>
@@ -262,13 +285,10 @@ function DaftarBukuA() {
               </CardContent>
 
               <CardActions className="flex justify-between">
-                {/* Tombol detail di sebelah kiri */}
-                <Button onClick={() => handleDetailClick(book.id)} size="small" variant="outlined">Detail</Button>
-
-                {/* Status ketersediaan buku */}
-                <Typography style={{ color: book.stock_amount === 0 ? "red" : "#4CAF50", fontWeight: "bold" }}>
+                <Typography className="" style={{ color: book.stock_amount === 0 ? "red" : "#4CAF50", fontWeight: "bold" }}>
                   {book.stock_amount === 0 ? "Tidak Tersedia" : "Tersedia"}
                 </Typography>
+                <Button variant="text" onClick={() => handleDetailClick(book.id)} className="font-bold">Detail</Button>
               </CardActions>
             </Card>
           ))}
@@ -283,8 +303,8 @@ function DaftarBukuA() {
                 alt="Cover Buku"
                 height="140"
                 image={book.image}
-                onClick={() => handleBookClick(book.id)} // Panggil fungsi handleBookClick saat buku diklik
-                style={{ cursor: "pointer" }} // Ubah kursor saat diarahkan ke gambar buku
+                onClick={() => handleBookClick(book.id)}
+                style={{ cursor: "pointer" }} 
               />
               <CardContent>
                 <Typography
@@ -324,7 +344,7 @@ function DaftarBukuA() {
       </div>
 
       {/* Konten modal */}
-      {modalOpen && (
+      {modalOpen && selectedBook && (
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-auto">
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div className="z-50 bg-white p-8 rounded-lg max-w-lg w-full mx-4 flex">
@@ -348,7 +368,7 @@ function DaftarBukuA() {
               {/* InputNumber dan tombol */}
               <div className="mt-5 flex items-center"> {/* Menggunakan mt-auto untuk menempatkan div ini ke bawah */}
                 <button className="bg-green-500 text-white px-4 py-2 mr-2" onClick={handlePinjamBuku}>Pinjam</button>
-                <button className="bg-gray-500 text-white px-4 py-2" onClick={closeModal}>Tutup</button>
+                <button className="bg-gray-500 text-white px-4 py-2" onClick={handleCloseModal}>Tutup</button>
               </div>
             </div>
           </div>

@@ -207,7 +207,7 @@ const BukuTamu = () => {
       <div className="min-h-screen px-[25px] pt-[25px] pb-[auto] bg-[#F8F9FC] overflow-auto">
         <div className="flex items-center justify-between">
           <h1 className="text-[28px] leading-[34px] font-normal text-[#5a5c69] cursor-pointer">
-            Buku Tamu Perpustakaan Skanic
+            Buku Tamu
           </h1>
         </div>
 
