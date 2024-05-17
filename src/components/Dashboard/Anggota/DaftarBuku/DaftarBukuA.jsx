@@ -22,11 +22,13 @@ function DaftarBukuA() {
   const [totalPages, setTotalPages] = useState(1);
   const [totalBooks, setTotalBooks] = useState(0);
   const [page, setPage] = useState(1);
-  const [selectedBook, setSelectedBook] = useState(null); // State untuk menyimpan detail buku yang dipilih
+  const [selectedBook, setSelectedBook] = useState(null);
+  const [borrowedBooks, setBorrowedBooks] = useState([]); // State untuk menyimpan daftar buku yang sudah dipinjam oleh user
   const { Meta } = Card;
 
   useEffect(() => {
     fetchData();
+    fetchBorrowedBooks(); // Panggil fungsi untuk mengambil daftar buku yang sudah dipinjam oleh user
   }, [page]);
 
   const fetchData = async () => {
@@ -47,6 +49,22 @@ function DaftarBukuA() {
     }
   };
 
+  const fetchBorrowedBooks = async () => {
+    try {
+      const user_id = getUserId();
+      const response = await axios.get(`http://127.0.0.1:8000/api/borrow/${user_id}/list`, {
+        headers: {
+          Authorization: `Bearer ${getAuthToken()}`,
+        },
+      });
+      if (response.data.success) {
+        setBorrowedBooks(response.data.data);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const getAuthToken = () => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -58,6 +76,7 @@ function DaftarBukuA() {
 
   const getUserId = () => {
     // Implementasi pengambilan user_id yang benar
+    return localStorage.getItem("user_id");
   };
 
   const openModal = () => {
@@ -76,8 +95,8 @@ function DaftarBukuA() {
         },
       });
       if (response.data.success) {
-        setSelectedBook(response.data.data); // Set detail buku yang dipilih
-        openModal(); // Buka modal setelah mendapatkan detail buku
+        setSelectedBook(response.data.data);
+        openModal();
       }
     } catch (error) {
       console.error(error);
@@ -85,13 +104,21 @@ function DaftarBukuA() {
   };
 
   const handlePinjamBuku = async () => {
+    if (borrowedBooks.some(book => book.id === selectedBook.id)) {
+      await swal.fire({
+        icon: 'error',
+        title: 'Gagal Meminjam Buku',
+        text: 'Anda sudah meminjam buku ini.',
+      });
+      return;
+    }
+
     try {
-      // Kirim request ke server untuk meminjam buku
       await axios.post(
         'http://127.0.0.1:8000/api/borrow/create',
         {
-          user_id: getUserId(), // Mengirim user_id yang benar
-          book_id: selectedBook.id, // Mengirim book_id yang benar
+          user_id: getUserId(),
+          book_id: selectedBook.id,
         },
         {
           headers: {
@@ -99,38 +126,33 @@ function DaftarBukuA() {
           },
         }
       );
-  
-      // Update stok buku di state frontend
+
       setBooks(prevBooks => 
         prevBooks.map(book => 
           book.id === selectedBook.id ? { ...book, stock_amount: book.stock_amount - 1 } : book
         )
       );
-  
-      // Update stok buku di selectedBook state
+
       setSelectedBook(prevBook => ({ ...prevBook, stock_amount: prevBook.stock_amount - 1 }));
-  
-      // Tampilkan SweetAlert2 sukses
+
+      setBorrowedBooks(prevBorrowedBooks => [...prevBorrowedBooks, selectedBook]);
+
       await swal.fire({
         icon: 'success',
         title: 'Buku Sedang Di Proses!',
         text: 'Terima kasih! Tunggu DiTerima Ya.',
       });
-  
-      // Tutup modal setelah sukses meminjam buku
+
       closeModal();
     } catch (error) {
       console.error(error);
-      // Tampilkan pesan kesalahan jika terjadi error
       if (error.response && error.response.status === 422) {
-        // Validasi gagal, buku tidak tersedia
         await swal.fire({
           icon: 'error',
           title: 'Gagal Meminjam Buku',
           text: 'Maaf, buku tidak tersedia untuk dipinjam saat ini.',
         });
       } else {
-        // Kesalahan lain
         await swal.fire({
           icon: 'error',
           title: 'Gagal Meminjam Buku',
@@ -140,11 +162,9 @@ function DaftarBukuA() {
     }
   };  
 
-  // Memisahkan books menjadi dua bagian, masing-masing menampilkan 4 buku
   const booksTop = books.slice(0, 4);
   const booksBottom = books.slice(4);
 
-  // Fungsi untuk menampilkan modal detail buku
   const handleDetailClick = async (bookId) => {
     try {
       const response = await axios.get(`http://127.0.0.1:8000/api/book/${bookId}`, {
@@ -153,18 +173,16 @@ function DaftarBukuA() {
         },
       });
       if (response.data.success) {
-        setSelectedBook(response.data.data); // Set detail buku yang dipilih
-        openModal(); // Buka modal setelah mendapatkan detail buku
+        setSelectedBook(response.data.data);
+        openModal();
       }
     } catch (error) {
       console.error(error);
     }
   };
-  
 
-  // Fungsi untuk menutup modal detail buku
   const handleCloseModal = () => {
-    setSelectedBook(null); // Kosongkan state buku yang dipilih
+    setSelectedBook(null);
     closeModal();
   };
 
@@ -256,7 +274,6 @@ function DaftarBukuA() {
           </Menu>
         </div>
 
-        {/* Daftar buku bagian atas */}
         <div className="grid grid-cols-4 gap-5 mt-5">
           {booksTop.map((book) => (
             <Card key={book.id} sx={{ maxWidth: 200 }}>
@@ -265,8 +282,8 @@ function DaftarBukuA() {
                 alt="Cover Buku"
                 height="140"
                 image={book.image}
-                onClick={() => handleDetailClick(book.id)} // Panggil fungsi handleDetailClick saat gambar buku diklik
-                style={{ cursor: "pointer" }} // Ubah kursor saat diarahkan ke gambar buku
+                onClick={() => handleDetailClick(book.id)}
+                style={{ cursor: "pointer" }}
               />
               <CardContent>
                 <Typography
@@ -274,8 +291,8 @@ function DaftarBukuA() {
                   variant="h5"
                   component="div"
                   className="cursor-pointer"
-                  onClick={() => handleDetailClick(book.id)} // Panggil fungsi handleDetailClick saat judul buku diklik
-                  style={{ cursor: "pointer" }} // Ubah kursor saat diarahkan ke judul buku
+                  onClick={() => handleDetailClick(book.id)}
+                  style={{ cursor: "pointer" }}
                 >
                   {book.title}
                 </Typography>
@@ -294,7 +311,6 @@ function DaftarBukuA() {
           ))}
         </div>
 
-        {/* Daftar buku bagian bawah */}
         <div className="grid grid-cols-4 gap-5 mt-5">
           {booksBottom.map((book) => (
             <Card key={book.id} sx={{ maxWidth: 200 }}>
@@ -304,7 +320,7 @@ function DaftarBukuA() {
                 height="140"
                 image={book.image}
                 onClick={() => handleBookClick(book.id)}
-                style={{ cursor: "pointer" }} 
+                style={{ cursor: "pointer" }}
               />
               <CardContent>
                 <Typography
@@ -312,8 +328,8 @@ function DaftarBukuA() {
                   variant="h5"
                   component="div"
                   className="cursor-pointer"
-                  onClick={() => handleBookClick(book.id)} // Panggil fungsi handleBookClick saat judul buku diklik
-                  style={{ cursor: "pointer" }} // Ubah kursor saat diarahkan ke judul buku
+                  onClick={() => handleBookClick(book.id)}
+                  style={{ cursor: "pointer" }}
                 >
                   {book.title}
                 </Typography>
@@ -334,7 +350,6 @@ function DaftarBukuA() {
           ))}
         </div>
 
-        {/* Pagination */}
         <Pagination
           count={totalPages}
           page={page}
@@ -343,17 +358,14 @@ function DaftarBukuA() {
         />
       </div>
 
-      {/* Konten modal */}
       {modalOpen && selectedBook && (
         <div className="fixed inset-0 z-50 flex items-center justify-center overflow-auto">
           <div className="absolute inset-0 bg-black opacity-50"></div>
           <div className="z-50 bg-white p-8 rounded-lg max-w-lg w-full mx-4 flex">
-            {/* Gambar Sampul Buku */}
             <div className="w-1/3 mr-4">
               <img src={selectedBook.image} alt="Sampul Buku" className="w-full h-full object-cover" />
             </div>
-            {/* Informasi Buku */}
-            <div className="w-2/3 flex flex-col"> {/* Mengubah flex menjadi flex-col untuk menata elemen secara vertikal */}
+            <div className="w-2/3 flex flex-col">
               <h2 className="text-xl font-bold mb-4">Detail Buku </h2>
               <p className="text-left">Judul: {selectedBook.title}</p>
               <p className="text-left">Sinopsis: {selectedBook.synopsis}</p>
@@ -365,8 +377,7 @@ function DaftarBukuA() {
               <p className="text-left" style={{ color: selectedBook.stock_amount === 0 ? "red" : "#4CAF50" }}>
                 Status: {selectedBook.stock_amount === 0 ? "Tidak Tersedia" : "Tersedia"}
               </p>
-              {/* InputNumber dan tombol */}
-              <div className="mt-5 flex items-center"> {/* Menggunakan mt-auto untuk menempatkan div ini ke bawah */}
+              <div className="mt-5 flex items-center">
                 <button className="bg-green-500 text-white px-4 py-2 mr-2" onClick={handlePinjamBuku}>Pinjam</button>
                 <button className="bg-gray-500 text-white px-4 py-2" onClick={handleCloseModal}>Tutup</button>
               </div>
