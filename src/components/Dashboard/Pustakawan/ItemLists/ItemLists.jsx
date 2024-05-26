@@ -15,73 +15,38 @@ function ItemLists({ type }) {
     const [totalPeminjaman, setTotalPeminjaman] = useState(0);
     const [totalPengembalian, setTotalPengembalian] = useState(0);
 
-    const getAuthToken = () => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          console.error("Token not available. Please login.");
-          return null;
-        }
-        return token;
-      };
-
     useEffect(() => {
-        fetchDataBuku();
-        fetchDataTamu();
-        fetchDataPengembalian();
-        fetchDataPeminjaman();
+        fetchData();
     }, []);
 
-    const fetchDataBuku = async () => {
-        try {
-          const responseBook = await axios.get('http://127.0.0.1:8000/api/book/', {
-            headers: {
-              Authorization: `Bearer ${getAuthToken()}`,
-            },
-          });
-          setTotalBooks(responseBook.data.data.total);
-        } catch (error) {
-          console.error('Error fetching data:', error);
-        }
-      };
-
-      const fetchDataTamu = async () => {
-        try {
-          const responseTamu = await axios.get('http://127.0.0.1:8000/api/guestbook/', {
-            headers: {
-              Authorization: `Bearer ${getAuthToken()}`,
-            },
-          });
-          setTotalTamu(responseTamu.data.data.total);
-        } catch (error) {
-          console.error('Error fetching data:', error);
-        }
-      };
-
-      const fetchDataPeminjaman = async () => {
-        try {
-          const responsePeminjaman = await axios.get('http://127.0.0.1:8000/api/borrow/', {
-            headers: {
-              Authorization: `Bearer ${getAuthToken()}`,
-            },
-          });
-          setTotalPeminjaman(responsePeminjaman.data.data.total);
-        } catch (error) {
-          console.error('Error fetching data:', error);
-        }
-      };
-
-      const fetchDataPengembalian = async () => {
-        try {
-          const responsePengembalian = await axios.get('http://127.0.0.1:8000/api/restore/', {
-            headers: {
-              Authorization: `Bearer ${getAuthToken()}`,
-            },
-          });
-          setTotalPengembalian(responsePengembalian.data.data.total);
-        } catch (error) {
-          console.error('Error fetching data:', error);
-        }
-      };
+    const fetchData = async (url, setStateFunc) => {
+      try {
+        const response = await axios.get(url, {
+          headers: {
+            Authorization: `Bearer ${getAuthToken()}`,
+          },
+        });
+        setStateFunc(response.data.data.total);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+  
+    useEffect(() => {
+      fetchData('http://127.0.0.1:8000/api/book/', setTotalBooks);
+      fetchData('http://127.0.0.1:8000/api/guestbook/', setTotalTamu);
+      fetchData('http://127.0.0.1:8000/api/borrow/', setTotalPeminjaman);
+      fetchData('http://127.0.0.1:8000/api/restore/', setTotalPengembalian);
+    }, []);
+  
+    const getAuthToken = () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('Token not available. Please login.');
+        return null;
+      }
+      return token;
+    };
 
     let data;
 
@@ -99,7 +64,7 @@ function ItemLists({ type }) {
                         className="icon"
                     />
                 ),
-                link: 'Lihat semua data tamu',
+                link: 'Lihat semua buku',
                 linkto: '/dashboard-pustakawan/data-buku',
             };
             break;
@@ -107,7 +72,6 @@ function ItemLists({ type }) {
             data = {
                 title: 'Jumlah Tamu',
                 count: totalTamu,
-
                 icon: (
                     <LocalLibraryIcon
                         style={{
@@ -117,8 +81,8 @@ function ItemLists({ type }) {
                         className="icon"
                     />
                 ),
-                link: 'Lihat semua peminjaman',
-                linkto: '/dashboard-pustakawan/peminjaman-buku',
+                link: 'Lihat semua tamu',
+                linkto: '/dashboard-pustakawan/buku-tamu',
             };
             break;
         case 'pengembalian-buku':
@@ -163,10 +127,6 @@ function ItemLists({ type }) {
         <div className="item_listss">
             <div className="name">
                 <p>{data.title}</p>
-                <span className="persentage positive">
-                    <KeyboardArrowUpIcon />
-                    20 %
-                </span>
             </div>
 
             <div className="counts">

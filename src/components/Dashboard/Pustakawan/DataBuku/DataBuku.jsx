@@ -10,9 +10,11 @@ import TableFooter from "@mui/material/TableFooter";
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
-import { FaEdit } from "react-icons/fa";
-import { RiDeleteBin5Line } from "react-icons/ri";
 import Swal from 'sweetalert2';
+import TextField from "@mui/material/TextField";
+import Button from '@mui/material/Button';
+import Alert from '@mui/material/Alert';
+import UpdateBook from './UpdateBook'; // Pastikan Anda mengimpor UpdateBook
 
 function DataBuku() {
     document.title = "Skanic Library - Data Buku";
@@ -23,15 +25,16 @@ function DataBuku() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedBook, setSelectedBook] = useState(null);
     const [rowsPerPage, setRowsPerPage] = useState(5);
+    const [searchKeyword, setSearchKeyword] = useState('');
 
     useEffect(() => {
         fetchData();
-    }, [page]);
+    }, [page, rowsPerPage]);
 
     const fetchData = async () => {
         try {
             const response = await axios.get(
-                `http://127.0.0.1:8000/api/book?page=${page}`,
+                `http://127.0.0.1:8000/api/book?page=${page}&limit=${rowsPerPage}`,
                 {
                     headers: {
                         Authorization: `Bearer ${getAuthToken()}`,
@@ -87,22 +90,47 @@ function DataBuku() {
         }
     };
 
-    const handleUpdate = async (bookId) => {
+    const handleUpdate = (book) => {
         setIsModalOpen(true);
-        setSelectedBook(bookId);
+        setSelectedBook(book);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedBook(null);
     };
 
     const handleChangePage = (event, newPage) => {
-        setPage(newPage + 1); // MUI's TablePagination page starts from 0, so adding 1 to make it start from 1
+        setPage(newPage + 1);
     };
 
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(1); // Reset to the first page when rows per page changes
+        setPage(1);
     };
+
+    const filteredBooks = books.filter((book) =>
+        book.title.toLowerCase().includes(searchKeyword.toLowerCase())
+    );
 
     return (
         <div className="table-wrapper pb-20">
+            <div className="flex items-center justify-between mb-4 mt-4">
+                <TextField
+                    label="Cari data buku..."
+                    variant="outlined"
+                    size="small"
+                    className="mr-4"
+                    value={searchKeyword}
+                    onChange={(e) => setSearchKeyword(e.target.value)}
+                />
+                <p className="mt-4 text-right font-thin">Total Buku: {totalBooks}</p>
+            </div>
+            {filteredBooks.length === 0 && (
+                <Alert variant="outlined" severity="warning">
+                    Tidak ada data buku yang tersedia!
+                </Alert>
+            )}
             <TableContainer component={Paper} className="table_list">
                 <Table sx={{ minWidth: 650 }} aria-label="simple table">
                     <TableHead>
@@ -114,6 +142,7 @@ function DataBuku() {
                             <TableCell className="table_cell">Penulis</TableCell>
                             <TableCell className="table_cell">Jumlah Halaman</TableCell>
                             <TableCell className="table_cell">Stok Buku</TableCell>
+                            <TableCell className="table_cell">Penerbit</TableCell>
                             <TableCell className="table_cell">Tahun Terbit</TableCell>
                             <TableCell className="table_cell">Kategori</TableCell>
                             <TableCell className="table_cell">Sampul Buku</TableCell>
@@ -122,15 +151,16 @@ function DataBuku() {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {books.map((book, index) => (
-                            <TableRow key={index}>
-                                <TableCell component="th" scope="row" className="table_cell">{(page - 1) * 5 + index + 1}</TableCell>
+                        {filteredBooks.map((book, index) => (
+                            <TableRow key={book.id}>
+                                <TableCell component="th" scope="row" className="table_cell">{(page - 1) * rowsPerPage + index + 1}</TableCell>
                                 <TableCell className="table_cell">{book.title}</TableCell>
                                 <TableCell className="table_cell">{book.synopsis}</TableCell>
                                 <TableCell className="table_cell">{book.isbn}</TableCell>
                                 <TableCell className="table_cell">{book.writer}</TableCell>
                                 <TableCell className="table_cell">{book.page_amount}</TableCell>
                                 <TableCell className="table_cell">{book.stock_amount}</TableCell>
+                                <TableCell className="table_cell">{book.publisher}</TableCell>
                                 <TableCell className="table_cell">{book.published}</TableCell>
                                 <TableCell className="table_cell">{book.category}</TableCell>
                                 <TableCell className="table_cell">
@@ -142,17 +172,23 @@ function DataBuku() {
                                     </span>
                                 </TableCell>
                                 <TableCell className="table_cell">
-                                    <div className="flex justify-between items-center">
-                                        <FaEdit
-                                            onClick={() => handleUpdate(book.id)}
-                                            className="text-white rounded-full cursor-pointer bg-blue-500 mr-1"
-                                            style={{ fontSize: "1.4rem" }}
-                                        />
-                                        <RiDeleteBin5Line
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        <Button
+                                            variant="contained"
+                                            color="primary"
+                                            onClick={() => handleUpdate(book)}
+                                            style={{ minWidth: '75px' }}
+                                        >
+                                            Edit
+                                        </Button>
+                                        <Button
+                                            variant="contained"
+                                            color="error"
                                             onClick={() => handleDelete(book.id)}
-                                            className="text-white rounded-full cursor-pointer bg-red-500"
-                                            style={{ fontSize: "1.4rem" }}
-                                        />
+                                            style={{ minWidth: '75px' }}
+                                        >
+                                            Hapus
+                                        </Button>
                                     </div>
                                 </TableCell>
                             </TableRow>
@@ -177,6 +213,16 @@ function DataBuku() {
                     </TableFooter>
                 </Table>
             </TableContainer>
+
+            {/* Modal for updating book */}
+            {selectedBook && (
+                <UpdateBook
+                    book={selectedBook}
+                    fetchBooks={fetchData}
+                    onClose={handleCloseModal}
+                    open={isModalOpen}
+                />
+            )}
         </div>
     );
 }

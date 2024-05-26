@@ -28,10 +28,16 @@ function BooksList({ type }) {
               >
                 <button type="button" className="mr-3">Tambah {type}</button>
               </Link>
-              <button className="import-excel-btn">
+              <Link
+                to="/dashboard-pustakawan/data-buku/memperbarui-buku/"
+                style={{ textDecoration: "none" }}
+              >
+                  <button className="import-excel-btn">
                 <PiMicrosoftExcelLogoLight className="excel-icon" />
                 Import Excel
               </button>
+              </Link>
+        
             </div>
           </div>
 

@@ -12,7 +12,7 @@ import SearchIcon from "@mui/icons-material/Search";
 import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { ColorContext } from "../../../../context/darkContext";
-
+import LocalLibraryIcon from '@mui/icons-material/LocalLibrary';
 import BookIcon from "@mui/icons-material/Book";
 import BookmarkAddIcon from "@mui/icons-material/BookmarkAdd";
 import BookmarkRemoveIcon from "@mui/icons-material/BookmarkRemove";
@@ -144,6 +144,14 @@ function Navbar() {
 
                   <p className="spann">Data Master</p>
                   <Link
+                    to="/dashboard-pustakawan/buku-tamu"
+                    style={{ textDecoration: "none" }}
+                  >
+                    <li>
+                      <LocalLibraryIcon className="icon" /> Buku Tamu
+                    </li>
+                  </Link>
+                  <Link
                     to="/dashboard-pustakawan/data-buku"
                     style={{ textDecoration: "none" }}
                   >
@@ -151,7 +159,6 @@ function Navbar() {
                       <BookIcon className="icon" /> Data Buku
                     </li>
                   </Link>
-
                   <p className="spann">Data Transaksi</p>
                   <Link to="/dashboard-pustakawan/peminjaman-buku" style={{ textDecoration: 'none' }}>
                     <li>

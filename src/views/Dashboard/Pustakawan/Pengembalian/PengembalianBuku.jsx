@@ -15,10 +15,14 @@ import TablePagination from "@mui/material/TablePagination";
 import axios from 'axios';
 import Button from "@mui/material/Button";
 import './Pengembalian.scss';
+import TextField from "@mui/material/TextField";
+import { FaFilePdf } from "react-icons/fa";
+import Modal from "@mui/material/Modal";
+import Backdrop from "@mui/material/Backdrop";
+import Fade from "@mui/material/Fade";
 
 function PengembalianBuku({ type }) {
-  document.title = "Skanic Library - Pengembalian Buku";
-  const [books, setBooks] = useState([]);
+  document.title = "Skanic Library - Pengembalian Buku";  const [books, setBooks] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalBooks, setTotalBooks] = useState(0);
@@ -149,13 +153,64 @@ function PengembalianBuku({ type }) {
     setIsAddModalOpen(false);
   };
 
-  const exportPDF = () => {
-    // Placeholder for the export PDF functionality
-    console.log("Export PDF clicked");
-  };
-
   const handleDetailClick = (id) => {
     fetchDetail(id);
+  };
+
+  const generatePdf = async () => {
+    try {
+      const token = getAuthToken();
+      if (!token) {
+        console.error("Token not available. Please login.");
+        return;
+      }
+
+      const response = await axios.get('http://127.0.0.1:8000/api/restore/generateRestorePdf', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        responseType: 'blob', // Important for handling PDF response
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'PengembalianReport.pdf'); // or any other extension
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      const result = await Swal.fire({
+        title: "Yakin Mau Hapus?",
+        text: "Data akan dihapus dari database",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Ya, Hapus saja!",
+      });
+      if (result.isConfirmed) {
+        await axios.delete(`http://127.0.0.1:8000/api/restore/${id}`, {
+          headers: {
+            Authorization: `Bearer ${getAuthToken()}`,
+          },
+        });
+        fetchData();
+        Swal.fire({
+          title: "Deleted!",
+          text: "Your file has been deleted.",
+          icon: "success",
+        });
+      }
+    } catch (error) {
+      console.error("error hapus peminjaman:", error);
+    }
   };
 
   return (
@@ -165,91 +220,184 @@ function PengembalianBuku({ type }) {
       <div className="blog_page_main">
         <Navbar />
 
-        <div className="blog_page_table">
-          <div className="flex justify-between items-center">
-            <h2 className="text-3xl font-bold">Daftar Pengembalian</h2>
-            <div>
-              <Button variant="contained" color="secondary" onClick={exportPDF} style={{ marginRight: '10px' }}>
-                Export PDF
+        <div className="px-[25px] pt-[25px] pb-[370px]">
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center">
+          <h1 className="text-[28px] leading-[34px] font-normal text-[#5a5c69] cursor-pointer">
+            Pengembalian Buku
+          </h1>
+        </div>
+        <div className="flex items-center">
+          <TextField
+            label="Cari data pengembalian.."
+            variant="outlined"
+            size="small"
+            className="px-4 py-2 mr-4 rounded"
+            value={searchQuery}
+            onChange={handleSearchChange}
+          />
+                    <button
+            onClick={generatePdf}
+            className="bg-blue-500 text-white px-4 py-2 rounded mr-4 ml-4 flex items-center"
+          >
+            <FaFilePdf className="mr-2" />
+            Generate Pengembalian
+          </button>
+          {/* <button
+            onClick={openAddModal}
+            className="bg-blue-500 text-white px-4 py-2 rounded mr-4 ml-4"
+          >
+            Tambah Pengembalian
+          </button> */}
+        </div>
+      </div>
+      <TableContainer component={Paper} className="table_list mt-10">
+        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell className="table_cell">No</TableCell>
+              <TableCell className="table_cell">Nama Peminjam</TableCell>
+              <TableCell className="table_cell">Judul Buku</TableCell>
+              <TableCell className="table_cell">Tanggal Pengembalian</TableCell>
+              <TableCell className="table_cell">Status</TableCell>
+              <TableCell className="table_cell">Denda</TableCell>
+              <TableCell className="table_cell">Aksi</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {Array.isArray(books.data) && books.data.length > 0 ? (
+              books.data.map((pengembalian, index) => (
+                <TableRow key={pengembalian.id}>
+                  <TableCell className="table_cell">
+                    {(books.current_page - 1) * books.per_page + index + 1}
+                  </TableCell>
+                  <TableCell className="table_cell">{pengembalian.user.name}</TableCell>
+                  <TableCell className="table_cell">{pengembalian.book.title}</TableCell>
+                  <TableCell className="table_cell">{pengembalian.returndate}</TableCell>
+                  <TableCell className="table_cell">{pengembalian.status}</TableCell>
+                  <TableCell className="table_cell">{pengembalian.fine}</TableCell>
+                  <TableCell className="table_cell">
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => handleDetailClick(pengembalian.id)}
+                      >
+                        Detail
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        onClick={() => handleDelete(pengembalian.id)} // Tambahkan fungsi handleDelete untuk menghapus data
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center">
+                  Tidak ada data pengembalian.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TablePagination
+                rowsPerPageOptions={[5, 10, 25]}
+                colSpan={12}
+                count={totalBooks}
+                rowsPerPage={rowsPerPage}
+                page={page - 1}
+                SelectProps={{
+                  inputProps: { 'aria-label': 'rows per page' },
+                  native: true,
+                }}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </TableRow>
+          </TableFooter>
+        </Table>
+      </TableContainer>
+      {isAddModalOpen && <AddPeminjaman closeModal={closeAddModal} />}
+      <Modal
+        aria-labelledby="transition-modal-title"
+        aria-describedby="transition-modal-description"
+        open={isDetailModalOpen}
+        onClose={handleCloseDetailModal} // Close modal when clicking outside the modal area
+        closeAfterTransition
+        BackdropComponent={Backdrop}
+        BackdropProps={{
+          timeout: 500,
+        }}
+      >
+        <Fade in={isDetailModalOpen}>
+          <div className="fixed inset-0 flex items-center justify-center" onClick={handleCloseDetailModal}>
+            <div className="bg-white p-8 rounded-lg w-[30%]" onClick={(e) => e.stopPropagation()}>
+              <Button variant="outlined" onClick={handleCloseDetailModal} className="absolute top-[-15px] right-[-5px] text-gray-500 hover:text-gray-700 focus:outline-none">
+                Kembali
               </Button>
-              <Button variant="contained" color="primary" onClick={openAddModal}>
-                Tambah Pengembalian
-              </Button>
+              <h2 className="text-xl font-bold mb-4">Detail Peminjaman</h2>
+              {selectedBorrow && (
+                // flex 1
+                <div className=" md:flex-row">
+                  <div className="md:w-1/2 flex ">
+                    <div className="bg-gray-100 p-4 rounded-md mb-4 ">
+                      <p className="text-sm font-semibold">Nama Peminjam:</p>
+                      <p>{selectedBorrow.user.name}</p>
+                      <p className="text-sm font-semibold">Email:</p>
+                      <p>{selectedBorrow.user.email}</p>
+                      <p className="text-sm font-semibold">Status User:</p>
+                      <p>{selectedBorrow.user.status}</p>
+                    </div>
+                    <div className="md:w-1/2 md:ml-8 ">
+                      <div className="bg-gray-100 p-4 rounded-md mb-4 w-[200px]">
+                        <p className="text-sm font-semibold">Judul Buku:</p>
+                        <p>{selectedBorrow.book.title}</p>
+                        <p className="text-sm font-semibold">Pengarang:</p>
+                        <p>{selectedBorrow.book.writer}</p>
+                        <p className="text-sm font-semibold">Tahun Terbit:</p>
+                        <p>{selectedBorrow.book.published}</p>
+                      </div>
+                    </div>
+                  </div>
+                  {/* flex 2 */}
+                  <div className="md:w-1/2 md:ml-8 flex items-center w-full gap-5">
+                    <div className="bg-gray-100 p-4 rounded-md mb-4">
+                      <p className="text-sm font-semibold">Jumlah Buku Dipinjam:</p>
+                      <p>{selectedBorrow.amount_borrowed}</p>
+                    </div>
+                    <div className="bg-gray-100 p-4 rounded-md mb-4">
+                      <p className="text-sm font-semibold">Status:</p>
+                      <p className=" rounded-full p-1 bg-green-500 px-4 text-white">{selectedBorrow.status}</p>
+                    </div>
+                    <div className="bg-gray-100 p-4 rounded-md mb-4">
+                      <p className="text-sm font-semibold">Deadline:</p>
+                      <p>{selectedBorrow.deadline}</p>
+                    </div>
+                  </div>
+                  {/* flex 3 */}
+                  <div className="md:w-1/2 md:ml-8 flex items-center w-full gap-5">
+                    <div className="bg-gray-100 p-4 rounded-md mb-4">
+                      <p className="text-sm font-semibold">Awal Peminjaman:</p>
+                      <p>{selectedBorrow.borrowing_start}</p>
+                    </div>
+                    <div className="bg-gray-100 p-4 rounded-md mb-4">
+                      <p className="text-sm font-semibold">Batas Waktu Pengembalian:</p>
+                      <p>{selectedBorrow.borrowing_end}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-          <TableContainer component={Paper} className="table_list mt-10">
-            <Table sx={{ minWidth: 650 }} aria-label="simple table">
-              <TableHead>
-                <TableRow>
-                  <TableCell className="table_cell">No</TableCell>
-                  <TableCell className="table_cell">Nama Peminjam</TableCell>
-                  <TableCell className="table_cell">Judul Buku</TableCell>
-                  <TableCell className="table_cell">Tanggal Pengembalian</TableCell>
-                  <TableCell className="table_cell">Status</TableCell>
-                  <TableCell className="table_cell">Denda</TableCell>
-                  <TableCell className="table_cell">Aksi</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {Array.isArray(books.data) && books.data.length > 0 ? (
-                  books.data.map((pengembalian, index) => (
-                    <TableRow key={pengembalian.id}>
-                      <TableCell className="table_cell">
-                        {(books.current_page - 1) * books.per_page + index + 1}
-                      </TableCell>
-                      <TableCell className="table_cell">{pengembalian.user.name}</TableCell>
-                      <TableCell className="table_cell">{pengembalian.book.title}</TableCell>
-                      <TableCell className="table_cell">{pengembalian.returndate}</TableCell>
-                      <TableCell className="table_cell">{pengembalian.status}</TableCell>
-                      <TableCell className="table_cell">{pengembalian.fine}</TableCell>
-                      <TableCell className="table_cell">
-                        <div className="flex space-x-2">
-                          <Button
-                            variant="outlined"
-                            color="primary"
-                            onClick={() => handleDetailClick(pengembalian.id)}
-                          >
-                            Detail
-                          </Button>
-                          <Button
-                            variant="outlined"
-                            color="error"
-                            onClick={() => handleDelete(pengembalian.id)} // Tambahkan fungsi handleDelete untuk menghapus data
-                          >
-                            Delete
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center">
-                      Tidak ada data pengembalian.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-              <TableFooter>
-                <TableRow>
-                  <TablePagination
-                    rowsPerPageOptions={[5, 10, 25]}
-                    colSpan={12}
-                    count={totalBooks}
-                    rowsPerPage={rowsPerPage}
-                    page={page - 1}
-                    SelectProps={{
-                      inputProps: { 'aria-label': 'rows per page' },
-                      native: true,
-                    }}
-                    onPageChange={handleChangePage}
-                    onRowsPerPageChange={handleChangeRowsPerPage}
-                  />
-                </TableRow>
-              </TableFooter>
-            </Table>
-          </TableContainer>
-        </div>
+        </Fade>
+      </Modal>
+    </div >
       </div>
     </div>
   );

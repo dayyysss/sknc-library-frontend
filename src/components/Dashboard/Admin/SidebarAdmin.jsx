@@ -22,7 +22,7 @@ const SidebarAdmin = () => {
 
       <NavLink
         to="/dashboard-admin"
-        className={`flex items-center justify-between gap-[15px] py-[20px] border-b-[1px] border-[#EDEDED]/[0.3] ${activeSidebar === 'dashboard' ? 'font-bold' : ''}`}
+        className={`flex items-center justify-between gap-[15px] py-[20px] border-[#EDEDED]/[0.3] ${activeSidebar === 'dashboard' ? 'font-bold' : ''}`}
         onClick={() => handleSidebarClick('dashboard')}
       >
         <div className='flex items-center gap-[15px]'>

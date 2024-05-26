@@ -36,6 +36,7 @@ import { ColorContext } from './context/darkContext';
 import HomePustakawan from './components/Dashboard/Pustakawan/Home/Home';
 import ListBooks from './views/Dashboard/Pustakawan/DataBuku/BooksList'
 import TambahBukuP from './views/Dashboard/Pustakawan/DataBuku/BookAdd'
+import UpdateBukuP from './components/Dashboard/Pustakawan/DataBuku/UpdateBook'
 import ListKategori from './views/Dashboard/Pustakawan/KategoriBuku/ListKategori'
 // import TambahKategoriP from './views/Dashboard/Pustakawan/KategoriBuku/KategoriAdd'
 import PeminjamanBuku from './views/Dashboard/Pustakawan/Peminjaman/PeminjamanBuku'
@@ -90,6 +91,7 @@ function App() {
                         <Route path="/dashboard-pustakawan/profile" element={<ProfilePustakawan type="profile" />} />
                         <Route path="data-buku/*" element={<ListBooks type="buku" />} />
                         <Route path="/dashboard-pustakawan/data-buku/tambah-buku/*" element={<TambahBukuP type="buku" />} />
+                        <Route path="/dashboard-pustakawan/data-buku/memperbarui-buku/*" element={<UpdateBukuP type="buku" />} />
 
                         <Route path="/dashboard-pustakawan/buku-tamu/*" element={<BukuTamu type="tamu" />} />
 

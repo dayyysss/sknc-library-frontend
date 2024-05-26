@@ -12,7 +12,7 @@ const AddBook = () => {
   const [stockAmount, setStockAmount] = useState("");
   const [published, setPublished] = useState("");
   const [publisher, setPublisher] = useState("");
-  const [category, setCategory] = useState("Buku Fiksi"); // Default to the first category
+  const [category, setCategory] = useState("Buku Fiksi");
   const [image, setImage] = useState("");
   const [status, setStatus] = useState("Tersedia");
   const [errorMessage, setErrorMessage] = useState("");
@@ -93,11 +93,9 @@ const AddBook = () => {
   };
 
   return (
-    <div className="px-[25px] pt-[25px] bg-[#F8F9FC]">
+    <div className="px-6 pt-6 bg-[#F8F9FC]">
       <div className="flex items-center justify-between">
-        <h1 className="text-[28px] leading-[34px] font-normal text-[#5a5c69] cursor-pointer mb-6">
-          Tambah Data Buku
-        </h1>
+        <h1 className="text-2xl font-normal text-gray-700 mb-6">Tambah Data Buku</h1>
       </div>
 
       <div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
@@ -123,6 +121,7 @@ const AddBook = () => {
               type="text"
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               value={synopsis}
+              maxLength={100}
               onChange={(e) => setSynopsis(e.target.value)}
               placeholder="Masukkan synopsis singkat"
               required={true}
@@ -212,19 +211,26 @@ const AddBook = () => {
             <label className="block text-gray-700 text-sm font-bold mb-2">
               Kategori
             </label>
-            <select
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              required={true}
-            >
-              <option value="Buku Fiksi">Buku Fiksi</option>
-              <option value="Buku Pengetahuan (Non paket)">Buku Pengetahuan (Non paket)</option>
-              <option value="Kamus">Kamus</option>
-              <option value="Ensiklopedia">Ensiklopedia</option>
-              <option value="Al-Quran Tafsir">Al-Quran Tafsir</option>
-              <option value="Buku Paket">Buku Paket</option>
-            </select>
+            <div className="relative">
+              <select
+                className="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                required={true}
+              >
+                <option value="Buku Fiksi">Buku Fiksi</option>
+                <option value="Buku Pengetahuan (Non paket)">Buku Pengetahuan (Non paket)</option>
+                <option value="Kamus">Kamus</option>
+                <option value="Ensiklopedia">Ensiklopedia</option>
+                <option value="Al-Quran Tafsir">Al-Quran Tafsir</option>
+                <option value="Buku Paket">Buku Paket</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M7 10l5 5 5-5H7z" />
+                </svg>
+              </div>
+            </div>
           </div>
           <div className="mb-4 flex flex-col">
             <label className="text-gray-700 text-sm font-bold mb-2">

@@ -25,6 +25,11 @@
             margin-right: 20px;
           }
 
+          .add_new_sampul {
+            font-size: 23px;
+            margin-right: 20px;
+          }
+
           img {
             height: 200px;
             width: auto;
@@ -56,14 +61,11 @@
           }
 
           .submit_btn {
+            height: 53px;
+            padding: 5px;
             margin-top: 15px;
-            display: block;
-            width: 200px;
-            padding: 9px 15px;
             border: none;
-            background: none;
-            background-color: #7451f8;
-            border: 1px solid #7451f8;
+            background: #7451f8;
             color: white;
             font-size: 17px;
             border-radius: 4px;

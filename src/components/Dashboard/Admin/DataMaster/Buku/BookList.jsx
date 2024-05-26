@@ -243,14 +243,8 @@ const BookList = () => {
 
       {isEditModalOpen && selectedBook && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white p-6 rounded-lg shadow-md">
-            <button
-              className="absolute top-0 right-0 p-2"
-              onClick={() => setIsEditModalOpen(false)}
-            >
-              Close
-            </button>
-            <UpdateBook book={selectedBook} />
+          <div className="relative bg-white p-6 rounded-lg shadow-md">
+            <UpdateBook book={selectedBook} onClose={() => setIsEditModalOpen(false)} />
           </div>
         </div>
       )}

@@ -1,5 +1,7 @@
 $icon_color: #4665fdde;
 $text_color: #3d3c42;
+$active_background_color: #4665fdde;
+$active_text_color: white;
 
 .sidebar {
   border-right: 1px solid #eee;
@@ -19,7 +21,7 @@ $text_color: #3d3c42;
       color: $icon_color;
     }
   }
-  
+
   .menu1 {
     padding-right: 165px;
   }
@@ -34,7 +36,7 @@ $text_color: #3d3c42;
 
   .links {
     margin: 15px 10px;
-    // margin: 10px;
+
     ul {
       .spann {
         text-transform: uppercase;
@@ -54,15 +56,25 @@ $text_color: #3d3c42;
         border-radius: 4px;
         cursor: pointer;
         font-size: 18px;
-        transition: all 0.2s ease;
+
+        &.active {
+          background-color: $active_background_color;
+          color: $active_text_color;
+
+          .icon {
+            color: $active_text_color;
+          }
+        }
 
         &:hover {
-          background-color: $icon_color;
-          color: white;
+          background-color: $active_background_color;
+          color: $active_text_color;
         }
+
         &:hover .icon {
-          color: white;
+          color: $active_text_color;
         }
+
         .icon {
           color: $icon_color;
           margin-right: 10px;
@@ -75,6 +87,7 @@ $text_color: #3d3c42;
   .colorss {
     display: flex;
     margin: 20px 10px;
+
     .color_option {
       width: 20px;
       height: 20px;
@@ -86,6 +99,7 @@ $text_color: #3d3c42;
       &:nth-child(1) {
         background-color: whitesmoke;
       }
+
       &:nth-child(2) {
         background-color: #333;
       }

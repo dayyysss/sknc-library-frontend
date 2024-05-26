@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import Input from '../../../../components/Dashboard/Pustakawan/Input/Input';
+import { useNavigate } from 'react-router-dom';
+import TextField from '@mui/material/TextField'; // Impor TextField dari Material-UI
 import Navbar from '../../../../components/Dashboard/Pustakawan/Navbar/Navbar';
 import Sidebar from '../../../../components/Dashboard/Pustakawan/Sidebar/Sidebar';
 import noImage from '../../../../assets/images/uploadimage.jpg';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import MenuItem from '@mui/material/MenuItem';
 import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
 import './New.scss';
 
@@ -16,12 +18,14 @@ function BookAdd() {
         writer: '',
         page_amount: '',
         stock_amount: '',
+        publisher: '',
         published: '',
-        category: '',
+        category: '', // Tambahkan state untuk category
         image: null,
     });
 
     const [file, setFile] = useState('');
+    const navigate = useNavigate(); // Menggunakan useNavigate dari react-router-dom
 
     const handleChange = (e) => {
         setBookData({ ...bookData, [e.target.name]: e.target.value });
@@ -43,54 +47,55 @@ function BookAdd() {
         formData.append('writer', bookData.writer);
         formData.append('page_amount', bookData.page_amount);
         formData.append('stock_amount', bookData.stock_amount);
+        formData.append('publisher', bookData.publisher);
         formData.append('published', bookData.published);
-        formData.append('category', bookData.category);
+        formData.append('category', bookData.category); // Masukkan category ke formData
         formData.append('image', bookData.image);
 
         try {
             const response = await axios.post(
-                'http://127.0.0.1:8000/api/book/create',
-                formData,
-                {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                        Authorization: `Bearer ${getAuthToken()}`,
-                    },
-                }
+              "http://127.0.0.1:8000/api/book/create",
+              formData,
+              {
+                headers: {
+                  "Content-Type": "multipart/form-data",
+                  Authorization: `Bearer ${getAuthToken()}`,
+                },
+              }
             );
-
+      
             if (response.data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Sukses!',
-                    text: 'Buku berhasil ditambahkan',
-                    showConfirmButton: false,
-                    timer: 1500,
-                }).then(() => {
-                    // Redirect to book list page
-                    // You may need to replace the path '/dashboard-admin/buku' with the appropriate path
-                    navigate("/dashboard-pustakawan/data-buku");
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal!',
-                    text: 'Gagal menambahkan buku',
-                    showConfirmButton: false,
-                    timer: 1500,
-                });
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: 'Terjadi kesalahan saat menambahkan buku',
+              Swal.fire({
+                icon: 'success',
+                title: 'Sukses!',
+                text: 'Data Buku berhasil ditambahkan',
                 showConfirmButton: false,
-                timer: 1500,
+                timer: 1500
+              }).then(() => {
+                navigate("/dashboard-pustakawan/data-buku"); // Navigate to the new route
+              });
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Gagal!',
+                text: 'Gagal menambahkan buku',
+                showConfirmButton: false,
+                timer: 1500
+              });
+              setErrorMessage("Gagal menambahkan buku");
+            }
+          } catch (error) {
+            console.error("Error:", error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Oops...',
+              text: 'Terjadi kesalahan saat menambahkan buku',
+              showConfirmButton: false,
+              timer: 1500
             });
-        }
-    };
+            setErrorMessage("Terjadi kesalahan saat menambahkan buku");
+          }
+        };
 
     const getAuthToken = () => {
         const token = localStorage.getItem('token');
@@ -117,14 +122,12 @@ function BookAdd() {
                             <img
                                 src={file ? URL.createObjectURL(file) : noImage}
                                 alt=""
+                                onClick={() => document.getElementById('file').click()} // Tambahkan event onClick untuk menampilkan dialog pemilihan file
+                                className='cursor-pointer' // Perbaiki typo di sini, seharusnya 'cursor-pointer'
                             />
-                        </div>
-
-                        <form onSubmit={handleSubmit} className="form">
-                            <div className="form_inp">
+                            <div className="form_inp mt-10">
                                 <label htmlFor="file">
-                                    Sampul Buku:{' '}
-                                    <DriveFolderUploadIcon className="file_icon" /> {/* Use DriveFolderUploadIcon here */}
+                                    <p className="add_new_sampul text-black">Upload Sampul Buku: <DriveFolderUploadIcon className="file_icon cursor-pointer" /> </p>
                                     <input
                                         type="file"
                                         name="file"
@@ -134,62 +137,105 @@ function BookAdd() {
                                     />
                                 </label>
                             </div>
-                            <Input
+                        </div>
+
+                        <form onSubmit={handleSubmit} className="form">
+                            <TextField
                                 name="title"
                                 type="text"
-                                placeholder="Masukkan nama buku"
+                                label="Masukkan nama buku"
                                 onChange={handleChange}
                                 value={bookData.title}
+                                fullWidth
+                                margin="normal"
+                                variant="outlined"
                             />
-                            <Input
+                            <TextField
                                 name="synopsis"
                                 type="text"
-                                placeholder="Masukkan sinopsis singkat"
+                                label="Masukkan sinopsis singkat"
                                 onChange={handleChange}
                                 value={bookData.synopsis}
+                                fullWidth
+                                margin="normal"
+                                variant="outlined"
                             />
-                            <Input
+                            <TextField
                                 name="isbn"
                                 type="text"
-                                placeholder="Masukkan no isbn buku"
+                                label="Masukkan no ISBN buku"
                                 onChange={handleChange}
                                 value={bookData.isbn}
+                                fullWidth
+                                margin="normal"
+                                variant="outlined"
                             />
-                            <Input
+                            <TextField
                                 name="writer"
                                 type="text"
-                                placeholder="Masukkan penulis buku"
+                                label="Masukkan penulis buku"
                                 onChange={handleChange}
                                 value={bookData.writer}
+                                fullWidth
+                                margin="normal"
+                                variant="outlined"
                             />
-                            <Input
+                            <TextField
                                 name="page_amount"
-                                type="text"
-                                placeholder="Masukkan jumlah halaman buku"
+                                type="number"
+                                label="Masukkan jumlah halaman buku"
                                 onChange={handleChange}
                                 value={bookData.page_amount}
+                                fullWidth
+                                margin="normal"
+                                variant="outlined"
                             />
-                            <Input
+                            <TextField
                                 name="stock_amount"
-                                type="text"
-                                placeholder="Masukkan stok buku"
+                                type="number"
+                                label="Masukkan stok buku"
                                 onChange={handleChange}
                                 value={bookData.stock_amount}
+                                fullWidth
+                                margin="normal"
+                                variant="outlined"
                             />
-                            <Input
+                            <TextField
+                                name="publisher"
+                                type="text"
+                                label="Masukkan penerbit buku"
+                                onChange={handleChange}
+                                value={bookData.publisher}
+                                fullWidth
+                                margin="normal"
+                                variant="outlined"
+                            />
+                            <TextField
                                 name="published"
                                 type="text"
-                                placeholder="Masukkan tahun terbit buku"
+                                label="Masukkan tahun terbit buku"
                                 onChange={handleChange}
                                 value={bookData.published}
+                                fullWidth
+                                margin="normal"
+                                variant="outlined"
                             />
-                            <Input
+                            <TextField
                                 name="category"
-                                type="text"
-                                placeholder="Masukkan kategori buku"
-                                onChange={handleChange}
+                                select
+                                label="Pilih kategori buku"
                                 value={bookData.category}
-                            />
+                                onChange={handleChange}
+                                fullWidth
+                                margin="normal"
+                                variant="outlined"
+                            >
+                                {['Buku Fiksi', 'Buku Pengetahuan (Non paket)', 'Kamus', 'Ensiklopedia', 'Al-Quran Tafsir', 'Buku Paket'].map((category) => (
+                                    <MenuItem key={category} value={category}>
+                                        {category}
+                                    </MenuItem>
+                                ))}
+                            </TextField>
                             <button type="submit" className="submit_btn">
                                 Submit
                             </button>
