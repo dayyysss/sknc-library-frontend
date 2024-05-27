@@ -37,7 +37,7 @@ const Dashboard = () => {
     <div className='px-[25px] pt-[25px] bg-[#F8F9FC] pb-[40px]'>
       <div className='flex items-center justify-between'>
         <h1 className='text-[28px] leading-[34px] font-normal text-[#5a5c69] cursor-pointer'>
-          Hallo Selamat Datang, {name}!
+          Hallo Selamat Datang, {name}! 
         </h1> {/* Menampilkan nama pengguna */}
       </div>
       <div className='grid grid-cols-4 gap-[30px] mt-[25px] pb-[15px]'>
