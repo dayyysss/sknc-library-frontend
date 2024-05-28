@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import { FaTachometerAlt, FaStickyNote, FaRegChartBar, FaChevronRight, FaChevronLeft, FaBook, FaUser, FaBookReader } from "react-icons/fa";
 
 const Main = () => {
   const [totalBooks, setTotalBooks] = useState(0);
@@ -112,40 +113,40 @@ const Main = () => {
         <h1 className="text-[28px] leading-[34px] font-normal text-[#5a5c69] cursor-pointer">
           Dashboard Admin
         </h1>
-        <button className="bg-[#2E59D9] h-[32px] rounded-[3px] text-white flex items-center justify-center px-[8px]">
+        {/* <button className="bg-[#2E59D9] h-[32px] rounded-[3px] text-white flex items-center justify-center px-[8px]">
           Generate Report
-        </button>
+        </button> */}
       </div>
       <div className="grid grid-cols-4 gap-[30px] mt-[25px] pb-[15px]">
         {/* Gunakan Link untuk jumlah buku */}
         <Link
-          to="/dashboard-admin/buku"
+          to="/dashboard-admin/user"
           className=" h-[100px] rounded-[8px] bg-white border-l-[4px] border-[#4E73DF] flex items-center justify-between px-[30px] cursor-pointer hover:shadow-lg transform hover:scale-[103%] transition duration-300 ease-out"
         >
           <div>
             <h2 className="text-[#B589DF] text-[11px] leading-[17px] font-bold">
-              JUMLAH BUKU
+              JUMLAH USER
             </h2>
             <h1 className="text-[20px] leading-[24px] font-bold text-[#5a5c69] mt-[5px]">
-            {totalBooks} 
+            {totalUsers} 
             </h1>
           </div>
-          <FaRegCalendarMinus fontSize={28} color="" />
+          <FaUser fontSize={28} color="" />
         </Link>
         {/* Gunakan Link untuk jumlah user */}
         <Link
-          to="/dashboard-admin/user"
+          to="/dashboard-admin/buku"
           className=" h-[100px] rounded-[8px] bg-white border-l-[4px] border-[#1CC88A] flex items-center justify-between px-[30px] cursor-pointer hover:shadow-lg transform hover:scale-[103%] transition duration-300 ease-out"
         >
           <div>
             <h2 className="text-[#1cc88a] text-[11px] leading-[17px] font-bold">
-              JUMLAH USER
+              JUMLAH BUKU
             </h2>
             <h1 className="text-[20px] leading-[24px] font-bold text-[#5a5c69] mt-[5px]">
-            {totalUsers}
+            {totalBooks}
             </h1>
           </div>
-          <FaRegCalendarMinus fontSize={28} />
+          <FaBook fontSize={28} />
         </Link>
         {/* Gunakan Link untuk jumlah peminjaman */}
         <Link

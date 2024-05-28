@@ -51,8 +51,8 @@ const DashboardNav = () => {
                 </div>
                 <div className='flex items-center gap-[20px]'>
                     <div className='flex items-center gap-[25px] border-r-[1px] pr-[25px]'>
-                        <FaRegBell />
-                        <FaEnvelope />
+                        {/* <FaRegBell />
+                        <FaEnvelope /> */}
                     </div>
                     <div className='flex items-center gap-[15px] relative' onClick={showProfile} >
                         <p>Admin</p>

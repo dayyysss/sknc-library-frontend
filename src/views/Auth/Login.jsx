@@ -38,9 +38,14 @@ const Login = () => {
       }
 
       if (response.data.success) {
-        const { roles, token, user_id } = response.data;
+        const { roles, token, user_id, user } = response.data; // Ambil user dari response
         localStorage.setItem("token", token);
         localStorage.setItem("user_id", user_id); // Menyimpan user_id di localStorage
+
+        // Simpan data ke cookies
+        Cookies.set("token", token);
+        Cookies.set("name", JSON.stringify(user.name)); // Simpan nama user
+        Cookies.set("roles", roles[0]);
 
         let redirectPath = "";
         if (roles.includes("admin")) {

@@ -1,43 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { FaRegCalendarMinus } from "react-icons/fa";
+import Cookies from "js-cookie";
 
 const Dashboard = () => {
-  const [name, setName] = useState(""); // Menggunakan 'name' sebagai state
+  document.title = "Skanic Library - Dashboard";
+  const [nameData, setNameData] = useState(""); // Menggunakan 'nameData' sebagai state
 
   useEffect(() => {
-    document.title = "Skanic Library - Dashboard";
-
-    // Mengambil token dari localStorage
-    const token = localStorage.getItem("token");
-
-    if (token) {
-      try {
-        // Mendekode token untuk mendapatkan payload
-        const decodedToken = decodeJWT(token);
-        // Mengatur state 'name' dengan username dari payload token
-        setName(decodedToken.username);
-      } catch (error) {
-        console.error("Error decoding token:", error);
-      }
-    }
+    loadName();
   }, []);
 
-  // Fungsi untuk mendekode JWT tanpa pustaka eksternal
-  const decodeJWT = (token) => {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
-      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-
-    return JSON.parse(jsonPayload);
-  };
+  const loadName = () => {
+    const nameData = Cookies.get("name"); // Mengambil data dari cookie dengan kunci 'name'
+    if (nameData) {
+      setNameData(JSON.parse(nameData)); // Parsing JSON dan mengatur state
+    }
+  }
 
   return (
     <div className='px-[25px] pt-[25px] bg-[#F8F9FC] pb-[40px]'>
       <div className='flex items-center justify-between'>
         <h1 className='text-[28px] leading-[34px] font-normal text-[#5a5c69] cursor-pointer'>
-          Hallo Selamat Datang, {name}! 
+          Hallo Selamat Datang, {nameData}! 
         </h1> {/* Menampilkan nama pengguna */}
       </div>
       <div className='grid grid-cols-4 gap-[30px] mt-[25px] pb-[15px]'>
