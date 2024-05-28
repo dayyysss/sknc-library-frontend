@@ -1,7 +1,8 @@
+// ImportExcel.jsx
 import React, { useRef, useEffect, useState } from 'react';
 import axios from "axios";
 
-const ImportExcel = ({ onClose }) => {
+const ImportExcel = ({ onClose, refreshData }) => {
   const fileInputRef = useRef();
   const modalRef = useRef();
   const [file, setFile] = useState(null);
@@ -50,21 +51,19 @@ const ImportExcel = ({ onClose }) => {
 
       if (response.status === 200) {
         alert("Import successful");
-        onClose(); // Menutup form setelah berhasil mengimpor
+        refreshData(); // Refresh data after successful import
+        onClose(); // Close the modal after successful import
       } else {
         alert("Import failed. Please try again.");
       }
     } catch (error) {
       if (error.response) {
-        // Server responded with a status other than 200 range
         alert(`Import failed: ${error.response.data.message}`);
         console.error("Response error:", error.response);
       } else if (error.request) {
-        // Request was made but no response received
         alert("No response from server. Please try again.");
         console.error("Request error:", error.request);
       } else {
-        // Something else caused the error
         alert(`Error: ${error.message}`);
         console.error("Error:", error.message);
       }
@@ -74,7 +73,7 @@ const ImportExcel = ({ onClose }) => {
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (modalRef.current && !modalRef.current.contains(event.target)) {
-        onClose(); // Panggil fungsi onClose untuk menutup modal
+        onClose();
       }
     };
 
@@ -86,7 +85,7 @@ const ImportExcel = ({ onClose }) => {
   }, [onClose]);
 
   const handleCancel = () => {
-    onClose(); // Panggil fungsi onClose untuk menutup modal
+    onClose();
   };
 
   return (

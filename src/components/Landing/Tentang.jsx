@@ -1,5 +1,5 @@
 import React from "react";
-import img from "../../assets/about.svg";
+import img from "../../assets/about1.svg";
 import Button from "../../layouts/Landing/Button";
 import Heading from "../../layouts/Landing/Heading";
 import { Link } from "react-scroll";
@@ -14,14 +14,14 @@ const Tentang = () => {
       <div className="w-full md:w-2/4 text-center space-y-2">
         <Heading title1="Kami Adalah" title2="Skanic Library" />
         <p className=" text-lightText">
-          Lorem ipsum, dolor sit amet consectetur adipisicing elit. Voluptate
-          molestiae consequuntur iste placeat recusandae qui nesciunt possimus.
-          Lorem ipsum, dolor sit amet consectetur adipisicing elit. Voluptate
-          molestiae consequuntur iste placeat recusandae qui nesciunt possimus.
+          Skanic Library adalah sumber utama bagi para pecinta buku yang mencari
+          kemudahan dalam peminjaman, pengembalian, dan penanganan denda. Kami
+          menyediakan layanan sirkulasi yang efisien untuk memastikan pengalaman
+          yang nyaman bagi setiap anggota. Bergabunglah dengan kami dan nikmati
+          kemudahan dalam mengelola koleksi literasi Anda.
         </p>
 
-        <Link to="contact" spy={true} smooth={true} duration={500}>
-        </Link>
+        <Link to="contact" spy={true} smooth={true} duration={500}></Link>
       </div>
     </div>
   );

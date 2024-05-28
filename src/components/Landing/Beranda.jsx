@@ -18,10 +18,10 @@ const Beranda = () => {
           <span className="text-brightGreen"> Skanic Library</span>
         </h2>
         <p className="text-lightText mt-5 m-6 text-center">
-          Skanic Library is your gateway to a world of limitless learning possibilities.
-          With our cutting-edge eLearning platform, you can explore a vast
-          library of courses, from academic subjects to practical skills, all
-          designed to help you achieve your goals.
+          Temukan kemudahan dalam meminjam dan mengembalikan buku di Skanic
+          Library! Jelajahi koleksi kami dan nikmati proses yang cepat dan
+          praktis. Dapatkan pengalaman membaca yang menyenangkan dan memperluas
+          wawasan Anda dengan Skanic Library.
         </p>
 
         <Button title="Cari Buku" onClick={handleCariBukuClick} />

@@ -160,50 +160,47 @@ const ListUser = () => {
     setIsImportModalOpen(true);
   };
 
-  const handleExportUser = async () => {
-    try {
-      const token = getAuthToken();
-      if (!token) {
-        console.error("Token not available. Please login.");
-        return;
-      }
+  const exportAll = () => {
+    const token = localStorage.getItem("token");
+  
+    axios
+      .get("http://127.0.0.1:8000/api/user/export-user", {
+        responseType: "blob",
+        headers: {
+          authorization: `Bearer ${token}`,
+        },
+      })
+      .then((response) => {
+        // Download the exported data
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "users.csv";
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
 
-      const response = await axios.get(
-        "http://127.0.0.1:8000/api/user/export-user",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          responseType: "blob", // Menentukan jenis respons yang diharapkan
-        }
-      );
-
-      // Menggunakan objek URL untuk membuat link download
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "users.xlsx");
-      document.body.appendChild(link);
-      link.click();
-
-      // Membersihkan objek URL setelah file didownload
-      window.URL.revokeObjectURL(url);
-
-      Swal.fire({
-        icon: "success",
-        title: "Export Berhasil",
-        text: "Data pengguna berhasil diekspor.",
+        // Show success alert
+        Swal.fire({
+          title: "Sukses!",
+          text: "Data User Berhasil DiExport!",
+          icon: "success",
+          confirmButtonText: "OK",
+        });
+      })
+      .catch((error) => {
+        // Show error alert
+        Swal.fire({
+          title: "Gagal!",
+          text: "Data User Gagal Di Export",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+        console.error("Export error:", error);
       });
-    } catch (error) {
-      console.error("Error exporting users:", error);
-      Swal.fire({
-        icon: "error",
-        title: "Export Gagal",
-        text: "Terjadi kesalahan saat mengekspor data pengguna.",
-      });
-    }
   };
-
+  
   const filteredBooks = books.filter((book) =>
     book.name.toLowerCase().includes(searchKeyword.toLowerCase())
   );
@@ -224,7 +221,7 @@ const ListUser = () => {
             </button>
             <button
               className="bg-slate-500 h-[32px] rounded-[3px] text-white flex items-center justify-center px-[8px] mr-4"
-              onClick={handleExportUser}
+              onClick={exportAll}
             >
               <PiExportLight className="text-xl mr-2" />
               Export User
@@ -374,7 +371,7 @@ const ListUser = () => {
       {isImportModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white p-6 rounded-lg shadow-md">
-            <ImportExcel onClose={handleCloseImportModal} />
+            <ImportExcel onClose={handleCloseImportModal} refreshData={refreshData} />
           </div>
         </div>
       )}
