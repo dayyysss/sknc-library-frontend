@@ -95,7 +95,7 @@ const Main = () => {
       { name: "Feb", uv: 3000, pv: 1398, amt: 2210 },
       { name: "Mar", uv: 2000, pv: 9800, amt: 2290 },
       { name: "Apr", uv: 2780, pv: 3908, amt: 2000 },
-      { name: "Mei", uv: 1890, pv: 4800, amt: 2181 },
+      { name: "Mei", uv: 1890, pv: 4800, amt: 2181 }, 
       { name: "Jun", uv: 2390, pv: 3800, amt: 2500 },
       { name: "Jul", uv: 3490, pv: 4300, amt: 2100 },
       { name: "Agu", uv: 3490, pv: 4300, amt: 2100 },
@@ -120,7 +120,7 @@ const Main = () => {
       <div className="grid grid-cols-4 gap-[30px] mt-[25px] pb-[15px]">
         {/* Gunakan Link untuk jumlah buku */}
         <Link
-          to="/dashboard-admin/user"
+          to="/dashboard-admin/manajemen-user"
           className=" h-[100px] rounded-[8px] bg-white border-l-[4px] border-[#4E73DF] flex items-center justify-between px-[30px] cursor-pointer hover:shadow-lg transform hover:scale-[103%] transition duration-300 ease-out"
         >
           <div>
@@ -161,11 +161,11 @@ const Main = () => {
             {totalPeminjaman}
             </h1>
           </div>
-          <FaRegCalendarMinus fontSize={28} />
+          <FaStickyNote fontSize={28} />
         </Link>
         {/* Elemen lainnya */}
         <Link
-          to="/dashboard-admin/denda"
+          to="/dashboard-admin/pengembalian"
           className=" h-[100px] rounded-[8px] bg-white border-l-[4px] border-[#fcff5b] flex items-center justify-between px-[30px] cursor-pointer hover:shadow-lg transform hover:scale-[103%] transition duration-300 ease-out"
         >
           <div>
@@ -176,7 +176,7 @@ const Main = () => {
             {totalPengembalian}
             </h1>
           </div>
-          <FaRegCalendarMinus fontSize={28} />
+          <FaRegChartBar fontSize={28} />
         </Link>
       </div>
       <div className="flex mt-[22px] w-full gap-[15px]">

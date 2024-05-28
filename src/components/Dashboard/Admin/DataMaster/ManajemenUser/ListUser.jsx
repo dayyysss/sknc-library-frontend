@@ -164,7 +164,7 @@ const ListUser = () => {
     const token = localStorage.getItem("token");
   
     axios
-      .get("http://127.0.0.1:8000/api/user/export-user", {
+      .get("http://127.0.0.1:8000/api/alluser/export", {
         responseType: "blob",
         headers: {
           authorization: `Bearer ${token}`,
@@ -175,7 +175,7 @@ const ListUser = () => {
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const a = document.createElement("a");
         a.href = url;
-        a.download = "users.csv";
+        a.download = "users.xlsx";
         document.body.appendChild(a);
         a.click();
         window.URL.revokeObjectURL(url);

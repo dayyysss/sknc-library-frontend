@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Ilustration from "../../assets/ilus-logdaf.svg";
 import { Link } from "react-router-dom";
 import Api from "../../api/index.jsx";
@@ -93,6 +93,26 @@ const Login = () => {
     setShowModal(!showModal); // Mengubah nilai state untuk menampilkan atau menyembunyikan modal
   };
 
+  useEffect(() => {
+    if (showModal) {
+      document.addEventListener("mousedown", handleOutsideClick);
+    } else {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    };
+  }, [showModal]);
+
+  const handleOutsideClick = (e) => {
+    const modal = document.getElementById("modal");
+    if (modal && !modal.contains(e.target)) {
+      toggleModal();
+    }
+  };
+  
+
   return (
     <div className="grid md:grid-cols-2 md:gap- place-items-center w-full min-h-screen">
       <div className="hidden md:block md:w-full">
@@ -143,6 +163,7 @@ const Login = () => {
               />
             </div>
 
+{/* 
             <div className="flex items-center mt-4">
               <input
                 type="checkbox"
@@ -154,7 +175,7 @@ const Login = () => {
               <label htmlFor="rememberMe" className="text-sm text-gray-600">
                 Remember Me
               </label>
-            </div>
+            </div> */}
 
             <div className="w-full">
               <button
@@ -187,7 +208,7 @@ const Login = () => {
               <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
             <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full" id="modal">
               {/* Your modal content here */}
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
@@ -197,7 +218,11 @@ const Login = () => {
                     </h3>
                     <div className="mt-2">
                       <p className="text-sm text-gray-500">
-                        1. Wajib warga sekolah smkn 01 ciomas
+                        1. Wajib warga sekolah SMKN 01 Ciomas.<br />
+                        2. Keterlambatan dan Denda: Denda keterlambatan dikenakan per hari per buku yang terlambat dikembalikan. Pembayaran denda harus diselesaikan sebelum anggota dapat meminjam buku lain.<br />
+                        3. Akun Pengguna: Setiap anggota harus memiliki akun pengguna yang dilindungi dengan kata sandi yang aman. Pengguna bertanggung jawab untuk menjaga kerahasiaan informasi akun mereka. <br />
+                        4. Akses dan Penggunaan: Layanan peminjaman online hanya dapat digunakan oleh anggota yang sah. Penggunaan akun oleh orang lain selain pemilik akun dilarang. < br />
+                        5. Kerahasiaan dan Privasi: Informasi pribadi anggota akan dijaga kerahasiaannya dan tidak akan dibagikan kepada pihak ketiga tanpa izin anggota, kecuali jika diwajibkan oleh hukum.
                       </p>
                     </div>
                   </div>
