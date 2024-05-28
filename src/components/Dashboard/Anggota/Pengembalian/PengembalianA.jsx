@@ -36,7 +36,7 @@ const PengembalianA = () => {
                 }
             );
 
-            const responseData = response.data['List Data Pengembalian User'];
+            const responseData = response.data.data;  // Mengambil data yang benar dari respons
             setData(responseData);
             setLoading(false);
         } catch (error) {
@@ -63,10 +63,10 @@ const PengembalianA = () => {
                     <TableHead>
                         <TableRow>
                             <TableCell className="table_cell">No</TableCell>
+                            <TableCell className="table_cell">Buku</TableCell>
                             <TableCell className="table_cell">Tanggal Pengembalian</TableCell>
                             <TableCell className="table_cell">Status</TableCell>
                             <TableCell className="table_cell">Denda</TableCell>
-                            <TableCell className="table_cell">Buku</TableCell>
                         </TableRow>
                     </TableHead>
                     <TableBody>
@@ -74,10 +74,22 @@ const PengembalianA = () => {
                             data.map((pengembalian, index) => (
                                 <TableRow key={index}>
                                     <TableCell className="table_cell">{index + 1}</TableCell>
-                                    <TableCell className="table_cell">{pengembalian.return_date}</TableCell>
-                                    <TableCell className="table_cell">{pengembalian.status}</TableCell>
-                                    <TableCell className="table_cell">{pengembalian.fine}</TableCell>
-                                    <TableCell className="table_cell">{pengembalian.borrow.book.title}</TableCell>
+                                    <TableCell className="table_cell">{pengembalian.book.title}</TableCell>
+                                    <TableCell className="table_cell">{pengembalian.returndate}</TableCell>
+                                    <TableCell className="table_cell"><span className={`text-white px-3 rounded-full p-1 ${pengembalian.status === "Menunggu"
+                                        ? "bg-yellow-500"
+                                        : pengembalian.status === "Dikembalikan"
+                                            ? "bg-green-500"
+                                            : pengembalian.status === "Denda Belum Dibayar"
+                                                ? "bg-red-500"
+                                                : pengembalian.status === "Denda Dibayar"
+                                                    ? "bg-blue-500"
+                                                    : ""
+                                        }`}>
+                                        {pengembalian.status}
+                                    </span></TableCell>
+                                    <TableCell className="table_cell">{pengembalian.fine !== null ? pengembalian.fine : 'Tidak ada denda'}</TableCell>
+
                                 </TableRow>
                             ))
                         ) : (

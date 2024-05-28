@@ -66,8 +66,7 @@ const PengembalianCompo = () => {
       console.error(error);
     }
   };
-
-
+  
   const handleCloseDetailModal = () => {
     setSelectedBorrow(null);
     setIsDetailModalOpen(false);
@@ -232,8 +231,7 @@ const PengembalianCompo = () => {
     } catch (error) {
       console.error("Error updating status:", error);
     }
-  };
-  
+  }; 
 
   return (
     <div className="px-[25px] pt-[25px] pb-[370px] bg-[#F8F9FC]">

@@ -31,12 +31,12 @@ export const DASHBOARD_SIDEBAR_LINKS = [
     path: "/dashboard-anggota/pengembalian-buku",
     icon: <LuBookDown fontSize={26} />,
   },
-  {
-    key: "riwayat",
-    label: "Riwayat",
-    path: "/dashboard-anggota/riwayat-buku",
-    icon: <MdHistory fontSize={26} />,
-  },
+  // {
+  //   key: "riwayat",
+  //   label: "Riwayat",
+  //   path: "/dashboard-anggota/riwayat-buku",
+  //   icon: <MdHistory fontSize={26} />,
+  // },
   {
     key: "denda",
     label: "Denda",
@@ -46,10 +46,10 @@ export const DASHBOARD_SIDEBAR_LINKS = [
 ];
 
 export const DASHBOARD_SIDEBAR_BOTTOM_LINKS = [
-  {
-    key: "settings",
-    label: "Settings",
-    path: "/settings",
-    icon: <IoSettingsOutline fontSize={26} />,
-  },
+  // {
+  //   key: "settings",
+  //   label: "Settings",
+  //   path: "/settings",
+  //   icon: <IoSettingsOutline fontSize={26} />,
+  // },
 ];

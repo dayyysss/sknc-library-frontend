@@ -112,12 +112,12 @@ function Navbar() {
                 onClick={toggleProfileDropdown} // Menambahkan event onClick untuk menampilkan dropdown profil saat gambar admin diklik
               />
               {showProfileDropdown && ( // Menampilkan dropdown profil jika showProfileDropdown bernilai true
-                <div className='bg-white border h-[120px] w-[150px] absolute bottom-[-135px] z-20 right-0 pt-[15px] pl-[15px] space-y-[10px]'>
+                <div className='bg-white border h-[90px] w-[120px] absolute bottom-[-100px] z-20 right-0 pt-[15px] space-y-[10px]'>
                   <ul>
                     <li>
                       <Link to="/dashboard-pustakawan/profile">Lihat Profil</Link>
                     </li>
-                    <li onClick={handleLogout} className="cursor-pointer">Logout</li>
+                    <li onClick={handleLogout} className="cursor-pointer hover:text-red-500">Logout</li>
                   </ul>
                 </div>
               )}

@@ -20,9 +20,14 @@ import { FaFilePdf } from "react-icons/fa";
 import Modal from "@mui/material/Modal";
 import Backdrop from "@mui/material/Backdrop";
 import Fade from "@mui/material/Fade";
+import { RiDeleteBin5Line } from "react-icons/ri";
+import { RiCheckboxCircleFill } from "react-icons/ri";
+import { MdOutlineCheckBox } from "react-icons/md";
 
 function PengembalianBuku({ type }) {
-  document.title = "Skanic Library - Pengembalian Buku";  const [books, setBooks] = useState([]);
+  document.title = "Skanic Library - Pengembalian Buku";
+  
+  const [books, setBooks] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalBooks, setTotalBooks] = useState(0);
@@ -65,58 +70,7 @@ function PengembalianBuku({ type }) {
       console.error(error);
     }
   };
-
-  const handleAccept = async (id) => {
-    try {
-      console.log("Accepting borrow with id:", id);
-      const token = getAuthToken();
-      if (!token) {
-        console.error("Token not available. Please login.");
-        return;
-      }
-
-      const response = await axios.put(
-        `http://127.0.0.1:8000/api/borrow/${id}/update-status`,
-        { status: "accepted" },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      fetchData();
-      Swal.fire({
-        title: "Success!",
-        text: "Status peminjaman berhasil diubah menjadi Sukses.",
-        icon: "success",
-      });
-    } catch (error) {
-      console.error("Error updating status peminjaman:", error);
-    }
-  };
-
-  const handleDetail = (borrow) => {
-    // Copy the selectedBorrow object to avoid mutating the original state
-    const updatedBorrow = { ...borrow };
-
-    // Mengambil tanggal deadline dari selectedBorrow
-    const deadline = new Date(updatedBorrow.borrowing_end);
-
-    // Menghitung perbedaan antara tanggal akhir dan tanggal awal
-    const borrowingStart = new Date(updatedBorrow.borrowing_start);
-    const differenceInDays = Math.ceil((deadline - borrowingStart) / (1000 * 60 * 60 * 24));
-
-    // Mengurangi jumlah hari yang diinginkan dari tanggal akhir
-    const newDeadline = new Date(deadline);
-    newDeadline.setDate(deadline.getDate() - differenceInDays);
-
-    // Menyimpan tanggal deadline yang telah diubah kembali ke selectedBorrow
-    updatedBorrow.deadline = newDeadline.toISOString().slice(0, 10);
-
-    setSelectedBorrow(updatedBorrow);
-    setIsDetailModalOpen(true);
-  };
-
+  
   const handleCloseDetailModal = () => {
     setSelectedBorrow(null);
     setIsDetailModalOpen(false);
@@ -213,6 +167,76 @@ function PengembalianBuku({ type }) {
     }
   };
 
+  const handleStatusChange = async (id) => {
+    try {
+      const token = getAuthToken();
+      if (!token) {
+        console.error("Token not available. Please login.");
+        return;
+      }
+
+      const response = await axios.put(
+        `http://127.0.0.1:8000/api/restore/${id}/update-status`,
+        { status: "Dikembalikan" }, // Update status to "Dikembalikan"
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        fetchData(); // Refetch data after status update
+        Swal.fire({
+          title: "Success!",
+          text: "Status berhasil diubah menjadi Dikembalikan.",
+          icon: "success",
+        });
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
+  };
+
+  const handleStatusDenda = async (id, status) => {
+    try {
+      const token = getAuthToken();
+      if (!token) {
+        console.error("Token not available. Please login.");
+        return;
+      }
+  
+      // Periksa apakah status adalah "Denda Belum Dibayar"
+      if (status === "Denda Belum Dibayar") {
+        // Kirim permintaan ke API untuk memperbarui status menjadi "Denda Dibayar"
+        const response = await axios.put(
+          `http://127.0.0.1:8000/api/restore/${id}/update-fine`,
+          { status: "Denda Dibayar" },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+  
+        if (response.data.success) {
+          // Jika berhasil, perbarui data pengembalian
+          fetchData();
+          Swal.fire({
+            title: "Success!",
+            text: "Status berhasil diubah menjadi Denda Dibayar.",
+            icon: "success",
+          });
+        }
+      } else {
+        // Jika status bukan "Denda Belum Dibayar", lakukan hal lain (misalnya, perbarui status lain)
+        // Anda dapat menambahkan logika ini sesuai kebutuhan
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
+  }; 
+
   return (
     <div className="blog_page">
       <Sidebar />
@@ -274,24 +298,39 @@ function PengembalianBuku({ type }) {
                   <TableCell className="table_cell">{pengembalian.user.name}</TableCell>
                   <TableCell className="table_cell">{pengembalian.book.title}</TableCell>
                   <TableCell className="table_cell">{pengembalian.returndate}</TableCell>
-                  <TableCell className="table_cell">{pengembalian.status}</TableCell>
+                  <TableCell className="table_cell">
+                    <span className={`text-white px-3 rounded-full p-1 ${pengembalian.status === "Menunggu"
+                      ? "bg-yellow-500"
+                      : pengembalian.status === "Dikembalikan"
+                        ? "bg-green-500"
+                        : pengembalian.status === "Denda Belum Dibayar"
+                          ? "bg-red-500"
+                          : pengembalian.status === "Denda Dibayar"
+                            ? "bg-blue-500"
+                            : ""
+                      }`}>
+                      {pengembalian.status}
+                    </span>
+                  </TableCell>
                   <TableCell className="table_cell">{pengembalian.fine}</TableCell>
                   <TableCell className="table_cell">
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => handleDetailClick(pengembalian.id)}
-                      >
-                        Detail
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        color="error"
-                        onClick={() => handleDelete(pengembalian.id)} // Tambahkan fungsi handleDelete untuk menghapus data
-                      >
-                        Delete
-                      </Button>
+                    <div className="flex items-center">
+                      {pengembalian.status === "Menunggu" && (
+                        <MdOutlineCheckBox
+                          onClick={() => handleStatusChange(pengembalian.id, pengembalian.status)}
+                          className="text-white cursor-pointer text-lg bg-green-500 rounded-full p-1 mr-2 w-7 h-7"
+                        />
+                      )}
+                      {pengembalian.status === "Denda Belum Dibayar" && (
+                        <RiCheckboxCircleFill
+                          onClick={() => handleStatusDenda(pengembalian.id, pengembalian.status)}
+                          className="text-white cursor-pointer text-lg bg-green-500 rounded-full p-1 mr-2 w-7 h-7"
+                        />
+                      )}
+                      <RiDeleteBin5Line
+                        onClick={() => handleDelete(pengembalian.id)}
+                        className="text-white cursor-pointer w-7 h-7 bg-red-500 rounded-full p-1 mr-2"
+                      />
                     </div>
                   </TableCell>
                 </TableRow>

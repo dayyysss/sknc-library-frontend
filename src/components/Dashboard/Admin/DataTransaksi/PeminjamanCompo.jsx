@@ -180,15 +180,25 @@ const PeminjamanCompo = () => {
         responseType: 'blob', // Important for handling PDF response
       });
 
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', 'PeminjamanReport.pdf'); // or any other extension
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
+      const blobUrl = URL.createObjectURL(response.data);
+
+      const downloadLink = document.createElement("a");
+      downloadLink.href = blobUrl;
+      downloadLink.download = "Laporan Peminjaman Buku Perbulan.pdf";
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+
+      Swal.fire({
+        icon: "success",
+        title: "PDF Berhasil Dibuat",
+      });
     } catch (error) {
-      console.error("Error generating PDF:", error);
+      console.error("Error exporting absen:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Gagal Membuat PDF",
+        text: error.message,
+      });
     }
   };
 

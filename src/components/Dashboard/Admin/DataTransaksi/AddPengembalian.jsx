@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import Swal from 'sweetalert2'
 
-const AddPengembalian = ({ closeModal }) => {
+const AddPengembalian = ({ closeModal, fetchData }) => {
   const [returnDate, setReturnDate] = useState('');
   const [status, setStatus] = useState('');
   const [borrowId, setBorrowId] = useState('');
@@ -57,22 +58,32 @@ const AddPengembalian = ({ closeModal }) => {
       const response = await axios.post(
         `http://127.0.0.1:8000/api/restore/returnmanual/${borrowId}`,
         {
-          // method_: 'PUT',
           returndate: returnDate,
           status: status,
           borrow_id: borrowId,
         },
         {
           headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
-      console.log('Pengembalian berhasil ditambahkan:', response.data);
+      console.log("Pengembalian berhasil ditambahkan:", response.data);
       closeModal();
+      Swal.fire({
+        icon: "success",
+        title: "Pengembalian Berhasil",
+        text: "Pengembalian telah berhasil ditambahkan.",
+      });
+      fetchData(); // Panggil fungsi fetchData untuk memperbarui data pengembalian
     } catch (error) {
-      console.error('Gagal menambahkan pengembalian:', error);
+      console.error("Gagal menambahkan pengembalian:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Gagal Menambahkan Pengembalian",
+        text: "Terjadi kesalahan saat menambahkan pengembalian.",
+      });
     }
   };
 
@@ -105,10 +116,8 @@ const AddPengembalian = ({ closeModal }) => {
             className="border rounded px-3 py-2 w-full"
           >
             <option value="">Pilih Status</option>
-            <option value="Menunggu">Menunggu</option>
-            <option value="Dikembalikan">Dikembalikan</option>
-            <option value="Denda Belum Dibayar">Denda Belum Dibayar</option>
-            <option value="Denda Dibayar">Denda Dibayar</option>
+            <option value="Menunggu">Dikembalikan</option>
+            <option value="Dikembalikan">Denda Belum Dibayar</option>
           </select>
           <div className="flex justify-between">
             <button
