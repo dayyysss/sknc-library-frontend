@@ -17,7 +17,7 @@ import TextField from "@mui/material/TextField";
 import Swal from "sweetalert2";
 import { MdOutlineCheckBox } from "react-icons/md";
 import { FaFilePdf } from "react-icons/fa";
-import AddPeminjaman from "./AddPeminjaman";
+import AddPeminjaman from "./AddPengembalian";
 
 const PeminjamanCompo = () => {
   const [books, setBooks] = useState([]);

@@ -17,7 +17,10 @@ import TextField from "@mui/material/TextField";
 import Swal from "sweetalert2";
 import { MdOutlineCheckBox } from "react-icons/md";
 import { FaFilePdf } from "react-icons/fa";
-import AddPeminjaman from "./AddPeminjaman";
+import AddPengembalian from "./AddPengembalian.jsx";
+import { RiDeleteBin5Line } from "react-icons/ri";
+import { RiCheckboxCircleFill } from "react-icons/ri";
+import { FaEdit } from "react-icons/fa";
 
 const PengembalianCompo = () => {
   const [books, setBooks] = useState([]);
@@ -64,56 +67,6 @@ const PengembalianCompo = () => {
     }
   };
 
-  const handleAccept = async (id) => {
-    try {
-      console.log("Accepting borrow with id:", id);
-      const token = getAuthToken();
-      if (!token) {
-        console.error("Token not available. Please login.");
-        return;
-      }
-
-      const response = await axios.put(
-        `http://127.0.0.1:8000/api/borrow/${id}/update-status`,
-        { status: "accepted" },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      fetchData();
-      Swal.fire({
-        title: "Success!",
-        text: "Status peminjaman berhasil diubah menjadi Sukses.",
-        icon: "success",
-      });
-    } catch (error) {
-      console.error("Error updating status peminjaman:", error);
-    }
-  };
-
-  const handleDetail = (borrow) => {
-    // Copy the selectedBorrow object to avoid mutating the original state
-    const updatedBorrow = { ...borrow };
-
-    // Mengambil tanggal deadline dari selectedBorrow
-    const deadline = new Date(updatedBorrow.borrowing_end);
-
-    // Menghitung perbedaan antara tanggal akhir dan tanggal awal
-    const borrowingStart = new Date(updatedBorrow.borrowing_start);
-    const differenceInDays = Math.ceil((deadline - borrowingStart) / (1000 * 60 * 60 * 24));
-
-    // Mengurangi jumlah hari yang diinginkan dari tanggal akhir
-    const newDeadline = new Date(deadline);
-    newDeadline.setDate(deadline.getDate() - differenceInDays);
-
-    // Menyimpan tanggal deadline yang telah diubah kembali ke selectedBorrow
-    updatedBorrow.deadline = newDeadline.toISOString().slice(0, 10);
-
-    setSelectedBorrow(updatedBorrow);
-    setIsDetailModalOpen(true);
-  };
 
   const handleCloseDetailModal = () => {
     setSelectedBorrow(null);
@@ -211,6 +164,77 @@ const PengembalianCompo = () => {
     }
   };
 
+  const handleStatusChange = async (id) => {
+    try {
+      const token = getAuthToken();
+      if (!token) {
+        console.error("Token not available. Please login.");
+        return;
+      }
+
+      const response = await axios.put(
+        `http://127.0.0.1:8000/api/restore/${id}/update-status`,
+        { status: "Dikembalikan" }, // Update status to "Dikembalikan"
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        fetchData(); // Refetch data after status update
+        Swal.fire({
+          title: "Success!",
+          text: "Status berhasil diubah menjadi Dikembalikan.",
+          icon: "success",
+        });
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
+  };
+
+  const handleStatusDenda = async (id, status) => {
+    try {
+      const token = getAuthToken();
+      if (!token) {
+        console.error("Token not available. Please login.");
+        return;
+      }
+  
+      // Periksa apakah status adalah "Denda Belum Dibayar"
+      if (status === "Denda Belum Dibayar") {
+        // Kirim permintaan ke API untuk memperbarui status menjadi "Denda Dibayar"
+        const response = await axios.put(
+          `http://127.0.0.1:8000/api/restore/${id}/update-fine`,
+          { status: "Denda Dibayar" },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+  
+        if (response.data.success) {
+          // Jika berhasil, perbarui data pengembalian
+          fetchData();
+          Swal.fire({
+            title: "Success!",
+            text: "Status berhasil diubah menjadi Denda Dibayar.",
+            icon: "success",
+          });
+        }
+      } else {
+        // Jika status bukan "Denda Belum Dibayar", lakukan hal lain (misalnya, perbarui status lain)
+        // Anda dapat menambahkan logika ini sesuai kebutuhan
+      }
+    } catch (error) {
+      console.error("Error updating status:", error);
+    }
+  };
+  
+
   return (
     <div className="px-[25px] pt-[25px] pb-[370px] bg-[#F8F9FC]">
       <div className="flex items-center justify-between mb-4">
@@ -228,19 +252,19 @@ const PengembalianCompo = () => {
             value={searchQuery}
             onChange={handleSearchChange}
           />
-                    <button
+          <button
             onClick={generatePdf}
             className="bg-blue-500 text-white px-4 py-2 rounded mr-4 ml-4 flex items-center"
           >
             <FaFilePdf className="mr-2" />
             Generate Pengembalian
           </button>
-          {/* <button
+          <button
             onClick={openAddModal}
-            className="bg-blue-500 text-white px-4 py-2 rounded mr-4 ml-4"
+            className="bg-blue-500 text-white px-4 py-2 rounded"
           >
             Tambah Pengembalian
-          </button> */}
+          </button>
         </div>
       </div>
       <TableContainer component={Paper} className="table_list mt-10">
@@ -266,24 +290,39 @@ const PengembalianCompo = () => {
                   <TableCell className="table_cell">{pengembalian.user.name}</TableCell>
                   <TableCell className="table_cell">{pengembalian.book.title}</TableCell>
                   <TableCell className="table_cell">{pengembalian.returndate}</TableCell>
-                  <TableCell className="table_cell">{pengembalian.status}</TableCell>
+                  <TableCell className="table_cell">
+                    <span className={`text-white px-3 rounded-full p-1 ${pengembalian.status === "Menunggu"
+                      ? "bg-yellow-500"
+                      : pengembalian.status === "Dikembalikan"
+                        ? "bg-green-500"
+                        : pengembalian.status === "Denda Belum Dibayar"
+                          ? "bg-red-500"
+                          : pengembalian.status === "Denda Dibayar"
+                            ? "bg-blue-500"
+                            : ""
+                      }`}>
+                      {pengembalian.status}
+                    </span>
+                  </TableCell>
                   <TableCell className="table_cell">{pengembalian.fine}</TableCell>
                   <TableCell className="table_cell">
-                    <div className="flex space-x-2">
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => handleDetailClick(pengembalian.id)}
-                      >
-                        Detail
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        color="error"
-                        onClick={() => handleDelete(pengembalian.id)} // Tambahkan fungsi handleDelete untuk menghapus data
-                      >
-                        Delete
-                      </Button>
+                    <div className="flex items-center">
+                      {pengembalian.status === "Menunggu" && (
+                        <MdOutlineCheckBox
+                          onClick={() => handleStatusChange(pengembalian.id, pengembalian.status)}
+                          className="text-white cursor-pointer text-lg bg-green-500 rounded-full p-1 mr-2 w-7 h-7"
+                        />
+                      )}
+                      {pengembalian.status === "Denda Belum Dibayar" && (
+                        <RiCheckboxCircleFill
+                          onClick={() => handleStatusDenda(pengembalian.id, pengembalian.status)}
+                          className="text-white cursor-pointer text-lg bg-green-500 rounded-full p-1 mr-2 w-7 h-7"
+                        />
+                      )}
+                      <RiDeleteBin5Line
+                        onClick={() => handleDelete(pengembalian.id)}
+                        className="text-white cursor-pointer w-7 h-7 bg-red-500 rounded-full p-1 mr-2"
+                      />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -315,7 +354,7 @@ const PengembalianCompo = () => {
           </TableFooter>
         </Table>
       </TableContainer>
-      {isAddModalOpen && <AddPeminjaman closeModal={closeAddModal} />}
+      {isAddModalOpen && <AddPengembalian closeModal={closeAddModal} />}
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
