@@ -1,6 +1,7 @@
 // ImportExcel.jsx
 import React, { useRef, useEffect, useState } from 'react';
 import axios from "axios";
+import Swal from 'sweetalert2';
 
 const ImportExcel = ({ onClose, refreshData }) => {
   const fileInputRef = useRef();
@@ -15,7 +16,7 @@ const ImportExcel = ({ onClose, refreshData }) => {
 
   const handleSubmit = async () => {
     if (!file) {
-      alert("Please select a file");
+      Swal.fire('Error', 'Please select a file', 'error');
       return;
     }
 
@@ -24,7 +25,7 @@ const ImportExcel = ({ onClose, refreshData }) => {
       !file.name.endsWith(".xls") &&
       !file.name.endsWith(".csv")
     ) {
-      alert("File must be in Excel format (XLSX or XLS) or CSV format");
+      Swal.fire('Error', 'File must be in Excel format (XLSX or XLS) or CSV format', 'error');
       return;
     }
 
@@ -34,7 +35,7 @@ const ImportExcel = ({ onClose, refreshData }) => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {
-        alert("Token not found. Please log in.");
+        Swal.fire('Error', 'Token not found. Please log in.', 'error');
         return;
       }
 
@@ -50,21 +51,21 @@ const ImportExcel = ({ onClose, refreshData }) => {
       );
 
       if (response.status === 200) {
-        alert("Import successful");
+        Swal.fire('Success', 'Data pengguna berhasil diimport!', 'success');
         refreshData(); // Refresh data after successful import
         onClose(); // Close the modal after successful import
       } else {
-        alert("Import failed. Please try again.");
+        Swal.fire('Error', 'Import failed. Please try again.', 'error');
       }
     } catch (error) {
       if (error.response) {
-        alert(`Import failed: ${error.response.data.message}`);
+        Swal.fire('Error', `Import failed: ${error.response.data.message}`, 'error');
         console.error("Response error:", error.response);
       } else if (error.request) {
-        alert("No response from server. Please try again.");
+        Swal.fire('Error', 'No response from server. Please try again.', 'error');
         console.error("Request error:", error.request);
       } else {
-        alert(`Error: ${error.message}`);
+        Swal.fire('Error', `Error: ${error.message}`, 'error');
         console.error("Error:", error.message);
       }
     }

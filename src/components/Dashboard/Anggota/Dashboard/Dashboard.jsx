@@ -25,10 +25,10 @@ const Dashboard = () => {
         </h1> {/* Menampilkan nama pengguna */}
       </div>
       <div className='grid grid-cols-4 gap-[30px] mt-[25px] pb-[15px]'>
-        <DashboardCard color="#4E73DF" count="5" title="LIHAT PEMINJAMAN" />
+        {/* <DashboardCard color="#4E73DF" count="5" title="LIHAT PEMINJAMAN" />
         <DashboardCard color="#1CC88A" count="20" title="LIHAT PENGEMBALIAN" />
         <DashboardCard color="#36B9CC" count="5" title="LIHAT RIWAYAT" />
-        <DashboardCard color="#F6C23E" count="400" title="LIHAT DENDA" />
+        <DashboardCard color="#F6C23E" count="400" title="LIHAT DENDA" /> */}
       </div>
     </div>
   );

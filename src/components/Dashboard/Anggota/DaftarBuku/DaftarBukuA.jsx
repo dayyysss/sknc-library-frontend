@@ -3,6 +3,8 @@ import { Menu, Transition } from "@headlessui/react";
 import { IoIosArrowDropdown } from "react-icons/io";
 import axios from "axios";
 import swal from 'sweetalert2';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 import CardActions from "@mui/material/CardActions";
 import CardContent from "@mui/material/CardContent";
@@ -24,11 +26,12 @@ function DaftarBukuA() {
   const [page, setPage] = useState(1);
   const [selectedBook, setSelectedBook] = useState(null);
   const [borrowedBooks, setBorrowedBooks] = useState([]); // State untuk menyimpan daftar buku yang sudah dipinjam oleh user
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
   const { Meta } = Card;
 
   useEffect(() => {
     fetchData();
-    fetchBorrowedBooks(); // Panggil fungsi untuk mengambil daftar buku yang sudah dipinjam oleh user
   }, [page]);
 
   const fetchData = async () => {
@@ -43,22 +46,6 @@ function DaftarBukuA() {
         setBooks(data);
         setTotalPages(last_page);
         setTotalBooks(total);
-      }
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const fetchBorrowedBooks = async () => {
-    try {
-      const user_id = getUserId();
-      const response = await axios.get(`http://127.0.0.1:8000/api/borrow/${user_id}/list`, {
-        headers: {
-          Authorization: `Bearer ${getAuthToken()}`,
-        },
-      });
-      if (response.data.success) {
-        setBorrowedBooks(response.data.data);
       }
     } catch (error) {
       console.error(error);
@@ -104,63 +91,40 @@ function DaftarBukuA() {
   };
 
   const handlePinjamBuku = async () => {
-    if (borrowedBooks.some(book => book.id === selectedBook.id)) {
-      await swal.fire({
-        icon: 'error',
-        title: 'Gagal Meminjam Buku',
-        text: 'Anda sudah meminjam buku ini.',
-      });
+    const token = localStorage.getItem("token");
+    const userId = localStorage.getItem("user_id");
+    if (!token || !userId) {
+      swal.fire("Error", "User not authenticated", "error");
       return;
     }
 
     try {
-      await axios.post(
-        'http://127.0.0.1:8000/api/borrow/create',
+      const response = await axios.post(
+        "http://127.0.0.1:8000/api/borrow/create",
         {
-          user_id: getUserId(),
+          borrowing_start: startDate.toISOString().split("T")[0],
+          borrowing_end: endDate.toISOString().split("T")[0],
           book_id: selectedBook.id,
         },
         {
           headers: {
-            Authorization: `Bearer ${getAuthToken()}`,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
-      setBooks(prevBooks => 
-        prevBooks.map(book => 
-          book.id === selectedBook.id ? { ...book, stock_amount: book.stock_amount - 1 } : book
-        )
-      );
-
-      setSelectedBook(prevBook => ({ ...prevBook, stock_amount: prevBook.stock_amount - 1 }));
-
-      setBorrowedBooks(prevBorrowedBooks => [...prevBorrowedBooks, selectedBook]);
-
-      await swal.fire({
-        icon: 'success',
-        title: 'Buku Sedang Di Proses!',
-        text: 'Terima kasih! Tunggu DiTerima Ya.',
-      });
-
-      closeModal();
+      if (response.data.success) {
+        swal.fire("Success", response.data.message, "success");
+        setModalOpen(false);
+      } else {
+        swal.fire("Error", response.data.message, "error");
+      }
     } catch (error) {
       console.error(error);
-      if (error.response && error.response.status === 422) {
-        await swal.fire({
-          icon: 'error',
-          title: 'Gagal Meminjam Buku',
-          text: 'Maaf, buku tidak tersedia untuk dipinjam saat ini.',
-        });
-      } else {
-        await swal.fire({
-          icon: 'error',
-          title: 'Gagal Meminjam Buku',
-          text: 'Terjadi kesalahan saat meminjam buku. Silakan coba lagi nanti.',
-        });
-      }
+      const errorMessage = error.response?.data?.error || "An error occurred while borrowing the book";
+      swal.fire("Error", errorMessage, "error");
     }
-  };  
+  };
 
   const booksTop = books.slice(0, 4);
   const booksBottom = books.slice(4);
@@ -377,9 +341,29 @@ function DaftarBukuA() {
               <p className="text-left" style={{ color: selectedBook.stock_amount === 0 ? "red" : "#4CAF50" }}>
                 Status: {selectedBook.stock_amount === 0 ? "Tidak Tersedia" : "Tersedia"}
               </p>
-              <div className="mt-5 flex items-center">
-                <button className="bg-green-500 text-white px-4 py-2 mr-2" onClick={handlePinjamBuku}>Pinjam</button>
-                <button className="bg-gray-500 text-white px-4 py-2" onClick={handleCloseModal}>Tutup</button>
+              <div className="mt-5">
+                <div className="mb-4">
+                  <label className="block mb-2">Tanggal Peminjaman Awal</label>
+                  <DatePicker
+                    selected={startDate}
+                    onChange={(date) => setStartDate(date)}
+                    dateFormat="yyyy/MM/dd"
+                    className="w-full px-3 py-2 border rounded-md"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label className="block mb-2">Tanggal Peminjaman Akhir</label>
+                  <DatePicker
+                    selected={endDate}
+                    onChange={(date) => setEndDate(date)}
+                    dateFormat="yyyy/MM/dd"
+                    className="w-full px-3 py-2 border rounded-md"
+                  />
+                </div>
+                <div className="flex items-center">
+                  <button className="bg-green-500 text-white px-4 py-2 mr-2" onClick={handlePinjamBuku}>Pinjam</button>
+                  <button className="bg-gray-500 text-white px-4 py-2" onClick={handleCloseModal}>Tutup</button>
+                </div>
               </div>
             </div>
           </div>
